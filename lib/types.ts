@@ -68,7 +68,7 @@ export interface ContactWithStats extends Contact {
 // ============================================
 // Opportunities
 // ============================================
-export type OpportunitySource = 'upwork' | 'linkedin' | 'direct' | 'referral' | 'other';
+export type OpportunitySource = 'upwork' | 'linkedin' | 'direct' | 'referral' | 'email' | 'other';
 export type OpportunityStage = 'inbox' | 'drafting' | 'sent' | 'negotiation' | 'won' | 'lost';
 export type Priority = 'low' | 'medium' | 'high';
 
@@ -84,6 +84,8 @@ export interface Opportunity extends Timestamps {
   value: number | null;
   job_link: string | null;
   notes: string | null;
+  client_name: string | null;
+  budget_type: 'fixed' | 'hourly' | 'tbd' | null;
 }
 
 export interface OpportunityWithContact extends Opportunity {

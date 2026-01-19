@@ -25,13 +25,14 @@ export default function Sidebar({ user }: SidebarProps) {
             section: null,
             items: [
                 { name: 'Dashboard', path: '/dashboard', icon: 'ph-squares-four' },
+                { name: 'Analytics', path: '/analytics', icon: 'ph-chart-pie-slice' },
             ]
         },
         {
             section: 'Growth & Sales',
             items: [
                 { name: 'Opportunities', path: '/opportunities', icon: 'ph-rocket-launch' },
-                { name: 'Proposal Generator', path: '/proposal', icon: 'ph-magic-wand' },
+                { name: 'Proposal Generator', path: '/proposal/create', icon: 'ph-magic-wand' },
             ]
         },
         {
@@ -40,6 +41,7 @@ export default function Sidebar({ user }: SidebarProps) {
                 { name: 'Contacts', path: '/contacts', icon: 'ph-users' },
                 { name: 'Quotations', path: '/quotations', icon: 'ph-file-text' },
                 { name: 'Invoices', path: '/invoices', icon: 'ph-receipt' },
+                { name: 'Reminders', path: '/reminders', icon: 'ph-bell-ringing' },
             ]
         },
         {
