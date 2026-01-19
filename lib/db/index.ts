@@ -341,7 +341,7 @@ export async function getDocumentByToken(token: string): Promise<DocumentWithIte
 
   const { data, error } = await supabase
     .from('documents')
-    .select('*, contact:contacts(*), items:document_items(*)')
+    .select('*, contact:contacts(*), items:document_items(*), workspace:workspaces(*)')
     .eq('public_token', token)
     .single();
 
@@ -391,6 +391,7 @@ export async function createDocument(
     notes?: string;
     valid_until?: string;
     due_date?: string;
+    reference?: string;
     items: Omit<DocumentItem, 'id' | 'document_id'>[];
   }
 ): Promise<DocumentWithItems> {
@@ -455,6 +456,8 @@ export async function updateDocument(
     notes?: string;
     valid_until?: string;
     due_date?: string;
+    status?: string;
+    reference?: string;
     items?: Omit<DocumentItem, 'id' | 'document_id'>[];
   }
 ): Promise<DocumentWithItems> {

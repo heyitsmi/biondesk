@@ -122,6 +122,7 @@ export interface Document extends Timestamps {
   accepted_at: string | null;
   paid_at: string | null;
   signature: string | null;
+  reference: string | null;
 }
 
 export interface DocumentItem {
@@ -137,6 +138,7 @@ export interface DocumentItem {
 export interface DocumentWithItems extends Document {
   items: DocumentItem[];
   contact?: Contact | null;
+  workspace?: Workspace | null;
 }
 
 // ============================================

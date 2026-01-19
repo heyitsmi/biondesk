@@ -197,11 +197,20 @@ export default function PublicQuotePage({ params }: { params: Promise<{ id: stri
             <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
                     {/* Freelancer Brand */}
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
-                            <i className="ph-bold ph-lightning text-lg"></i>
-                        </div>
-                        <span className="text-lg font-[650] tracking-tight">Flova Studio</span>
+                    {/* Brand Logo & Name */}
+                    <div className="flex items-center gap-3">
+                        {quote.workspace?.logo_url ? (
+                            <img 
+                                src={quote.workspace.logo_url} 
+                                alt={quote.workspace.name} 
+                                className="w-8 h-8 rounded-lg object-contain bg-white"
+                            />
+                        ) : (
+                            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
+                                <i className="ph-bold ph-lightning text-lg"></i>
+                            </div>
+                        )}
+                        <span className="text-lg font-[650] tracking-tight">{quote.workspace?.name || 'Flova Studio'}</span>
                     </div>
 
                     {/* Trust Badge */}
@@ -252,11 +261,9 @@ export default function PublicQuotePage({ params }: { params: Promise<{ id: stri
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-12 pb-8 border-b border-slate-100">
                             <div>
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Prepared By</p>
-                                <h3 className="font-bold text-slate-900">Flova Studio</h3>
-                                <p className="text-sm text-slate-600 leading-relaxed">
-                                    123 Creative Studio, Tech City<br/>
-                                    Jakarta, Indonesia 12345<br/>
-                                    hello@flova.app
+                                <h3 className="font-bold text-slate-900">{quote.workspace?.name || 'Flova Studio'}</h3>
+                                <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+                                    {quote.workspace?.address || 'Address not available'}
                                 </p>
                             </div>
                             <div className="sm:text-right">

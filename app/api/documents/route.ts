@@ -84,6 +84,7 @@ export async function POST(request: NextRequest) {
       notes: body.notes,
       valid_until: body.valid_until,
       due_date: body.due_date,
+      reference: body.reference,
       items: items.map((item: { description: string; quantity: number; unit_price: number }) => ({
         description: item.description,
         quantity: item.quantity || 1,

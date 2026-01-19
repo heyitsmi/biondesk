@@ -75,6 +75,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       notes: body.notes,
       valid_until: body.valid_until,
       due_date: body.due_date,
+      status: body.status,
+      reference: body.reference,
       items,
     });
 
@@ -82,7 +84,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   } catch (error) {
     console.error('Error updating document:', error);
     return NextResponse.json(
-      { error: 'Failed to update document' },
+      { error: `Failed to update document: ${(error as Error).message}` },
       { status: 500 }
     );
   }

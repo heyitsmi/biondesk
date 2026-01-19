@@ -147,6 +147,7 @@ export const documentsApi = {
     notes?: string;
     valid_until?: string;
     due_date?: string;
+    reference?: string;
     items?: { description: string; quantity: number; unit_price: number }[];
   }) =>
     fetchApi<DocumentWithItems>('/documents', {
@@ -154,7 +155,7 @@ export const documentsApi = {
       body: JSON.stringify(data),
     }),
 
-  update: (id: string, data: Partial<DocumentWithItems> & { items?: { description: string; quantity: number; unit_price: number }[] }) =>
+  update: (id: string, data: Omit<Partial<DocumentWithItems>, 'items'> & { items?: { description: string; quantity: number; unit_price: number }[] }) =>
     fetchApi<DocumentWithItems>(`/documents/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),

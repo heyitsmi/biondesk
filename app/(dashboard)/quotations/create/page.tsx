@@ -6,21 +6,26 @@ import Link from 'next/link';
 import { quotesApi, contactsApi } from '@/lib/api';
 import { Contact, DocumentItem } from '@/lib/types';
 
+interface QuoteItem {
+    id: string; // temp id for key
+    description: string; // Title
+    notes: string; // Long description
+    quantity: number;
+    unit_price: number;
+}
+
 interface QuoteFormData {
     client_id: string;
+    title: string;
     reference: string;
-    status: string;
+    // status removed, default to draft
     issue_date: string;
     valid_until: string;
-    items: {
-        id: string; // temp id for key
-        description: string; // Title
-        notes: string; // Long description
-        quantity: number;
-        unit_price: number;
-    }[];
+    items: QuoteItem[];
     notes: string;
     description: string;
+    items_amount?: number; // derived
+    amount: number; // total
     discount_percentage: number;
     tax_percentage: number;
     deposit_percentage: number;
@@ -35,8 +40,8 @@ export default function CreateQuotePage() {
     // Form State
     const [formData, setFormData] = useState<QuoteFormData>({
         client_id: '',
-        reference: '', // Acts as Title
-        status: 'draft',
+        title: '',
+        reference: '',
         issue_date: new Date().toISOString().split('T')[0],
         valid_until: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // +14 days
         items: [
@@ -48,6 +53,7 @@ export default function CreateQuotePage() {
         tax_percentage: 0,
         deposit_percentage: 50,
         is_deposit_required: false,
+        amount: 0,
     });
 
     // Client Modal State
@@ -135,18 +141,18 @@ export default function CreateQuotePage() {
             return;
         }
 
-        const finalStatus = saveAsStatus || formData.status;
+        const finalStatus = saveAsStatus || 'draft';
 
         setIsLoading(true);
         try {
             await quotesApi.create({
                 contact_id: formData.client_id,
-                title: formData.reference || 'Untitled Quote', 
+                title: formData.title || 'Untitled Quote', 
                 content: formData.description, // Description/Scope
                 status: finalStatus as any,
                 valid_until: formData.valid_until,
+                reference: formData.reference,
                 amount: total,
-                matches_template: false,
                 items: formData.items.map(item => ({
                     description: item.description + (item.notes ? `\n${item.notes}` : ''),
                     quantity: item.quantity,
@@ -275,20 +281,14 @@ export default function CreateQuotePage() {
                                     </div>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-sm font-[600] text-slate-700">Status</label>
-                                    <div className="relative">
-                                         <select 
-                                            value={formData.status}
-                                            onChange={(e) => setFormData({...formData, status: e.target.value})}
-                                            className="w-full pl-3 pr-8 py-2.5 bg-white border border-slate-200 rounded-lg text-sm font-[450] text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all appearance-none cursor-pointer"
-                                        >
-                                            <option value="draft">Draft</option>
-                                            <option value="sent">Sent</option>
-                                            <option value="accepted">Accepted</option>
-                                            <option value="overdue">Overdue</option>
-                                        </select>
-                                        <i className="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
-                                    </div>
+                                    <label className="text-sm font-[600] text-slate-700">Reference (Opt)</label>
+                                    <input 
+                                        type="text" 
+                                        placeholder="e.g. Project Alpha"
+                                        value={formData.reference || ''}
+                                        onChange={(e) => setFormData({...formData, reference: e.target.value})}
+                                        className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm font-[450] text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                                    />
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-[600] text-slate-700">Issue Date</label>
@@ -313,13 +313,13 @@ export default function CreateQuotePage() {
 
                         {/* Full Width Fields */}
                         <div className="space-y-6 pt-2">
-                             <div className="space-y-1.5">
+                            <div className="space-y-1.5">
                                 <label className="text-sm font-[600] text-slate-700">Project Title</label>
                                 <input 
                                     type="text" 
                                     placeholder="e.g. Website Redesign Phase 2"
-                                    value={formData.reference}
-                                    onChange={(e) => setFormData({...formData, reference: e.target.value})}
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({...formData, title: e.target.value})}
                                     className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm font-[450] text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                                 />
                             </div>
