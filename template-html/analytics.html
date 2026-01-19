@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics | Dealis Workspace</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Sans Flex -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Google Sans Flex"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        indigo: { 50: '#eef2ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' },
+                        slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 800: '#1e293b', 900: '#0f172a' },
+                    },
+                    boxShadow: {
+                        'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
+                        'dropdown': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.2s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Modern Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .transition-smooth { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Progress Bar Animation */
+        .progress-bar { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); width: 0; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased h-screen flex overflow-hidden">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside id="sidebar" class="w-[260px] bg-white border-r border-slate-200 flex flex-col shrink-0 z-30 transition-all duration-300 relative">
+        <div id="sidebarHeader" class="h-16 flex items-center justify-between px-6 border-b border-slate-100 transition-all duration-300">
+            <div class="flex items-center gap-2 text-slate-900 overflow-hidden whitespace-nowrap">
+                <div class="w-8 h-8 shrink-0 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-sm shadow-indigo-200">
+                    <i class="ph-bold ph-lightning text-lg"></i>
+                </div>
+                <span class="text-lg font-[650] tracking-tight sidebar-text transition-opacity duration-200">Dealis.</span>
+            </div>
+            <button id="sidebarToggle" class="text-slate-400 hover:text-indigo-600 transition-colors p-1 rounded-md hover:bg-slate-50 shrink-0">
+                <i class="ph-bold ph-caret-double-left text-lg"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-8 no-scrollbar">
+            <!-- Workspace -->
+            <div class="space-y-1">
+                <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth whitespace-nowrap overflow-hidden group relative">
+                    <i class="ph ph-squares-four text-xl shrink-0"></i>
+                    <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Dashboard</span>
+                    <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Dashboard</div>
+                </a>
+                <!-- ACTIVE STATE: Analytics -->
+                <a href="analytics.html" class="flex items-center gap-3 px-3 py-2.5 text-sm font-[500] text-indigo-700 bg-indigo-50/80 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                    <i class="ph ph-chart-pie-slice text-xl shrink-0"></i>
+                    <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Analytics</span>
+                    <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Analytics</div>
+                </a>
+            </div>
+
+            <!-- Growth (Lane A) -->
+            <div>
+                <div class="px-3 mb-2 text-[11px] font-[600] text-slate-400 uppercase tracking-wider sidebar-text whitespace-nowrap overflow-hidden transition-opacity duration-200">Growth & Sales</div>
+                <div class="space-y-1">
+                    <a href="opportunities.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-rocket-launch text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Opportunities</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Opportunities</div>
+                    </a>
+                    <a href="proposal-generator.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-magic-wand text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Proposal Generator</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Proposal Generator</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Operations (Lane B) -->
+            <div>
+                <div class="px-3 mb-2 text-[11px] font-[600] text-slate-400 uppercase tracking-wider sidebar-text whitespace-nowrap overflow-hidden transition-opacity duration-200">Operations</div>
+                <div class="space-y-1">
+                    <a href="contacts.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-users text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Contacts</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Contacts</div>
+                    </a>
+                    <a href="quotations.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-file-text text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Quotations</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Quotations</div>
+                    </a>
+                    <a href="invoices.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-receipt text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Invoices</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Invoices</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Assets -->
+            <div>
+                <div class="px-3 mb-2 text-[11px] font-[600] text-slate-400 uppercase tracking-wider sidebar-text whitespace-nowrap overflow-hidden transition-opacity duration-200">Assets</div>
+                <div class="space-y-1">
+                    <a href="templates.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-stack text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Templates</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Templates</div>
+                    </a>
+                    <a href="profile-library.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-user-circle text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Profile Library</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Profile Library</div>
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- User Profile (Consistent) -->
+        <div class="p-4 border-t border-slate-100 relative">
+            <div id="userMenuDropdown" class="hidden absolute bottom-20 left-4 w-60 bg-white border border-slate-200 rounded-xl shadow-dropdown z-50 p-1 animate-fade-in-up origin-bottom-left">
+                <div class="px-3 py-2 border-b border-slate-100 mb-1">
+                    <p class="text-sm font-[600] text-slate-900">Alex Designer</p>
+                    <p class="text-xs text-slate-500">alex@designstudio.com</p>
+                </div>
+                <a href="#" class="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
+                    <i class="ph ph-gear"></i> Settings
+                </a>
+                <div class="h-px bg-slate-100 my-1"></div>
+                <a href="#" class="flex items-center gap-2 px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                    <i class="ph ph-sign-out"></i> Sign out
+                </a>
+            </div>
+            <button id="userMenuBtn" class="flex items-center gap-3 w-full p-2 hover:bg-slate-50 rounded-lg transition-smooth text-left group overflow-hidden">
+                <div class="w-9 h-9 shrink-0 rounded-full bg-slate-200 border border-slate-300 overflow-hidden relative">
+                    <img src="https://ui-avatars.com/api/?name=Alex+Designer&background=0f172a&color=fff" alt="User" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1 min-w-0 sidebar-text transition-opacity duration-200">
+                    <p class="text-sm font-[600] text-slate-900 truncate">Alex Designer</p>
+                    <p class="text-xs font-[450] text-slate-500 truncate">Pro Plan</p>
+                </div>
+                <i class="ph ph-caret-up text-slate-400 sidebar-text"></i>
+            </button>
+        </div>
+    </aside>
+
+
+    <!-- MAIN CONTENT: Analytics -->
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-slate-50/50 transition-all duration-300 ease-in-out">
+        
+        <!-- Header -->
+        <header class="h-16 px-8 flex items-center justify-between bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20 shrink-0">
+            <h1 class="text-xl font-[600] text-slate-900 tracking-tight">Performance Analytics</h1>
+            <div class="flex items-center gap-3">
+                <select class="px-3 py-1.5 text-xs font-[500] text-slate-600 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500 hover:bg-slate-50 cursor-pointer">
+                    <option>Last 30 Days</option>
+                    <option>Last 3 Months</option>
+                    <option>This Year</option>
+                </select>
+                <button class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100 transition-colors">
+                    <i class="ph-bold ph-download-simple text-lg"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Analytics Content -->
+        <div class="flex-1 overflow-y-auto p-8 scroller-thin">
+            <div class="max-w-6xl mx-auto space-y-8">
+
+                <!-- 1. Key Metrics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <!-- Quote Win Rate -->
+                    <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-xs font-[600] text-slate-400 uppercase tracking-wide">Quote Win Rate</p>
+                                <span class="bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded text-[10px] font-bold">+5%</span>
+                            </div>
+                            <h2 class="text-3xl font-[700] text-slate-900">65%</h2>
+                        </div>
+                        <div class="mt-4">
+                             <div class="w-full bg-slate-100 rounded-full h-2">
+                                <div class="bg-indigo-500 h-2 rounded-full progress-bar" style="width: 65%"></div>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-2">13 accepted out of 20 sent</p>
+                        </div>
+                    </div>
+
+                    <!-- Invoice Paid Ratio -->
+                    <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-xs font-[600] text-slate-400 uppercase tracking-wide">Paid Ratio</p>
+                                <i class="ph-fill ph-check-circle text-emerald-400 text-xl"></i>
+                            </div>
+                            <h2 class="text-3xl font-[700] text-slate-900">82%</h2>
+                        </div>
+                        <div class="mt-4">
+                             <div class="w-full bg-slate-100 rounded-full h-2">
+                                <div class="bg-emerald-500 h-2 rounded-full progress-bar" style="width: 82%"></div>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-2">18 paid out of 22 invoices</p>
+                        </div>
+                    </div>
+
+                    <!-- Avg Time to Payment -->
+                    <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
+                         <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-xs font-[600] text-slate-400 uppercase tracking-wide">Avg. Time to Pay</p>
+                                <i class="ph-fill ph-clock text-amber-400 text-xl"></i>
+                            </div>
+                            <h2 class="text-3xl font-[700] text-slate-900">4 Days</h2>
+                        </div>
+                         <div class="mt-auto pt-4">
+                            <p class="text-xs text-slate-500">Faster than industry avg (14 days)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Detailed Breakdown Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    
+                    <!-- Quotes Breakdown -->
+                    <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-sm font-[600] text-slate-900">Quotes Pipeline</h3>
+                            <button class="text-xs text-indigo-600 font-medium hover:underline">View All</button>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <!-- Sent -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="font-medium text-slate-600">Sent</span>
+                                    <span class="text-slate-500">20 ($45k)</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2.5">
+                                    <div class="bg-indigo-400 h-2.5 rounded-full progress-bar" style="width: 100%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Viewed -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="font-medium text-slate-600">Viewed</span>
+                                    <span class="text-slate-500">18 ($40k)</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2.5">
+                                    <div class="bg-indigo-500 h-2.5 rounded-full progress-bar" style="width: 90%"></div>
+                                </div>
+                            </div>
+
+                             <!-- Accepted -->
+                             <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="font-medium text-slate-600">Accepted</span>
+                                    <span class="text-slate-500">13 ($28k)</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2.5">
+                                    <div class="bg-emerald-500 h-2.5 rounded-full progress-bar" style="width: 65%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Invoices Breakdown -->
+                    <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-sm font-[600] text-slate-900">Invoice Status</h3>
+                             <button class="text-xs text-indigo-600 font-medium hover:underline">View All</button>
+                        </div>
+
+                         <div class="space-y-4">
+                            <!-- Paid -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="font-medium text-slate-600">Paid</span>
+                                    <span class="text-slate-500">18 ($32k)</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2.5">
+                                    <div class="bg-emerald-500 h-2.5 rounded-full progress-bar" style="width: 82%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Outstanding -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="font-medium text-slate-600">Outstanding (Sent)</span>
+                                    <span class="text-slate-500">3 ($5k)</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2.5">
+                                    <div class="bg-indigo-400 h-2.5 rounded-full progress-bar" style="width: 14%"></div>
+                                </div>
+                            </div>
+
+                             <!-- Overdue -->
+                             <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="font-medium text-slate-600">Overdue</span>
+                                    <span class="text-slate-500">1 ($1.5k)</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2.5">
+                                    <div class="bg-rose-500 h-2.5 rounded-full progress-bar" style="width: 4%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 3. Top Services -->
+                <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                    <h3 class="text-sm font-[600] text-slate-900 mb-6">Top Performing Services</h3>
+                    
+                    <div class="space-y-5">
+                        <!-- Service 1 -->
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                                <i class="ph-bold ph-globe text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <span class="text-sm font-[600] text-slate-900">Website Design</span>
+                                    <span class="text-sm font-[600] text-slate-900">$15,400</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-indigo-600 h-2 rounded-full progress-bar" style="width: 75%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Service 2 -->
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                                <i class="ph-bold ph-device-mobile text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <span class="text-sm font-[600] text-slate-900">Mobile App UI</span>
+                                    <span class="text-sm font-[600] text-slate-900">$8,200</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-purple-500 h-2 rounded-full progress-bar" style="width: 45%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Service 3 -->
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                                <i class="ph-bold ph-pencil-circle text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <span class="text-sm font-[600] text-slate-900">Logo & Branding</span>
+                                    <span class="text-sm font-[600] text-slate-900">$4,500</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-emerald-500 h-2 rounded-full progress-bar" style="width: 25%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Interactions Script -->
+    <script>
+        // Sidebar Toggle
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        let isCollapsed = false;
+
+        sidebarToggle.addEventListener('click', () => {
+            isCollapsed = !isCollapsed;
+            if (isCollapsed) {
+                sidebar.classList.replace('w-[260px]', 'w-[80px]');
+                sidebarToggle.querySelector('i').classList.replace('ph-caret-double-left', 'ph-caret-double-right');
+                // Hide text logic would be here
+            } else {
+                sidebar.classList.replace('w-[80px]', 'w-[260px]');
+                sidebarToggle.querySelector('i').classList.replace('ph-caret-double-right', 'ph-caret-double-left');
+            }
+        });
+
+        // Simple Animation Trigger on Load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Re-trigger progress widths to animate
+            const bars = document.querySelectorAll('.progress-bar');
+            bars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotations | Dealis Workspace</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Sans Flex -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Google Sans Flex"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        indigo: { 50: '#eef2ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' },
+                        slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 800: '#1e293b', 900: '#0f172a' },
+                    },
+                    boxShadow: {
+                        'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
+                        'dropdown': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.2s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Modern Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .transition-smooth { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased h-screen flex overflow-hidden">
+
+    <!-- GLOBAL ACTION MENU DROPDOWN (Dynamic Positioning) -->
+    <div id="actionMenu" class="hidden fixed bg-white border border-slate-200 rounded-xl shadow-dropdown z-40 w-48 overflow-hidden py-1 animate-fade-in-up transform origin-top-right">
+        <button class="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors">
+            <i class="ph ph-pencil-simple"></i> Edit Quote
+        </button>
+        <button class="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors">
+            <i class="ph ph-paper-plane-tilt"></i> Send Email
+        </button>
+        <button class="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-indigo-600 transition-colors">
+            <i class="ph ph-download-simple"></i> Download PDF
+        </button>
+        <div class="h-px bg-slate-100 my-1"></div>
+        <button class="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-emerald-600 hover:bg-emerald-50 transition-colors">
+            <i class="ph ph-receipt"></i> Convert to Invoice
+        </button>
+        <button class="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors">
+            <i class="ph ph-trash"></i> Delete
+        </button>
+    </div>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside id="sidebar" class="w-[260px] bg-white border-r border-slate-200 flex flex-col shrink-0 z-30 transition-all duration-300 relative">
+        <div id="sidebarHeader" class="h-16 flex items-center justify-between px-6 border-b border-slate-100 transition-all duration-300">
+            <div class="flex items-center gap-2 text-slate-900 overflow-hidden whitespace-nowrap">
+                <div class="w-8 h-8 shrink-0 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-sm shadow-indigo-200">
+                    <i class="ph-bold ph-lightning text-lg"></i>
+                </div>
+                <span class="text-lg font-[650] tracking-tight sidebar-text transition-opacity duration-200">Dealis.</span>
+            </div>
+            <button id="sidebarToggle" class="text-slate-400 hover:text-indigo-600 transition-colors p-1 rounded-md hover:bg-slate-50 shrink-0">
+                <i class="ph-bold ph-caret-double-left text-lg"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-8 no-scrollbar">
+            <!-- Workspace -->
+            <div class="space-y-1">
+                <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth whitespace-nowrap overflow-hidden group relative">
+                    <i class="ph ph-squares-four text-xl shrink-0"></i>
+                    <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Dashboard</span>
+                    <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Dashboard</div>
+                </a>
+            </div>
+
+            <!-- Growth (Lane A) -->
+            <div>
+                <div class="px-3 mb-2 text-[11px] font-[600] text-slate-400 uppercase tracking-wider sidebar-text whitespace-nowrap overflow-hidden transition-opacity duration-200">Growth & Sales</div>
+                <div class="space-y-1">
+                    <a href="opportunities.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-rocket-launch text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Opportunities</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Opportunities</div>
+                    </a>
+                    <a href="proposal-generator.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-magic-wand text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Proposal Generator</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Proposal Generator</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Operations (Lane B) -->
+            <div>
+                <div class="px-3 mb-2 text-[11px] font-[600] text-slate-400 uppercase tracking-wider sidebar-text whitespace-nowrap overflow-hidden transition-opacity duration-200">Operations</div>
+                <div class="space-y-1">
+                    <a href="contacts.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-users text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Contacts</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Contacts</div>
+                    </a>
+                    <!-- ACTIVE STATE: Quotations -->
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-sm font-[500] text-indigo-700 bg-indigo-50/80 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-file-text text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Quotations</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Quotations</div>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-receipt text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Invoices</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Invoices</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Assets -->
+            <div>
+                <div class="px-3 mb-2 text-[11px] font-[600] text-slate-400 uppercase tracking-wider sidebar-text whitespace-nowrap overflow-hidden transition-opacity duration-200">Assets</div>
+                <div class="space-y-1">
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-stack text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Templates</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Templates</div>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-user-circle text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Profile Library</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Profile Library</div>
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- User Profile (Consistent) -->
+        <div class="p-4 border-t border-slate-100 relative">
+            <div id="userMenuDropdown" class="hidden absolute bottom-20 left-4 w-60 bg-white border border-slate-200 rounded-xl shadow-dropdown z-50 p-1 animate-fade-in-up origin-bottom-left">
+                <div class="px-3 py-2 border-b border-slate-100 mb-1">
+                    <p class="text-sm font-[600] text-slate-900">Alex Designer</p>
+                    <p class="text-xs text-slate-500">alex@designstudio.com</p>
+                </div>
+                <a href="#" class="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
+                    <i class="ph ph-gear"></i> Settings
+                </a>
+                <div class="h-px bg-slate-100 my-1"></div>
+                <a href="#" class="flex items-center gap-2 px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                    <i class="ph ph-sign-out"></i> Sign out
+                </a>
+            </div>
+            <button id="userMenuBtn" class="flex items-center gap-3 w-full p-2 hover:bg-slate-50 rounded-lg transition-smooth text-left group overflow-hidden">
+                <div class="w-9 h-9 shrink-0 rounded-full bg-slate-200 border border-slate-300 overflow-hidden relative">
+                    <img src="https://ui-avatars.com/api/?name=Alex+Designer&background=0f172a&color=fff" alt="User" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1 min-w-0 sidebar-text transition-opacity duration-200">
+                    <p class="text-sm font-[600] text-slate-900 truncate">Alex Designer</p>
+                    <p class="text-xs font-[450] text-slate-500 truncate">Pro Plan</p>
+                </div>
+                <i class="ph ph-caret-up text-slate-400 sidebar-text"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT: Quotations Table -->
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-white transition-all duration-300 ease-in-out">
+        
+        <!-- Header with Search & Filters -->
+        <header class="h-16 px-8 flex items-center justify-between bg-white border-b border-slate-200 sticky top-0 z-20 shrink-0">
+            <div class="flex items-center gap-4">
+                <h1 class="text-xl font-[600] text-slate-900 tracking-tight">Quotations</h1>
+                <div class="h-6 w-px bg-slate-200"></div>
+                <!-- Filters -->
+                <div class="flex items-center gap-1 text-sm font-[500] text-slate-500">
+                    <button class="filter-btn active px-3 py-1.5 rounded-lg bg-slate-100 text-slate-900 hover:bg-slate-200 transition-colors" data-filter="all">All</button>
+                    <button class="filter-btn px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors" data-filter="draft">Drafts</button>
+                    <button class="filter-btn px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors" data-filter="sent">Sent</button>
+                    <button class="filter-btn px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors" data-filter="accepted">Accepted</button>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="relative hidden md:block">
+                    <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" placeholder="Search quotes..." class="pl-9 pr-4 py-2 w-64 bg-slate-50 border border-slate-200 rounded-lg text-sm font-[450] focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400">
+                </div>
+                <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-smooth">
+                    <i class="ph-bold ph-plus"></i>
+                    <span>Create Quote</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Table Container -->
+        <div class="flex-1 overflow-y-auto p-8">
+            <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm bg-white h-full flex flex-col">
+                <div class="flex-1 overflow-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 z-10">
+                            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-[600] text-slate-500 uppercase tracking-wide">
+                                <th class="px-6 py-4">Quote Number</th>
+                                <th class="px-6 py-4">Client / Project</th>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4">Date</th>
+                                <th class="px-6 py-4 text-right">Amount</th>
+                                <th class="px-6 py-4 w-12"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-sm">
+                            
+                            <!-- Row 1: Sent (Has Signals) -->
+                            <tr class="quote-row group hover:bg-slate-50/80 transition-colors" data-status="sent">
+                                <td class="px-6 py-4 font-mono text-slate-600 text-xs">
+                                    Q-2026-003
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold">AC</div>
+                                        <div>
+                                            <p class="font-[600] text-slate-900">Acme Corp</p>
+                                            <p class="text-slate-500 text-xs">Website Redesign Phase 2</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                            Sent
+                                        </span>
+                                        <!-- Inline Signals -->
+                                        <div class="flex items-center gap-2 opacity-80">
+                                            <div class="group/icon relative">
+                                                <i class="ph-fill ph-eye text-indigo-400 text-sm cursor-help"></i>
+                                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] text-white bg-slate-800 rounded opacity-0 group-hover/icon:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Viewed 2h ago</span>
+                                            </div>
+                                            <div class="w-0.5 h-0.5 rounded-full bg-slate-300"></div>
+                                            <div class="group/icon relative">
+                                                <i class="ph-fill ph-clock-countdown text-amber-500 text-sm cursor-help"></i>
+                                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] text-white bg-slate-800 rounded opacity-0 group-hover/icon:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Follow-up Due</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-slate-500">
+                                    Jan 14, 2026
+                                </td>
+                                <td class="px-6 py-4 text-right font-[500] text-slate-900">
+                                    $5,200.00
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <button class="action-btn p-2 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-slate-100 transition-colors">
+                                        <i class="ph-bold ph-dots-three text-lg"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Row 2: Accepted (Viewed Signal) -->
+                            <tr class="quote-row group hover:bg-slate-50/80 transition-colors" data-status="accepted">
+                                <td class="px-6 py-4 font-mono text-slate-600 text-xs">
+                                    Q-2026-002
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded bg-amber-50 text-amber-600 flex items-center justify-center text-xs font-bold">TS</div>
+                                        <div>
+                                            <p class="font-[600] text-slate-900">TechStart Inc</p>
+                                            <p class="text-slate-500 text-xs">Mobile App MVP Development</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                            Accepted
+                                        </span>
+                                        <div class="flex items-center gap-2 opacity-80">
+                                            <div class="group/icon relative">
+                                                <i class="ph-fill ph-eye text-indigo-400 text-sm cursor-help"></i>
+                                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] text-white bg-slate-800 rounded opacity-0 group-hover/icon:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Viewed 3 days ago</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-slate-500">
+                                    Jan 10, 2026
+                                </td>
+                                <td class="px-6 py-4 text-right font-[500] text-slate-900">
+                                    $12,500.00
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <button class="action-btn p-2 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-slate-100 transition-colors">
+                                        <i class="ph-bold ph-dots-three text-lg"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Row 3: Draft (No Signals) -->
+                            <tr class="quote-row group hover:bg-slate-50/80 transition-colors" data-status="draft">
+                                <td class="px-6 py-4 font-mono text-slate-600 text-xs">
+                                    Q-2026-004
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded bg-pink-50 text-pink-600 flex items-center justify-center text-xs font-bold">EW</div>
+                                        <div>
+                                            <p class="font-[600] text-slate-900">Emma Wilson</p>
+                                            <p class="text-slate-500 text-xs">Branding Consultation</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                                        Draft
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-slate-500">
+                                    Saved 2h ago
+                                </td>
+                                <td class="px-6 py-4 text-right font-[500] text-slate-900">
+                                    $850.00
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <button class="action-btn p-2 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-slate-100 transition-colors">
+                                        <i class="ph-bold ph-dots-three text-lg"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                             <!-- Row 4: Expired (Viewed) -->
+                             <tr class="quote-row group hover:bg-slate-50/80 transition-colors" data-status="expired">
+                                <td class="px-6 py-4 font-mono text-slate-600 text-xs">
+                                    Q-2025-098
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold">MR</div>
+                                        <div>
+                                            <p class="font-[600] text-slate-900">Marcus R.</p>
+                                            <p class="text-slate-500 text-xs">SEO Audit Service</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500 border border-slate-200">
+                                            Expired
+                                        </span>
+                                        <div class="flex items-center gap-2 opacity-80">
+                                            <div class="group/icon relative">
+                                                <i class="ph-fill ph-eye text-slate-400 text-sm cursor-help"></i>
+                                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-[10px] text-white bg-slate-800 rounded opacity-0 group-hover/icon:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Viewed 1 month ago</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-slate-500">
+                                    Dec 15, 2025
+                                </td>
+                                <td class="px-6 py-4 text-right font-[500] text-slate-900">
+                                    $1,200.00
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <button class="action-btn p-2 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-slate-100 transition-colors">
+                                        <i class="ph-bold ph-dots-three text-lg"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between mt-auto">
+                    <div class="text-xs text-slate-500 font-medium">
+                        Showing <span class="text-slate-900">1</span> to <span class="text-slate-900">4</span> of <span class="text-slate-900">12</span> quotes
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50" disabled>
+                            <i class="ph-bold ph-caret-left"></i>
+                        </button>
+                        
+                        <div class="flex items-center gap-1 px-2">
+                            <button class="w-8 h-8 text-xs font-[600] rounded-lg bg-slate-900 text-white shadow-sm">1</button>
+                            <button class="w-8 h-8 text-xs font-[500] text-slate-600 rounded-lg hover:bg-slate-100 transition-colors">2</button>
+                        </div>
+
+                        <button class="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
+                            <i class="ph-bold ph-caret-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script>
+        // Sidebar Toggle
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarTexts = document.querySelectorAll('.sidebar-text');
+        const tooltips = document.querySelectorAll('.collapsed-tooltip');
+        let isCollapsed = false;
+
+        sidebarToggle.addEventListener('click', () => {
+            isCollapsed = !isCollapsed;
+            if (isCollapsed) {
+                sidebar.classList.replace('w-[260px]', 'w-[80px]');
+                sidebarToggle.querySelector('i').classList.replace('ph-caret-double-left', 'ph-caret-double-right');
+                sidebarTexts.forEach(el => {
+                    el.classList.add('opacity-0');
+                    setTimeout(() => el.classList.add('hidden'), 200);
+                });
+                tooltips.forEach(el => el.classList.remove('hidden'));
+                document.querySelectorAll('nav a').forEach(a => a.classList.add('justify-center'));
+            } else {
+                sidebar.classList.replace('w-[80px]', 'w-[260px]');
+                sidebarToggle.querySelector('i').classList.replace('ph-caret-double-right', 'ph-caret-double-left');
+                sidebarTexts.forEach(el => {
+                    el.classList.remove('hidden');
+                    setTimeout(() => el.classList.remove('opacity-0'), 20);
+                });
+                tooltips.forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('nav a').forEach(a => a.classList.remove('justify-center'));
+            }
+        });
+
+        // User Dropdown
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userMenuDropdown = document.getElementById('userMenuDropdown');
+        userMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userMenuDropdown.classList.toggle('hidden');
+        });
+
+        // Action Menu Logic
+        const actionMenu = document.getElementById('actionMenu');
+        const actionBtns = document.querySelectorAll('.action-btn');
+        let activeActionBtn = null;
+
+        actionBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (activeActionBtn === btn && !actionMenu.classList.contains('hidden')) {
+                    actionMenu.classList.add('hidden');
+                    activeActionBtn = null;
+                    return;
+                }
+                activeActionBtn = btn;
+                const rect = btn.getBoundingClientRect();
+                actionMenu.style.top = `${rect.bottom + window.scrollY + 5}px`;
+                actionMenu.style.left = `${rect.right - 192}px`;
+                actionMenu.classList.remove('hidden');
+            });
+        });
+
+        // Filters Logic
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const quoteRows = document.querySelectorAll('.quote-row');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => {
+                    b.classList.remove('active', 'bg-slate-100', 'text-slate-900');
+                    b.classList.add('hover:bg-slate-50');
+                });
+                btn.classList.add('active', 'bg-slate-100', 'text-slate-900');
+                btn.classList.remove('hover:bg-slate-50');
+
+                const filter = btn.getAttribute('data-filter');
+                quoteRows.forEach(row => {
+                    if (filter === 'all' || row.getAttribute('data-status') === filter) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Global Click Listener
+        document.addEventListener('click', (e) => {
+            if (!userMenuDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) {
+                userMenuDropdown.classList.add('hidden');
+            }
+            if (activeActionBtn && !activeActionBtn.contains(e.target) && !actionMenu.contains(e.target)) {
+                actionMenu.classList.add('hidden');
+                activeActionBtn = null;
+            }
+        });
+    </script>
+</body>
+</html>

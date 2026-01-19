@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error | Dealis Workspace</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Sans Flex -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Google Sans Flex"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        indigo: { 50: '#eef2ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' },
+                        slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 800: '#1e293b', 900: '#0f172a' },
+                        rose: { 50: '#fff1f2', 200: '#fecdd3', 500: '#f43f5e' },
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 font-sans antialiased h-screen flex flex-col items-center justify-center relative overflow-hidden">
+
+    <!-- Background Elements -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div class="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] bg-rose-200/20 rounded-full blur-[100px]"></div>
+        <div class="absolute top-[20%] -left-[10%] w-[40%] h-[40%] bg-slate-200/30 rounded-full blur-[100px]"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="relative z-10 text-center px-6 max-w-lg mx-auto">
+        
+        <!-- Animated 500 Graphic -->
+        <div class="mb-8 relative inline-block animate-float">
+            <h1 class="text-[150px] font-bold text-slate-900 leading-none tracking-tighter opacity-10 select-none">500</h1>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-24 h-24 bg-white rounded-2xl shadow-xl border border-slate-100 flex items-center justify-center transform -rotate-6">
+                    <i class="ph-duotone ph-plugs text-5xl text-rose-500"></i>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="text-3xl font-[700] text-slate-900 mb-3">Internal Server Error</h2>
+        <p class="text-slate-500 text-lg mb-8 leading-relaxed">
+            Oops! Something went wrong on our end. We're working to fix it. Please try refreshing the page.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <button onclick="window.location.reload()" class="px-6 py-3 bg-white border border-slate-200 text-slate-600 font-[600] rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm flex items-center justify-center gap-2">
+                <i class="ph-bold ph-arrows-clockwise"></i>
+                Reload Page
+            </button>
+            <a href="dashboard.html" class="px-6 py-3 bg-slate-900 text-white font-[600] rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-200/50 flex items-center justify-center gap-2">
+                <i class="ph-bold ph-house"></i>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="absolute bottom-8 text-center w-full">
+        <div class="flex items-center justify-center gap-2 text-slate-400 mb-2">
+            <i class="ph-bold ph-lightning text-lg"></i>
+            <span class="text-sm font-[600] tracking-tight">Dealis.</span>
+        </div>
+    </div>
+
+</body>
+</html>

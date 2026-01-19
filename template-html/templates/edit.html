@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Template | Dealis Workspace</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Sans Flex -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Google Sans Flex"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        indigo: { 50: '#eef2ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' },
+                        slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 800: '#1e293b', 900: '#0f172a' },
+                    },
+                    boxShadow: {
+                        'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
+                        'dropdown': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.2s ease-out forwards',
+                        'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        shake: {
+                            '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },
+                            '20%, 80%': { transform: 'translate3d(2px, 0, 0)' },
+                            '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' },
+                            '40%, 60%': { transform: 'translate3d(4px, 0, 0)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Modern Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .transition-smooth { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Custom Styles for Editor Area */
+        .editor-area:focus { outline: none; }
+        .variable-tag { 
+            @apply inline-block bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded text-xs font-mono border border-indigo-100 select-all cursor-pointer hover:bg-indigo-100 transition-colors;
+        }
+        /* Preview Highlight */
+        .preview-data {
+            @apply bg-emerald-50 text-emerald-700 px-1 rounded border border-emerald-100;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased h-screen flex overflow-hidden">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside id="sidebar" class="w-[260px] bg-white border-r border-slate-200 flex flex-col shrink-0 z-30 transition-all duration-300 relative">
+        <div id="sidebarHeader" class="h-16 flex items-center justify-between px-6 border-b border-slate-100 transition-all duration-300">
+            <div class="flex items-center gap-2 text-slate-900 overflow-hidden whitespace-nowrap">
+                <div class="w-8 h-8 shrink-0 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-sm shadow-indigo-200">
+                    <i class="ph-bold ph-lightning text-lg"></i>
+                </div>
+                <span class="text-lg font-[650] tracking-tight sidebar-text transition-opacity duration-200">Dealis.</span>
+            </div>
+            <button id="sidebarToggle" class="text-slate-400 hover:text-indigo-600 transition-colors p-1 rounded-md hover:bg-slate-50 shrink-0">
+                <i class="ph-bold ph-caret-double-left text-lg"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-8 no-scrollbar">
+            <!-- Workspace -->
+            <div class="space-y-1">
+                <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth whitespace-nowrap overflow-hidden group relative">
+                    <i class="ph ph-squares-four text-xl shrink-0"></i>
+                    <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Dashboard</span>
+                    <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Dashboard</div>
+                </a>
+            </div>
+
+            <!-- Growth (Lane A) -->
+            <div>
+                <div class="px-3 mb-2 text-[11px] font-[600] text-slate-400 uppercase tracking-wider sidebar-text whitespace-nowrap overflow-hidden transition-opacity duration-200">Growth & Sales</div>
+                <div class="space-y-1">
+                    <a href="opportunities.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-rocket-launch text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Opportunities</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Opportunities</div>
+                    </a>
+                    <a href="proposal-generator.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-magic-wand text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Proposal Generator</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Proposal Generator</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Operations (Lane B) -->
+            <div>
+                <div class="px-3 mb-2 text-[11px] font-[600] text-slate-400 uppercase tracking-wider sidebar-text whitespace-nowrap overflow-hidden transition-opacity duration-200">Operations</div>
+                <div class="space-y-1">
+                    <a href="contacts.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-users text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Contacts</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Contacts</div>
+                    </a>
+                    <a href="quotations.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-file-text text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Quotations</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Quotations</div>
+                    </a>
+                    <a href="invoices.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-receipt text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Invoices</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Invoices</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Assets -->
+            <div>
+                <div class="px-3 mb-2 text-[11px] font-[600] text-slate-400 uppercase tracking-wider sidebar-text whitespace-nowrap overflow-hidden transition-opacity duration-200">Assets</div>
+                <div class="space-y-1">
+                    <!-- ACTIVE STATE: Templates (Context retained) -->
+                    <a href="templates.html" class="flex items-center gap-3 px-3 py-2.5 text-sm font-[500] text-indigo-700 bg-indigo-50/80 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-stack text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Templates</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Templates</div>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-user-circle text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Profile Library</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Profile Library</div>
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- User Profile (Consistent) -->
+        <div class="p-4 border-t border-slate-100 relative">
+            <div id="userMenuDropdown" class="hidden absolute bottom-20 left-4 w-60 bg-white border border-slate-200 rounded-xl shadow-dropdown z-50 p-1 animate-fade-in-up origin-bottom-left">
+                <div class="px-3 py-2 border-b border-slate-100 mb-1">
+                    <p class="text-sm font-[600] text-slate-900">Alex Designer</p>
+                    <p class="text-xs text-slate-500">alex@designstudio.com</p>
+                </div>
+                <a href="#" class="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
+                    <i class="ph ph-gear"></i> Settings
+                </a>
+                <div class="h-px bg-slate-100 my-1"></div>
+                <a href="#" class="flex items-center gap-2 px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                    <i class="ph ph-sign-out"></i> Sign out
+                </a>
+            </div>
+            <button id="userMenuBtn" class="flex items-center gap-3 w-full p-2 hover:bg-slate-50 rounded-lg transition-smooth text-left group overflow-hidden">
+                <div class="w-9 h-9 shrink-0 rounded-full bg-slate-200 border border-slate-300 overflow-hidden relative">
+                    <img src="https://ui-avatars.com/api/?name=Alex+Designer&background=0f172a&color=fff" alt="User" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1 min-w-0 sidebar-text transition-opacity duration-200">
+                    <p class="text-sm font-[600] text-slate-900 truncate">Alex Designer</p>
+                    <p class="text-xs font-[450] text-slate-500 truncate">Pro Plan</p>
+                </div>
+                <i class="ph ph-caret-up text-slate-400 sidebar-text"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT: Edit Template Form -->
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-white transition-all duration-300 ease-in-out">
+        
+        <!-- Header -->
+        <header class="h-16 px-8 flex items-center justify-between bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20 shrink-0">
+            <div class="flex items-center gap-4">
+                <button onclick="history.back()" class="p-2 -ml-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                    <i class="ph-bold ph-arrow-left text-lg"></i>
+                </button>
+                <div class="h-6 w-px bg-slate-200"></div>
+                <div>
+                    <div class="flex items-center gap-2 text-xs font-[500] text-slate-500 mb-0.5">
+                        <span>Assets</span>
+                        <i class="ph-bold ph-caret-right text-[10px] text-slate-300"></i>
+                        <span>Templates</span>
+                        <i class="ph-bold ph-caret-right text-[10px] text-slate-300"></i>
+                        <span class="text-slate-800">Standard Web Design</span>
+                    </div>
+                    <h1 class="text-lg font-[600] text-slate-900 tracking-tight leading-none">Edit Template</h1>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <!-- Preview Toggle -->
+                <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-lg border border-slate-200">
+                    <span class="text-xs font-[600] text-slate-500 uppercase tracking-wide">Preview</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="previewToggle" class="sr-only peer">
+                        <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                    </label>
+                </div>
+
+                <button class="px-4 py-2 text-sm font-[550] text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all">
+                    Cancel
+                </button>
+                <button id="saveBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-smooth">
+                    <i class="ph-bold ph-floppy-disk"></i>
+                    <span>Save Changes</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Split Layout Content -->
+        <div class="flex-1 flex overflow-hidden">
+            
+            <!-- LEFT: Template Editor (Form & Canvas) -->
+            <div class="flex-1 flex flex-col overflow-y-auto bg-slate-50/50 p-8 scroller-thin relative">
+                <div class="max-w-4xl mx-auto w-full space-y-6" id="editorContainer">
+                    
+                    <!-- 1. Metadata -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            
+                            <!-- Template Name -->
+                            <div class="md:col-span-2 space-y-1.5">
+                                <label class="text-sm font-[600] text-slate-700">Template Name</label>
+                                <input type="text" value="Standard Web Design Quote" class="track-focus w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-sm font-[450] text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400">
+                            </div>
+
+                            <!-- Template Type -->
+                            <div class="space-y-1.5">
+                                <label class="text-sm font-[600] text-slate-700">Type</label>
+                                <div class="relative">
+                                    <select id="typeSelect" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-sm font-[450] text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all appearance-none cursor-pointer">
+                                        <option value="quote" selected>Quotation</option>
+                                        <option value="invoice">Invoice</option>
+                                        <option value="proposal">Proposal</option>
+                                    </select>
+                                    <i class="ph-bold ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-1.5">
+                            <label class="text-sm font-[600] text-slate-700">Description <span class="font-normal text-slate-400">(Optional)</span></label>
+                            <input type="text" value="Used for standard 5-page website projects with basic SEO included." class="track-focus w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-sm font-[450] text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400">
+                        </div>
+                    </div>
+
+                    <!-- 2. Editor Canvas -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden min-h-[500px] flex flex-col">
+                        <!-- Toolbar -->
+                        <div class="h-12 border-b border-slate-100 flex items-center px-4 bg-slate-50/50 gap-2">
+                            <span class="text-xs font-[600] text-slate-400 uppercase tracking-wider mr-2">Default Content</span>
+                            <div class="h-6 w-px bg-slate-200 mx-2"></div>
+                            <span class="text-[10px] text-slate-400 italic">Click a variable on the right to insert at cursor</span>
+                        </div>
+
+                        <!-- Editable Area (Quote Style) -->
+                        <div class="p-8 flex-1" id="quoteEditor">
+                            <!-- Visual representation of a Quote Table -->
+                            <div class="border border-slate-200 rounded-lg overflow-hidden mb-6">
+                                <table class="w-full text-left text-sm">
+                                    <thead class="bg-slate-50 border-b border-slate-200 text-xs font-[600] text-slate-500 uppercase">
+                                        <tr>
+                                            <th class="px-4 py-3 w-[50%]">Item</th>
+                                            <th class="px-4 py-3 w-[15%] text-right">Qty</th>
+                                            <th class="px-4 py-3 w-[15%] text-right">Rate</th>
+                                            <th class="px-4 py-3 w-[20%] text-right">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        <tr>
+                                            <td class="px-4 py-3 align-top">
+                                                <div class="font-[600] text-slate-900 mb-1">Design Service</div>
+                                                <div class="text-xs text-slate-500">Initial design concept...</div>
+                                            </td>
+                                            <td class="px-4 py-3 text-right text-slate-600">1</td>
+                                            <td class="px-4 py-3 text-right text-slate-600">$0.00</td>
+                                            <td class="px-4 py-3 text-right text-slate-900 font-medium">$0.00</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="px-4 py-3 bg-slate-50 border-t border-slate-100 text-center">
+                                    <span class="text-xs text-slate-400 italic">Items will be added when creating a quote</span>
+                                </div>
+                            </div>
+
+                            <!-- Terms Area -->
+                            <div class="space-y-2">
+                                <label class="text-xs font-[600] text-slate-500 uppercase">Default Terms & Notes</label>
+                                <div id="templateContent" class="track-focus w-full p-4 border border-slate-200 rounded-lg text-sm text-slate-600 leading-relaxed min-h-[150px] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-shadow" contenteditable="true">
+                                    Payment is due within {{payment_terms_days}} days of invoice date.<br><br>
+                                    Includes {{revision_count}} rounds of revisions. Additional revisions will be charged at our standard hourly rate.<br><br>
+                                    Timeline: {{project_timeline_weeks}} weeks from deposit payment.
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- PREVIEW OVERLAY (Hidden by default) -->
+                <div id="previewContainer" class="hidden absolute inset-0 bg-slate-100 p-8 overflow-y-auto z-10">
+                    <div class="max-w-3xl mx-auto bg-white shadow-lg rounded-none min-h-[800px] p-12 border border-slate-200 relative">
+                        <!-- Watermark -->
+                        <div class="absolute top-4 right-4 px-2 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold uppercase rounded tracking-wide opacity-50">Preview Mode</div>
+                        
+                        <!-- Header Mockup -->
+                        <div class="flex justify-between items-start mb-12">
+                            <div>
+                                <h1 class="text-2xl font-bold text-slate-900 mb-2">QUOTATION</h1>
+                                <p class="text-sm text-slate-500">#Q-SAMPLE-001</p>
+                            </div>
+                            <div class="text-right">
+                                <h2 class="text-lg font-bold text-slate-900">Dealis Studio</h2>
+                                <p class="text-sm text-slate-500">hello@dealis.com</p>
+                            </div>
+                        </div>
+
+                        <!-- Client Mockup -->
+                        <div class="mb-10 pb-6 border-b border-slate-100">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Prepared For</p>
+                            <p class="text-base font-medium text-slate-900">Acme Corporation</p>
+                            <p class="text-sm text-slate-500">123 Business Rd, Tech City</p>
+                        </div>
+
+                        <!-- Items Mockup -->
+                        <div class="mb-10">
+                            <table class="w-full text-left text-sm">
+                                <thead class="border-b border-slate-200">
+                                    <tr>
+                                        <th class="py-2 w-[50%] font-semibold text-slate-900">Description</th>
+                                        <th class="py-2 w-[15%] text-right font-semibold text-slate-900">Qty</th>
+                                        <th class="py-2 w-[15%] text-right font-semibold text-slate-900">Rate</th>
+                                        <th class="py-2 w-[20%] text-right font-semibold text-slate-900">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    <tr>
+                                        <td class="py-4 text-slate-700">Web Design Service</td>
+                                        <td class="py-4 text-right text-slate-700">1</td>
+                                        <td class="py-4 text-right text-slate-700">$2,500.00</td>
+                                        <td class="py-4 text-right text-slate-900 font-medium">$2,500.00</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Dynamic Content Preview -->
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Notes & Terms</p>
+                            <div id="previewContent" class="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT: Variables Sidebar (25%) -->
+            <div class="w-[300px] bg-white border-l border-slate-200 flex flex-col shrink-0 z-20">
+                <div class="h-16 flex items-center px-6 border-b border-slate-100 shrink-0">
+                    <h3 class="text-sm font-[600] text-slate-900">Dynamic Variables</h3>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto p-6 space-y-6 scroller-thin">
+                    <div class="p-3 bg-indigo-50 border border-indigo-100 rounded-lg text-xs text-indigo-700 mb-4">
+                        <i class="ph-fill ph-cursor-click mr-1"></i>
+                        Click a variable to insert it at your cursor position.
+                    </div>
+
+                    <!-- Group: Client -->
+                    <div class="space-y-3">
+                        <h4 class="text-xs font-[600] text-slate-400 uppercase tracking-wide">Client Details</h4>
+                        <div class="space-y-2">
+                            <button class="variable-btn w-full text-left px-3 py-2 bg-white border border-slate-200 hover:border-indigo-300 hover:bg-slate-50 rounded-lg text-xs font-mono text-slate-600 transition-colors flex justify-between items-center group" data-var="{{client_name}}">
+                                <span>{{client_name}}</span>
+                                <i class="ph-bold ph-plus text-indigo-500 opacity-0 group-hover:opacity-100"></i>
+                            </button>
+                            <button class="variable-btn w-full text-left px-3 py-2 bg-white border border-slate-200 hover:border-indigo-300 hover:bg-slate-50 rounded-lg text-xs font-mono text-slate-600 transition-colors flex justify-between items-center group" data-var="{{client_company}}">
+                                <span>{{client_company}}</span>
+                                <i class="ph-bold ph-plus text-indigo-500 opacity-0 group-hover:opacity-100"></i>
+                            </button>
+                            <button class="variable-btn w-full text-left px-3 py-2 bg-white border border-slate-200 hover:border-indigo-300 hover:bg-slate-50 rounded-lg text-xs font-mono text-slate-600 transition-colors flex justify-between items-center group" data-var="{{client_address}}">
+                                <span>{{client_address}}</span>
+                                <i class="ph-bold ph-plus text-indigo-500 opacity-0 group-hover:opacity-100"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Group: Project -->
+                    <div class="space-y-3">
+                        <h4 class="text-xs font-[600] text-slate-400 uppercase tracking-wide">Project Info</h4>
+                        <div class="space-y-2">
+                            <button class="variable-btn w-full text-left px-3 py-2 bg-white border border-slate-200 hover:border-indigo-300 hover:bg-slate-50 rounded-lg text-xs font-mono text-slate-600 transition-colors flex justify-between items-center group" data-var="{{payment_terms_days}}">
+                                <span>{{payment_terms_days}}</span>
+                                <i class="ph-bold ph-plus text-indigo-500 opacity-0 group-hover:opacity-100"></i>
+                            </button>
+                            <button class="variable-btn w-full text-left px-3 py-2 bg-white border border-slate-200 hover:border-indigo-300 hover:bg-slate-50 rounded-lg text-xs font-mono text-slate-600 transition-colors flex justify-between items-center group" data-var="{{revision_count}}">
+                                <span>{{revision_count}}</span>
+                                <i class="ph-bold ph-plus text-indigo-500 opacity-0 group-hover:opacity-100"></i>
+                            </button>
+                            <button class="variable-btn w-full text-left px-3 py-2 bg-white border border-slate-200 hover:border-indigo-300 hover:bg-slate-50 rounded-lg text-xs font-mono text-slate-600 transition-colors flex justify-between items-center group" data-var="{{issue_date}}">
+                                <span>{{issue_date}}</span>
+                                <i class="ph-bold ph-plus text-indigo-500 opacity-0 group-hover:opacity-100"></i>
+                            </button>
+                            <button class="variable-btn w-full text-left px-3 py-2 bg-white border border-slate-200 hover:border-indigo-300 hover:bg-slate-50 rounded-lg text-xs font-mono text-slate-600 transition-colors flex justify-between items-center group" data-var="{{project_timeline_weeks}}">
+                                <span>{{project_timeline_weeks}}</span>
+                                <i class="ph-bold ph-plus text-indigo-500 opacity-0 group-hover:opacity-100"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- TOAST (Validation / Success) -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 text-sm font-medium transition-all duration-300 opacity-0 translate-y-4 pointer-events-none z-50 transform">
+        <i id="toastIcon" class="ph-fill ph-check-circle text-emerald-400 text-lg"></i>
+        <span id="toastMessage">Action successful</span>
+    </div>
+
+    <!-- Interactions Script -->
+    <script>
+        // --- Sidebar Logic ---
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarTexts = document.querySelectorAll('.sidebar-text');
+        const tooltips = document.querySelectorAll('.collapsed-tooltip');
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userMenuDropdown = document.getElementById('userMenuDropdown');
+        let isCollapsed = false;
+
+        sidebarToggle.addEventListener('click', () => {
+            isCollapsed = !isCollapsed;
+            if (isCollapsed) {
+                sidebar.classList.replace('w-[260px]', 'w-[80px]');
+                sidebarToggle.querySelector('i').classList.replace('ph-caret-double-left', 'ph-caret-double-right');
+                sidebarTexts.forEach(el => {
+                    el.classList.add('opacity-0');
+                    setTimeout(() => el.classList.add('hidden'), 200);
+                });
+                tooltips.forEach(el => el.classList.remove('hidden'));
+                document.querySelectorAll('nav a').forEach(a => a.classList.add('justify-center'));
+            } else {
+                sidebar.classList.replace('w-[80px]', 'w-[260px]');
+                sidebarToggle.querySelector('i').classList.replace('ph-caret-double-right', 'ph-caret-double-left');
+                sidebarTexts.forEach(el => {
+                    el.classList.remove('hidden');
+                    setTimeout(() => el.classList.remove('opacity-0'), 20);
+                });
+                tooltips.forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('nav a').forEach(a => a.classList.remove('justify-center'));
+            }
+        });
+
+        userMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userMenuDropdown.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!userMenuDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) {
+                userMenuDropdown.classList.add('hidden');
+            }
+        });
+
+        // --- Template Editor Logic ---
+
+        // 1. Data Definitions
+        const validVariables = [
+            '{{client_name}}', '{{client_company}}', '{{client_address}}',
+            '{{project_title}}', '{{quote_number}}', '{{issue_date}}',
+            '{{payment_terms_days}}', '{{revision_count}}', '{{my_company_name}}', '{{my_email}}', '{{project_timeline_weeks}}'
+        ];
+
+        const sampleData = {
+            '{{client_name}}': 'John Smith',
+            '{{client_company}}': 'Acme Corp',
+            '{{client_address}}': '123 Innovation Dr, Tech City',
+            '{{project_title}}': 'SaaS Website Redesign',
+            '{{quote_number}}': 'Q-2026-001',
+            '{{issue_date}}': 'Jan 15, 2026',
+            '{{payment_terms_days}}': '14',
+            '{{revision_count}}': '2',
+            '{{my_company_name}}': 'Dealis Studio',
+            '{{my_email}}': 'hello@dealis.com',
+            '{{project_timeline_weeks}}': '4'
+        };
+
+        // 2. Track Focus for Insertion
+        let lastFocusedElement = null;
+        document.querySelectorAll('.track-focus').forEach(el => {
+            el.addEventListener('focus', () => {
+                lastFocusedElement = el;
+            });
+        });
+        
+        // Initialize default focus
+        lastFocusedElement = document.getElementById('templateContent');
+
+        // 3. Variable Insertion Logic
+        const variableBtns = document.querySelectorAll('.variable-btn');
+        
+        function insertAtCursor(text) {
+            if (!lastFocusedElement) return;
+
+            // Handle Input/Textarea
+            if (lastFocusedElement.tagName === 'INPUT' || lastFocusedElement.tagName === 'TEXTAREA') {
+                const start = lastFocusedElement.selectionStart;
+                const end = lastFocusedElement.selectionEnd;
+                const val = lastFocusedElement.value;
+                lastFocusedElement.value = val.substring(0, start) + text + val.substring(end);
+                lastFocusedElement.selectionStart = lastFocusedElement.selectionEnd = start + text.length;
+                lastFocusedElement.focus();
+            } 
+            // Handle ContentEditable Div
+            else if (lastFocusedElement.isContentEditable) {
+                lastFocusedElement.focus();
+                document.execCommand('insertText', false, text);
+            }
+        }
+
+        variableBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const variable = btn.getAttribute('data-var');
+                insertAtCursor(variable);
+            });
+        });
+
+        // 4. Preview Logic
+        const previewToggle = document.getElementById('previewToggle');
+        const previewContainer = document.getElementById('previewContainer');
+        const editorContainer = document.getElementById('editorContainer');
+        const templateContent = document.getElementById('templateContent');
+        const previewContent = document.getElementById('previewContent');
+
+        previewToggle.addEventListener('change', () => {
+            if (previewToggle.checked) {
+                // Generate Preview
+                let content = templateContent.innerText; // Use innerText to preserve line breaks mostly
+                
+                // Replace all variables with sample data
+                // Use Regex to find {{...}} patterns
+                content = content.replace(/{{[a-zA-Z0-9_]+}}/g, (match) => {
+                    return sampleData[match] ? `<span class="preview-data">${sampleData[match]}</span>` : match;
+                });
+
+                previewContent.innerHTML = content.replace(/\n/g, '<br>');
+                
+                previewContainer.classList.remove('hidden');
+                editorContainer.classList.add('opacity-0', 'pointer-events-none'); // Hide visually but keep layout
+            } else {
+                previewContainer.classList.add('hidden');
+                editorContainer.classList.remove('opacity-0', 'pointer-events-none');
+            }
+        });
+
+        // 5. Validation & Save Logic
+        const saveBtn = document.getElementById('saveBtn');
+        const toast = document.getElementById('toast');
+        const toastIcon = document.getElementById('toastIcon');
+        const toastMessage = document.getElementById('toastMessage');
+        let toastTimeout;
+
+        function showToast(message, type = 'success') {
+            toastMessage.innerText = message;
+            if (type === 'error') {
+                toast.classList.replace('bg-slate-900', 'bg-rose-600');
+                toastIcon.className = 'ph-fill ph-warning-circle text-white text-lg';
+                toast.classList.add('animate-shake');
+            } else {
+                toast.classList.replace('bg-rose-600', 'bg-slate-900');
+                toastIcon.className = 'ph-fill ph-check-circle text-emerald-400 text-lg';
+                toast.classList.remove('animate-shake');
+            }
+
+            toast.classList.remove('opacity-0', 'translate-y-4');
+            
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+            }, 3000);
+        }
+
+        saveBtn.addEventListener('click', () => {
+            // Get content
+            const content = templateContent.innerText;
+            
+            // Regex to find all {{variable}}
+            const foundVariables = content.match(/{{[a-zA-Z0-9_]+}}/g) || [];
+            
+            // Check for invalid variables
+            const invalidVars = foundVariables.filter(v => !validVariables.includes(v));
+
+            if (invalidVars.length > 0) {
+                // Show Error
+                const errorMsg = invalidVars.length === 1 
+                    ? `Unknown variable: ${invalidVars[0]}` 
+                    : `${invalidVars.length} unknown variables found (e.g., ${invalidVars[0]})`;
+                showToast(errorMsg, 'error');
+            } else {
+                // Success
+                showToast('Changes saved successfully!');
+            }
+        });
+
+    </script>
+</body>
+</html>

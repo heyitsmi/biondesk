@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acme Redesign - Board | Dealis Workspace</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Sans Flex -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Google Sans Flex"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        indigo: { 50: '#eef2ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' },
+                        slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 800: '#1e293b', 900: '#0f172a' },
+                    },
+                    boxShadow: {
+                        'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
+                        'dropdown': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                        'modal': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.2s ease-out forwards',
+                        'modal-in': 'modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        modalIn: {
+                            '0%': { opacity: '0', transform: 'translate(-50%, -48%) scale(0.96)' },
+                            '100%': { opacity: '1', transform: 'translate(-50%, -50%) scale(1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Modern Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .transition-smooth { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Kanban Column Scroll & Height */
+        .kanban-column {
+            min-height: 200px;
+        }
+
+        /* Dragging Styles */
+        .dragging {
+            opacity: 0.5;
+            border: 2px dashed #6366f1;
+            background-color: #f8fafc;
+        }
+        
+        /* Dropzone Indicator */
+        .kanban-column.drag-over {
+            background-color: #f1f5f9;
+            border-radius: 0.75rem;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased h-screen flex overflow-hidden">
+
+    <!-- ADD TASK MODAL -->
+    <div id="addTaskModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="absolute inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity opacity-0 duration-300" id="addTaskBackdrop"></div>
+        <div class="absolute top-1/2 left-1/2 w-full max-w-md bg-white rounded-2xl shadow-modal transform -translate-x-1/2 -translate-y-1/2 opacity-0 scale-95 transition-all duration-300 p-0 overflow-hidden" id="addTaskContent">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="text-base font-[600] text-slate-900">New Task</h3>
+                <button type="button" class="text-slate-400 hover:text-slate-600 close-modal-btn"><i class="ph-bold ph-x"></i></button>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="targetColumnId">
+                <div class="space-y-1">
+                    <label class="text-xs font-[500] text-slate-700">Task Title</label>
+                    <input type="text" id="newTaskTitle" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" placeholder="e.g. Design Homepage">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                         <label class="text-xs font-[500] text-slate-700">Priority</label>
+                         <select id="newTaskPriority" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                             <option value="Normal">Normal</option>
+                             <option value="High">High</option>
+                             <option value="Low">Low</option>
+                         </select>
+                    </div>
+                    <div class="space-y-1">
+                         <label class="text-xs font-[500] text-slate-700">Assignee</label>
+                         <select id="newTaskAssignee" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
+                             <option value="alex">Alex</option>
+                             <option value="sarah">Sarah</option>
+                             <option value="unassigned">Unassigned</option>
+                         </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 py-3 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
+                <button class="px-3 py-1.5 text-xs font-[600] text-slate-600 hover:bg-slate-200 rounded-lg transition-colors close-modal-btn">Cancel</button>
+                <button class="px-3 py-1.5 text-xs font-[600] text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors" id="confirmAddTaskBtn">Add Task</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TASK DETAIL MODAL -->
+    <div id="taskDetailModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="absolute inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity opacity-0 duration-300" id="detailBackdrop"></div>
+        <div class="absolute top-1/2 left-1/2 w-full max-w-2xl bg-white rounded-2xl shadow-modal transform -translate-x-1/2 -translate-y-1/2 opacity-0 scale-95 transition-all duration-300 p-0 overflow-hidden flex flex-col max-h-[85vh]" id="detailContent">
+            
+            <!-- Header -->
+            <div class="px-8 py-5 border-b border-slate-100 flex justify-between items-start bg-white sticky top-0 z-10">
+                <div class="flex-1 pr-8">
+                     <div class="flex items-center gap-2 mb-2">
+                        <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200 uppercase tracking-wide" id="detailStatus">To Do</span>
+                        <span class="px-2 py-0.5 rounded bg-orange-50 text-orange-700 text-[10px] font-bold border border-orange-100 uppercase tracking-wide" id="detailPriority">High Priority</span>
+                    </div>
+                    <h2 class="text-xl font-[700] text-slate-900 leading-snug" id="detailTitle">Setup Project Repo & Environment</h2>
+                </div>
+                <button type="button" class="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-50 close-detail-btn"><i class="ph-bold ph-x text-lg"></i></button>
+            </div>
+
+            <!-- Body -->
+            <div class="flex-1 overflow-y-auto p-8 flex flex-col md:flex-row gap-8">
+                <!-- Left: Description & Activity -->
+                <div class="flex-1 space-y-6">
+                    <div>
+                        <h4 class="text-sm font-[600] text-slate-900 mb-2 flex items-center gap-2"><i class="ph-bold ph-text-align-left"></i> Description</h4>
+                        <div class="text-sm text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 hover:bg-slate-100/50 transition-colors cursor-text">
+                            Initialize the git repository, set up the Next.js environment with Tailwind CSS, and configure the CI/CD pipeline for deployment.
+                        </div>
+                    </div>
+                    
+                    <div>
+                         <h4 class="text-sm font-[600] text-slate-900 mb-3 flex items-center gap-2"><i class="ph-bold ph-list-checks"></i> Subtasks</h4>
+                         <div class="space-y-2">
+                             <label class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors">
+                                 <input type="checkbox" checked class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+                                 <span class="text-sm text-slate-600 line-through decoration-slate-400">Create GitHub Repo</span>
+                             </label>
+                             <label class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors">
+                                 <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
+                                 <span class="text-sm text-slate-600">Install Dependencies</span>
+                             </label>
+                         </div>
+                         <button class="mt-2 text-xs font-[600] text-slate-500 hover:text-indigo-600 flex items-center gap-1 py-1 px-2 hover:bg-slate-100 rounded-lg transition-colors">
+                             <i class="ph-bold ph-plus"></i> Add subtask
+                         </button>
+                    </div>
+
+                    <div>
+                        <h4 class="text-sm font-[600] text-slate-900 mb-3 flex items-center gap-2"><i class="ph-bold ph-chat-circle"></i> Activity</h4>
+                        <div class="flex gap-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-500">YOU</div>
+                            <div class="flex-1">
+                                <input type="text" placeholder="Write a comment..." class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Meta -->
+                <div class="w-full md:w-48 space-y-6 flex-shrink-0">
+                    <div class="space-y-1">
+                         <label class="text-xs font-[600] text-slate-500 uppercase tracking-wide">Assignee</label>
+                         <div class="flex items-center gap-2 p-1.5 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
+                             <img src="https://ui-avatars.com/api/?name=Alex&background=0f172a&color=fff" class="w-6 h-6 rounded-full border border-slate-200">
+                             <span class="text-sm font-[500] text-slate-700">Alex</span>
+                         </div>
+                    </div>
+                    
+                    <div class="space-y-1">
+                         <label class="text-xs font-[600] text-slate-500 uppercase tracking-wide">Due Date</label>
+                         <div class="flex items-center gap-2 p-1.5 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer text-slate-700">
+                             <i class="ph-bold ph-calendar-blank"></i>
+                             <span class="text-sm">Oct 24, 2026</span>
+                         </div>
+                    </div>
+
+                     <div class="space-y-1">
+                         <label class="text-xs font-[600] text-slate-500 uppercase tracking-wide">Labels</label>
+                         <div class="flex flex-wrap gap-2">
+                             <span class="px-2 py-1 rounded bg-slate-100 text-slate-600 text-xs font-medium border border-slate-200">Dev</span>
+                             <button class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"><i class="ph-bold ph-plus"></i></button>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside id="sidebar" class="w-[260px] bg-white border-r border-slate-200 flex flex-col shrink-0 z-30 transition-all duration-300 relative">
+        <div id="sidebarHeader" class="h-16 flex items-center justify-between px-6 border-b border-slate-100 transition-all duration-300">
+            <div class="flex items-center gap-2 text-slate-900 overflow-hidden whitespace-nowrap">
+                <div class="w-8 h-8 shrink-0 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-sm shadow-indigo-200">
+                    <i class="ph-bold ph-lightning text-lg"></i>
+                </div>
+                <span class="text-lg font-[650] tracking-tight sidebar-text transition-opacity duration-200">Dealis.</span>
+            </div>
+            <button id="sidebarToggle" class="text-slate-400 hover:text-indigo-600 transition-colors p-1 rounded-md hover:bg-slate-50 shrink-0">
+                <i class="ph-bold ph-caret-double-left text-lg"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-8 no-scrollbar">
+            <!-- Workspace -->
+            <div class="space-y-1">
+                <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                    <i class="ph ph-squares-four text-xl shrink-0"></i>
+                    <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Dashboard</span>
+                </a>
+                <a href="analytics.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                    <i class="ph ph-chart-pie-slice text-xl shrink-0"></i>
+                    <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Analytics</span>
+                </a>
+                <a href="tasks.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                    <i class="ph ph-check-square text-xl shrink-0"></i>
+                    <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">My Tasks</span>
+                </a>
+                <!-- ACTIVE STATE: Boards -->
+                <a href="boards.html" class="flex items-center gap-3 px-3 py-2.5 text-sm font-[500] text-indigo-700 bg-indigo-50/80 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                    <i class="ph ph-kanban text-xl shrink-0"></i>
+                    <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Boards</span>
+                    <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Boards</div>
+                </a>
+            </div>
+
+            <!-- Growth (Lane A) -->
+            <div>
+                <div class="px-3 mb-2 text-[11px] font-[600] text-slate-400 uppercase tracking-wider sidebar-text whitespace-nowrap overflow-hidden transition-opacity duration-200">Growth & Sales</div>
+                <div class="space-y-1">
+                    <a href="opportunities.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-rocket-launch text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Opportunities</span>
+                    </a>
+                    <a href="proposal-generator.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-magic-wand text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Proposal Generator</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Operations (Lane B) -->
+            <div>
+                <div class="px-3 mb-2 text-[11px] font-[600] text-slate-400 uppercase tracking-wider sidebar-text whitespace-nowrap overflow-hidden transition-opacity duration-200">Operations</div>
+                <div class="space-y-1">
+                    <a href="contacts.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-users text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Contacts</span>
+                    </a>
+                    <a href="quotations.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-file-text text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Quotations</span>
+                    </a>
+                    <a href="invoices.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-receipt text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Invoices</span>
+                    </a>
+                    <a href="reminders.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-bell-ringing text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Reminders</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Assets -->
+            <div>
+                <div class="px-3 mb-2 text-[11px] font-[600] text-slate-400 uppercase tracking-wider sidebar-text whitespace-nowrap overflow-hidden transition-opacity duration-200">Assets</div>
+                <div class="space-y-1">
+                    <a href="templates.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-stack text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Templates</span>
+                    </a>
+                    <a href="profile-library.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-user-circle text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Profile Library</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- User Profile -->
+        <div class="p-4 border-t border-slate-100 relative">
+            <button class="flex items-center gap-3 w-full p-2 hover:bg-slate-50 rounded-lg transition-smooth text-left group overflow-hidden">
+                <div class="w-9 h-9 shrink-0 rounded-full bg-slate-200 border border-slate-300 overflow-hidden relative">
+                    <img src="https://ui-avatars.com/api/?name=Alex+Designer&background=0f172a&color=fff" alt="User" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1 min-w-0 sidebar-text transition-opacity duration-200">
+                    <p class="text-sm font-[600] text-slate-900 truncate">Alex Designer</p>
+                    <p class="text-xs font-[450] text-slate-500 truncate">Pro Plan</p>
+                </div>
+                <i class="ph ph-caret-up text-slate-400 sidebar-text"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT: Board Detail -->
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-slate-50/50 transition-all duration-300 ease-in-out">
+        
+        <!-- Header -->
+        <header class="h-16 px-8 flex items-center justify-between bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20 shrink-0">
+            <div class="flex items-center gap-4">
+                <button onclick="history.back()" class="p-2 -ml-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                    <i class="ph-bold ph-arrow-left text-lg"></i>
+                </button>
+                <div class="h-6 w-px bg-slate-200"></div>
+                <div>
+                    <div class="flex items-center gap-2 text-xs font-[500] text-slate-500 mb-0.5">
+                        <span>Boards</span>
+                        <i class="ph-bold ph-caret-right text-[10px] text-slate-300"></i>
+                        <span class="text-slate-800">Acme Redesign</span>
+                    </div>
+                    <h1 class="text-lg font-[600] text-slate-900 tracking-tight leading-none">Acme Redesign Project</h1>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Team Members -->
+                <div class="flex -space-x-2 mr-2">
+                    <img src="https://ui-avatars.com/api/?name=Alex&background=0f172a&color=fff" class="w-8 h-8 rounded-full border-2 border-white shadow-sm" title="Alex">
+                    <img src="https://ui-avatars.com/api/?name=Sarah&background=e0e7ff&color=4f46e5" class="w-8 h-8 rounded-full border-2 border-white shadow-sm" title="Sarah">
+                    <button class="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-xs text-slate-500 hover:bg-slate-200 font-bold transition-colors">
+                        <i class="ph-bold ph-plus"></i>
+                    </button>
+                </div>
+                
+                <div class="h-8 w-px bg-slate-200 mx-1"></div>
+
+                <div class="flex gap-1 bg-slate-100 p-1 rounded-lg">
+                    <button class="p-1.5 bg-white text-slate-900 rounded shadow-sm"><i class="ph-bold ph-kanban"></i></button>
+                    <button class="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-white/50 rounded transition-colors"><i class="ph-bold ph-list-dashes"></i></button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Kanban Board Area -->
+        <div class="flex-1 overflow-x-auto overflow-y-hidden p-6">
+            <div class="flex gap-6 h-full min-w-max pb-4" id="kanbanBoard">
+                
+                <!-- COLUMN: TO DO -->
+                <div class="w-72 flex flex-col gap-3 h-full kanban-container">
+                    <div class="flex items-center justify-between px-1">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                            <h3 class="text-xs font-[600] text-slate-500 uppercase tracking-wide">To Do</h3>
+                            <span class="count-badge px-1.5 py-0.5 rounded bg-slate-200/50 text-slate-500 text-[10px] font-bold">3</span>
+                        </div>
+                        <button class="text-slate-400 hover:text-indigo-600 add-task-btn" data-column="col-todo"><i class="ph-bold ph-plus"></i></button>
+                    </div>
+                    
+                    <div id="col-todo" class="flex-1 overflow-y-auto space-y-3 pr-2 scroller-thin kanban-column" data-status="To Do">
+                        <!-- Task Card -->
+                        <div class="task-card bg-white p-3 rounded-xl border border-slate-200 shadow-card hover:border-indigo-300 hover:shadow-md transition-all cursor-grab group" draggable="true">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="px-2 py-0.5 rounded bg-orange-50 text-orange-700 text-[10px] font-bold border border-orange-100">High Priority</span>
+                            </div>
+                            <h4 class="text-sm font-[600] text-slate-900 leading-snug mb-3">Setup Project Repo & Environment</h4>
+                            <div class="flex justify-between items-center pt-2 border-t border-slate-50 pointer-events-none">
+                                <img src="https://ui-avatars.com/api/?name=Alex&background=0f172a&color=fff" class="w-5 h-5 rounded-full">
+                                <div class="flex gap-2 text-slate-400 text-xs">
+                                    <span class="flex items-center gap-1"><i class="ph-bold ph-paperclip"></i> 1</span>
+                                    <span class="flex items-center gap-1"><i class="ph-bold ph-chat-circle"></i> 2</span>
+                                </div>
+                            </div>
+                        </div>
+
+                         <!-- Task Card -->
+                         <div class="task-card bg-white p-3 rounded-xl border border-slate-200 shadow-card hover:border-indigo-300 hover:shadow-md transition-all cursor-grab group" draggable="true">
+                            <h4 class="text-sm font-[600] text-slate-900 leading-snug mb-3">Gather Client Assets (Logos, Fonts)</h4>
+                            <div class="flex justify-between items-center pt-2 border-t border-slate-50 pointer-events-none">
+                                <div class="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[10px] text-slate-400"><i class="ph-bold ph-user"></i></div>
+                            </div>
+                        </div>
+                        
+                         <!-- Task Card -->
+                         <div class="task-card bg-white p-3 rounded-xl border border-slate-200 shadow-card hover:border-indigo-300 hover:shadow-md transition-all cursor-grab group" draggable="true">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">Research</span>
+                            </div>
+                            <h4 class="text-sm font-[600] text-slate-900 leading-snug mb-3">Competitor Analysis</h4>
+                            <div class="flex justify-between items-center pt-2 border-t border-slate-50 pointer-events-none">
+                                 <img src="https://ui-avatars.com/api/?name=Sarah&background=e0e7ff&color=4f46e5" class="w-5 h-5 rounded-full">
+                                 <span class="text-[10px] text-slate-400 flex items-center gap-1"><i class="ph-bold ph-calendar"></i> Oct 20</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMN: IN PROGRESS -->
+                <div class="w-72 flex flex-col gap-3 h-full kanban-container">
+                    <div class="flex items-center justify-between px-1">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                            <h3 class="text-xs font-[600] text-slate-500 uppercase tracking-wide">In Progress</h3>
+                            <span class="count-badge px-1.5 py-0.5 rounded bg-slate-200/50 text-slate-500 text-[10px] font-bold">2</span>
+                        </div>
+                        <button class="text-slate-400 hover:text-indigo-600 add-task-btn" data-column="col-progress"><i class="ph-bold ph-plus"></i></button>
+                    </div>
+                    
+                    <div id="col-progress" class="flex-1 overflow-y-auto space-y-3 pr-2 scroller-thin kanban-column" data-status="In Progress">
+                        <!-- Task Card -->
+                        <div class="task-card bg-white p-3 rounded-xl border border-indigo-200 shadow-card ring-2 ring-indigo-50 hover:shadow-md transition-all cursor-grab group" draggable="true">
+                             <div class="w-full h-24 bg-slate-100 rounded-lg mb-3 overflow-hidden pointer-events-none">
+                                <img src="https://placehold.co/300x150/f1f5f9/94a3b8?text=Wireframe" class="w-full h-full object-cover opacity-80">
+                             </div>
+                            <h4 class="text-sm font-[600] text-slate-900 leading-snug mb-3">Homepage Wireframes</h4>
+                            <div class="flex justify-between items-center pt-2 border-t border-slate-50 pointer-events-none">
+                                <img src="https://ui-avatars.com/api/?name=Sarah&background=e0e7ff&color=4f46e5" class="w-5 h-5 rounded-full">
+                                <span class="text-[10px] text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded font-bold">Today</span>
+                            </div>
+                        </div>
+
+                         <!-- Task Card -->
+                         <div class="task-card bg-white p-3 rounded-xl border border-slate-200 shadow-card hover:border-indigo-300 hover:shadow-md transition-all cursor-grab group" draggable="true">
+                            <h4 class="text-sm font-[600] text-slate-900 leading-snug mb-3">Drafting Copy for Services Page</h4>
+                            <div class="flex justify-between items-center pt-2 border-t border-slate-50 pointer-events-none">
+                                <img src="https://ui-avatars.com/api/?name=Alex&background=0f172a&color=fff" class="w-5 h-5 rounded-full">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMN: REVIEW -->
+                <div class="w-72 flex flex-col gap-3 h-full kanban-container">
+                    <div class="flex items-center justify-between px-1">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                            <h3 class="text-xs font-[600] text-slate-500 uppercase tracking-wide">Review</h3>
+                            <span class="count-badge px-1.5 py-0.5 rounded bg-slate-200/50 text-slate-500 text-[10px] font-bold">1</span>
+                        </div>
+                        <button class="text-slate-400 hover:text-indigo-600 add-task-btn" data-column="col-review"><i class="ph-bold ph-plus"></i></button>
+                    </div>
+                    
+                    <div id="col-review" class="flex-1 overflow-y-auto space-y-3 pr-2 scroller-thin kanban-column" data-status="Review">
+                         <!-- Task Card -->
+                         <div class="task-card bg-white p-3 rounded-xl border border-slate-200 shadow-card hover:border-indigo-300 hover:shadow-md transition-all cursor-grab group" draggable="true">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-700 text-[10px] font-bold border border-amber-100">Client Feedback</span>
+                            </div>
+                            <h4 class="text-sm font-[600] text-slate-900 leading-snug mb-3">Review Sitemap Structure</h4>
+                            <div class="flex justify-between items-center pt-2 border-t border-slate-50 pointer-events-none">
+                                <div class="flex -space-x-1">
+                                    <img src="https://ui-avatars.com/api/?name=Alex&background=0f172a&color=fff" class="w-5 h-5 rounded-full border border-white">
+                                    <img src="https://ui-avatars.com/api/?name=Sarah&background=e0e7ff&color=4f46e5" class="w-5 h-5 rounded-full border border-white">
+                                </div>
+                                <div class="flex gap-2 text-slate-400 text-xs">
+                                    <span class="flex items-center gap-1"><i class="ph-bold ph-chat-circle"></i> 5</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMN: DONE -->
+                <div class="w-72 flex flex-col gap-3 h-full kanban-container">
+                    <div class="flex items-center justify-between px-1">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <h3 class="text-xs font-[600] text-slate-500 uppercase tracking-wide">Done</h3>
+                            <span class="count-badge px-1.5 py-0.5 rounded bg-slate-200/50 text-slate-500 text-[10px] font-bold">3</span>
+                        </div>
+                        <button class="text-slate-400 hover:text-indigo-600 add-task-btn" data-column="col-done"><i class="ph-bold ph-plus"></i></button>
+                    </div>
+                    
+                    <div id="col-done" class="flex-1 overflow-y-auto space-y-3 pr-2 scroller-thin opacity-60 hover:opacity-100 transition-opacity kanban-column" data-status="Done">
+                        <div class="task-card bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between cursor-grab" draggable="true">
+                             <h4 class="text-sm font-[500] text-slate-900 line-through decoration-slate-400">Project Kickoff Meeting</h4>
+                             <i class="ph-bold ph-check text-emerald-600"></i>
+                        </div>
+                        <div class="task-card bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between cursor-grab" draggable="true">
+                             <h4 class="text-sm font-[500] text-slate-900 line-through decoration-slate-400">Sign Contract & Invoice #1</h4>
+                             <i class="ph-bold ph-check text-emerald-600"></i>
+                        </div>
+                         <div class="task-card bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between cursor-grab" draggable="true">
+                             <h4 class="text-sm font-[500] text-slate-900 line-through decoration-slate-400">Initial Client Briefing</h4>
+                             <i class="ph-bold ph-check text-emerald-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Interactions Script -->
+    <script>
+        // Sidebar Toggle (Consistent)
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        let isCollapsed = false;
+
+        sidebarToggle.addEventListener('click', () => {
+            isCollapsed = !isCollapsed;
+            if (isCollapsed) {
+                sidebar.classList.replace('w-[260px]', 'w-[80px]');
+                sidebarToggle.querySelector('i').classList.replace('ph-caret-double-left', 'ph-caret-double-right');
+            } else {
+                sidebar.classList.replace('w-[80px]', 'w-[260px]');
+                sidebarToggle.querySelector('i').classList.replace('ph-caret-double-right', 'ph-caret-double-left');
+            }
+        });
+
+        // --- Drag & Drop Logic ---
+        const draggables = document.querySelectorAll('[draggable="true"]');
+        const containers = document.querySelectorAll('.kanban-column');
+
+        // Add event listeners to initial cards
+        draggables.forEach(draggable => {
+            addDragListeners(draggable);
+            addClickListeners(draggable);
+        });
+
+        function addDragListeners(draggable) {
+            draggable.addEventListener('dragstart', () => {
+                draggable.classList.add('dragging');
+            });
+
+            draggable.addEventListener('dragend', () => {
+                draggable.classList.remove('dragging');
+                // Remove any leftover drop highlights
+                containers.forEach(container => container.classList.remove('drag-over'));
+                updateCounts();
+            });
+        }
+
+        containers.forEach(container => {
+            container.addEventListener('dragover', e => {
+                e.preventDefault();
+                container.classList.add('drag-over');
+                const afterElement = getDragAfterElement(container, e.clientY);
+                const draggable = document.querySelector('.dragging');
+                if (afterElement == null) {
+                    container.appendChild(draggable);
+                } else {
+                    container.insertBefore(draggable, afterElement);
+                }
+            });
+            
+            container.addEventListener('dragleave', () => {
+                container.classList.remove('drag-over');
+            });
+
+            container.addEventListener('drop', () => {
+                container.classList.remove('drag-over');
+            });
+        });
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.task-card:not(.dragging)')];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        function updateCounts() {
+            document.querySelectorAll('.kanban-column').forEach(column => {
+                const count = column.children.length;
+                const badge = column.parentElement.querySelector('.count-badge');
+                if (badge) badge.innerText = count;
+            });
+        }
+
+        // --- Add Task Modal Logic ---
+        const addTaskModal = document.getElementById('addTaskModal');
+        const addTaskBackdrop = document.getElementById('addTaskBackdrop');
+        const addTaskContent = document.getElementById('addTaskContent');
+        const newTaskTitleInput = document.getElementById('newTaskTitle');
+        const targetColumnIdInput = document.getElementById('targetColumnId');
+        
+        document.querySelectorAll('.add-task-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                targetColumnIdInput.value = btn.getAttribute('data-column');
+                openModal('addTaskModal');
+            });
+        });
+
+        document.getElementById('confirmAddTaskBtn').addEventListener('click', () => {
+            const title = newTaskTitleInput.value.trim();
+            const colId = targetColumnIdInput.value;
+            const priority = document.getElementById('newTaskPriority').value;
+
+            if (title && colId) {
+                const column = document.getElementById(colId);
+                const newCard = document.createElement('div');
+                newCard.className = 'task-card bg-white p-3 rounded-xl border border-slate-200 shadow-card hover:border-indigo-300 hover:shadow-md transition-all cursor-grab group animate-fade-in-up';
+                newCard.draggable = true;
+                
+                let priorityHtml = '';
+                if(priority !== 'Normal') {
+                    const color = priority === 'High' ? 'orange' : 'slate';
+                    priorityHtml = `<div class="flex justify-between items-start mb-2"><span class="px-2 py-0.5 rounded bg-${color}-50 text-${color}-700 text-[10px] font-bold border border-${color}-100">${priority} Priority</span></div>`;
+                }
+
+                newCard.innerHTML = `
+                    ${priorityHtml}
+                    <h4 class="text-sm font-[600] text-slate-900 leading-snug mb-3">${title}</h4>
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-50 pointer-events-none">
+                        <div class="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[10px] text-slate-400"><i class="ph-bold ph-user"></i></div>
+                    </div>
+                `;
+                
+                column.prepend(newCard); // Add to top
+                addDragListeners(newCard);
+                addClickListeners(newCard);
+                updateCounts();
+                closeModal('addTaskModal');
+                newTaskTitleInput.value = ''; // Reset
+            }
+        });
+
+        // --- Task Detail Modal Logic ---
+        function addClickListeners(card) {
+            card.addEventListener('click', () => {
+                // Populate dummy data
+                const title = card.querySelector('h4').innerText;
+                const parentCol = card.closest('.kanban-column');
+                const status = parentCol ? parentCol.getAttribute('data-status') : 'Unknown';
+                
+                document.getElementById('detailTitle').innerText = title;
+                document.getElementById('detailStatus').innerText = status;
+                
+                openModal('taskDetailModal');
+            });
+        }
+
+        // Generic Modal Functions
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const backdrop = modal.querySelector('div[id$="Backdrop"]');
+            const content = modal.querySelector('div[id$="Content"]');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+                content.classList.remove('opacity-0', 'scale-95');
+                content.classList.add('animate-modal-in');
+            }, 10);
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const backdrop = modal.querySelector('div[id$="Backdrop"]');
+            const content = modal.querySelector('div[id$="Content"]');
+            
+            backdrop.classList.add('opacity-0');
+            content.classList.add('opacity-0', 'scale-95');
+            content.classList.remove('animate-modal-in');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // Close handlers
+        document.querySelectorAll('.close-modal-btn').forEach(btn => {
+            btn.addEventListener('click', () => closeModal('addTaskModal'));
+        });
+        document.querySelectorAll('.close-detail-btn').forEach(btn => {
+            btn.addEventListener('click', () => closeModal('taskDetailModal'));
+        });
+        
+        // Close on backdrop click
+        document.getElementById('addTaskBackdrop').addEventListener('click', () => closeModal('addTaskModal'));
+        document.getElementById('detailBackdrop').addEventListener('click', () => closeModal('taskDetailModal'));
+
+    </script>
+</body>
+</html>

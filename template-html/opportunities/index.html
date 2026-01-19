@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opportunities | Dealis Workspace</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Sans Flex -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Google Sans Flex"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        indigo: { 50: '#eef2ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' },
+                        slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 800: '#1e293b', 900: '#0f172a' },
+                    },
+                    boxShadow: {
+                        'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
+                        'dropdown': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.2s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Modern Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .transition-smooth { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased h-screen flex overflow-hidden">
+
+    <!-- SIDEBAR NAVIGATION (Consistent with Dashboard) -->
+    <aside id="sidebar" class="w-[260px] bg-white border-r border-slate-200 flex flex-col shrink-0 z-30 transition-all duration-300 relative">
+        <div id="sidebarHeader" class="h-16 flex items-center justify-between px-6 border-b border-slate-100 transition-all duration-300">
+            <div class="flex items-center gap-2 text-slate-900 overflow-hidden whitespace-nowrap">
+                <div class="w-8 h-8 shrink-0 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-sm shadow-indigo-200">
+                    <i class="ph-bold ph-lightning text-lg"></i>
+                </div>
+                <span class="text-lg font-[650] tracking-tight sidebar-text transition-opacity duration-200">Dealis.</span>
+            </div>
+            <button id="sidebarToggle" class="text-slate-400 hover:text-indigo-600 transition-colors p-1 rounded-md hover:bg-slate-50 shrink-0">
+                <i class="ph-bold ph-caret-double-left text-lg"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-8 no-scrollbar">
+            <!-- Workspace -->
+            <div class="space-y-1">
+                <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth whitespace-nowrap overflow-hidden group relative">
+                    <i class="ph ph-squares-four text-xl shrink-0"></i>
+                    <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Dashboard</span>
+                    <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Dashboard</div>
+                </a>
+            </div>
+
+            <!-- Growth (Lane A) -->
+            <div>
+                <div class="px-3 mb-2 text-[11px] font-[600] text-slate-400 uppercase tracking-wider sidebar-text whitespace-nowrap overflow-hidden transition-opacity duration-200">Growth & Sales</div>
+                <div class="space-y-1">
+                    <!-- ACTIVE STATE: Opportunities -->
+                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-sm font-[500] text-indigo-700 bg-indigo-50/80 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-rocket-launch text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Opportunities</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Opportunities</div>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-magic-wand text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Proposal Generator</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Proposal Generator</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Operations (Lane B) -->
+            <div>
+                <div class="px-3 mb-2 text-[11px] font-[600] text-slate-400 uppercase tracking-wider sidebar-text whitespace-nowrap overflow-hidden transition-opacity duration-200">Operations</div>
+                <div class="space-y-1">
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-users text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Contacts</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Contacts</div>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-file-text text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Quotations</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Quotations</div>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-receipt text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Invoices</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Invoices</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Assets -->
+            <div>
+                <div class="px-3 mb-2 text-[11px] font-[600] text-slate-400 uppercase tracking-wider sidebar-text whitespace-nowrap overflow-hidden transition-opacity duration-200">Assets</div>
+                <div class="space-y-1">
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-stack text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Templates</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Templates</div>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-user-circle text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Profile Library</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Profile Library</div>
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- User Profile (Consistent) -->
+        <div class="p-4 border-t border-slate-100 relative">
+            <div id="userMenuDropdown" class="hidden absolute bottom-20 left-4 w-60 bg-white border border-slate-200 rounded-xl shadow-dropdown z-50 p-1 animate-fade-in-up origin-bottom-left">
+                <div class="px-3 py-2 border-b border-slate-100 mb-1">
+                    <p class="text-sm font-[600] text-slate-900">Alex Designer</p>
+                    <p class="text-xs text-slate-500">alex@designstudio.com</p>
+                </div>
+                <a href="#" class="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
+                    <i class="ph ph-gear"></i> Settings
+                </a>
+                <div class="h-px bg-slate-100 my-1"></div>
+                <a href="#" class="flex items-center gap-2 px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                    <i class="ph ph-sign-out"></i> Sign out
+                </a>
+            </div>
+            <button id="userMenuBtn" class="flex items-center gap-3 w-full p-2 hover:bg-slate-50 rounded-lg transition-smooth text-left group overflow-hidden">
+                <div class="w-9 h-9 shrink-0 rounded-full bg-slate-200 border border-slate-300 overflow-hidden relative">
+                    <img src="https://ui-avatars.com/api/?name=Alex+Designer&background=0f172a&color=fff" alt="User" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1 min-w-0 sidebar-text transition-opacity duration-200">
+                    <p class="text-sm font-[600] text-slate-900 truncate">Alex Designer</p>
+                    <p class="text-xs font-[450] text-slate-500 truncate">Pro Plan</p>
+                </div>
+                <i class="ph ph-caret-up text-slate-400 sidebar-text"></i>
+            </button>
+        </div>
+    </aside>
+
+
+    <!-- MAIN CONTENT: Opportunities Kanban -->
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-slate-50/50 transition-all duration-300 ease-in-out">
+        
+        <!-- Header with Filters -->
+        <header class="h-16 px-6 flex items-center justify-between bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-10 shrink-0">
+            <div class="flex items-center gap-4">
+                <h1 class="text-xl font-[600] text-slate-900 tracking-tight">Opportunities</h1>
+                <div class="h-6 w-px bg-slate-200"></div>
+                <!-- Filters -->
+                <div class="flex items-center gap-2" id="filterContainer">
+                    <button class="filter-btn active h-8 px-4 text-xs font-[600] bg-slate-900 text-white rounded-lg shadow-sm min-w-[5rem] transition-all" data-filter="all">All</button>
+                    <button class="filter-btn h-8 px-4 text-xs font-[500] text-slate-600 bg-white hover:bg-slate-50 border border-transparent hover:border-slate-200 rounded-lg transition-all min-w-[5rem]" data-filter="upwork">Upwork</button>
+                    <button class="filter-btn h-8 px-4 text-xs font-[500] text-slate-600 bg-white hover:bg-slate-50 border border-transparent hover:border-slate-200 rounded-lg transition-all min-w-[5rem]" data-filter="linkedin">LinkedIn</button>
+                    <button class="filter-btn h-8 px-4 text-xs font-[500] text-slate-600 bg-white hover:bg-slate-50 border border-transparent hover:border-slate-200 rounded-lg transition-all min-w-[5rem]" data-filter="direct">Direct</button>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="relative hidden md:block">
+                    <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" placeholder="Search jobs..." class="pl-9 pr-4 py-1.5 w-56 bg-slate-50 border border-slate-200 rounded-lg text-sm font-[450] focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400">
+                </div>
+                <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-smooth">
+                    <i class="ph-bold ph-plus"></i>
+                    <span>New Opportunity</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Kanban Board Container -->
+        <div class="flex-1 overflow-x-auto overflow-y-hidden p-6">
+            <div class="flex gap-6 h-full min-w-max pb-4">
+                
+                <!-- COLUMN 1: NEW (Inbox) -->
+                <div class="w-80 flex flex-col gap-3">
+                    <div class="flex items-center justify-between px-1">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-slate-400"></div>
+                            <h3 class="text-xs font-[600] text-slate-500 uppercase tracking-wide">New Inbox</h3>
+                            <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 text-[10px] font-bold">3</span>
+                        </div>
+                        <button class="text-slate-400 hover:text-indigo-600"><i class="ph-bold ph-plus"></i></button>
+                    </div>
+                    
+                    <!-- Kanban Cards Area -->
+                    <div class="flex-1 overflow-y-auto space-y-3 pr-2 scroller-thin">
+                        
+                        <!-- Card 1 -->
+                        <div class="kanban-card bg-white p-4 rounded-xl border border-slate-200 shadow-card hover:border-indigo-300 hover:shadow-md transition-all cursor-pointer group relative" data-category="upwork">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-100">
+                                    <i class="ph-fill ph-upwork-logo"></i> Upwork
+                                </span>
+                                <span class="text-[10px] text-slate-400">2h ago</span>
+                            </div>
+                            <h4 class="text-sm font-[600] text-slate-900 leading-snug mb-2 group-hover:text-indigo-600">SaaS Landing Page Redesign (Figma to React)</h4>
+                            <div class="flex items-center gap-2 text-xs text-slate-500 mb-3">
+                                <span class="px-1.5 py-0.5 rounded bg-slate-50 border border-slate-100">$1k - $3k</span>
+                                <span class="px-1.5 py-0.5 rounded bg-slate-50 border border-slate-100">Fixed</span>
+                            </div>
+                            <div class="flex justify-between items-center pt-2 border-t border-slate-50">
+                                <span class="text-[10px] font-[500] text-slate-400">Tech SaaS</span>
+                                <button class="text-xs font-[600] text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity">Draft Proposal</button>
+                            </div>
+                        </div>
+
+                        <!-- Card 2 -->
+                        <div class="kanban-card bg-white p-4 rounded-xl border border-slate-200 shadow-card hover:border-indigo-300 hover:shadow-md transition-all cursor-pointer group" data-category="linkedin">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-sky-50 text-sky-700 text-[10px] font-bold border border-sky-100">
+                                    <i class="ph-fill ph-linkedin-logo"></i> LinkedIn
+                                </span>
+                                <span class="text-[10px] text-slate-400">5h ago</span>
+                            </div>
+                            <h4 class="text-sm font-[600] text-slate-900 leading-snug mb-2 group-hover:text-indigo-600">Looking for Webflow Developer for Agency Site</h4>
+                            <div class="flex items-center gap-2 text-xs text-slate-500 mb-3">
+                                <span class="px-1.5 py-0.5 rounded bg-slate-50 border border-slate-100">$50/hr</span>
+                            </div>
+                        </div>
+
+                         <!-- Card 3 -->
+                         <div class="kanban-card bg-white p-4 rounded-xl border border-slate-200 shadow-card hover:border-indigo-300 hover:shadow-md transition-all cursor-pointer group opacity-75 hover:opacity-100" data-category="direct">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-50 text-slate-600 text-[10px] font-bold border border-slate-100">
+                                    <i class="ph-fill ph-envelope-simple"></i> Email
+                                </span>
+                                <span class="text-[10px] text-slate-400">1d ago</span>
+                            </div>
+                            <h4 class="text-sm font-[600] text-slate-900 leading-snug mb-2 group-hover:text-indigo-600">Re: Inquiry about your portfolio</h4>
+                            <div class="flex items-center gap-2 text-xs text-slate-500 mb-3">
+                                <span class="px-1.5 py-0.5 rounded bg-slate-50 border border-slate-100">TBD</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMN 2: DRAFTING -->
+                <div class="w-80 flex flex-col gap-3">
+                    <div class="flex items-center justify-between px-1">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-indigo-400"></div>
+                            <h3 class="text-xs font-[600] text-slate-500 uppercase tracking-wide">Drafting</h3>
+                            <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 text-[10px] font-bold">1</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 overflow-y-auto space-y-3 pr-2 scroller-thin">
+                        <div class="kanban-card bg-white p-4 rounded-xl border border-indigo-200 shadow-card ring-2 ring-indigo-50 hover:shadow-md transition-all cursor-pointer group" data-category="upwork">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-100">
+                                    <i class="ph-fill ph-upwork-logo"></i> Upwork
+                                </span>
+                                <span class="text-[10px] text-slate-400">Started 30m ago</span>
+                            </div>
+                            <h4 class="text-sm font-[600] text-slate-900 leading-snug mb-2">E-commerce Mobile App Design (Flutter)</h4>
+                            <div class="flex items-center gap-2 text-xs text-slate-500 mb-3">
+                                <span class="px-1.5 py-0.5 rounded bg-slate-50 border border-slate-100">$4k budget</span>
+                            </div>
+                            <div class="mt-3">
+                                <button class="w-full py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-[600] flex items-center justify-center gap-1 shadow-sm transition-colors">
+                                    <i class="ph-bold ph-magic-wand"></i> Continue with AI
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMN 3: APPLIED / SENT -->
+                <div class="w-80 flex flex-col gap-3">
+                    <div class="flex items-center justify-between px-1">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-amber-400"></div>
+                            <h3 class="text-xs font-[600] text-slate-500 uppercase tracking-wide">Applied / Sent</h3>
+                            <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 text-[10px] font-bold">4</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 overflow-y-auto space-y-3 pr-2 scroller-thin">
+                        <!-- Card Sent 1 -->
+                        <div class="kanban-card bg-white p-4 rounded-xl border border-slate-200 shadow-card hover:border-amber-200 hover:shadow-md transition-all cursor-pointer group" data-category="upwork">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-100">
+                                    <i class="ph-fill ph-upwork-logo"></i> Upwork
+                                </span>
+                                <span class="text-[10px] text-slate-400">Sent 1d ago</span>
+                            </div>
+                            <h4 class="text-sm font-[600] text-slate-900 leading-snug mb-2">Real Estate Dashboard UI Kit</h4>
+                            <div class="flex items-center gap-2 text-xs text-slate-500">
+                                <span class="flex items-center gap-1 text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100">
+                                    <i class="ph-bold ph-clock"></i> Follow-up in 24h
+                                </span>
+                            </div>
+                        </div>
+
+                         <!-- Card Sent 2 -->
+                         <div class="kanban-card bg-white p-4 rounded-xl border border-slate-200 shadow-card hover:border-amber-200 hover:shadow-md transition-all cursor-pointer group" data-category="linkedin">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-sky-50 text-sky-700 text-[10px] font-bold border border-sky-100">
+                                    <i class="ph-fill ph-linkedin-logo"></i> LinkedIn
+                                </span>
+                                <span class="text-[10px] text-slate-400">Sent 3d ago</span>
+                            </div>
+                            <h4 class="text-sm font-[600] text-slate-900 leading-snug mb-2">Senior Product Designer Role</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMN 4: INTERVIEW -->
+                <div class="w-80 flex flex-col gap-3">
+                    <div class="flex items-center justify-between px-1">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-purple-500"></div>
+                            <h3 class="text-xs font-[600] text-slate-500 uppercase tracking-wide">Interview</h3>
+                            <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 text-[10px] font-bold">1</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 overflow-y-auto space-y-3 pr-2 scroller-thin">
+                        <div class="kanban-card bg-white p-4 rounded-xl border border-purple-200 shadow-card ring-1 ring-purple-50 hover:shadow-md transition-all cursor-pointer group" data-category="direct">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-50 text-slate-600 text-[10px] font-bold border border-slate-100">
+                                    <i class="ph-fill ph-globe"></i> Client Direct
+                                </span>
+                                <span class="text-[10px] text-slate-400">Meeting Tmrw</span>
+                            </div>
+                            <h4 class="text-sm font-[600] text-slate-900 leading-snug mb-2">Corporate Branding & Website Revamp</h4>
+                            <div class="flex items-center gap-2 text-xs text-slate-500 mb-3">
+                                <span class="px-1.5 py-0.5 rounded bg-slate-50 border border-slate-100">$8,000</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="flex-1 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-[600] transition-colors">Prep Notes</button>
+                                <button class="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-[600] transition-colors">Mark Won</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMN 5: WON (Converted) -->
+                <div class="w-80 flex flex-col gap-3">
+                    <div class="flex items-center justify-between px-1">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                            <h3 class="text-xs font-[600] text-slate-500 uppercase tracking-wide">Won</h3>
+                            <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 text-[10px] font-bold">12</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 overflow-y-auto space-y-3 pr-2 scroller-thin opacity-75 hover:opacity-100 transition-opacity">
+                        <div class="kanban-card bg-slate-50 p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between" data-category="upwork">
+                            <div>
+                                <h4 class="text-sm font-[600] text-slate-900 line-through decoration-slate-400">Fintech App UI</h4>
+                                <p class="text-[10px] text-slate-500">Converted to Project</p>
+                            </div>
+                            <div class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                                <i class="ph-bold ph-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Sidebar & Filter Interaction Scripts -->
+    <script>
+        // Sidebar & Menu Logic
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarTexts = document.querySelectorAll('.sidebar-text');
+        const tooltips = document.querySelectorAll('.collapsed-tooltip');
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userMenuDropdown = document.getElementById('userMenuDropdown');
+        let isCollapsed = false;
+
+        sidebarToggle.addEventListener('click', () => {
+            isCollapsed = !isCollapsed;
+            if (isCollapsed) {
+                sidebar.classList.replace('w-[260px]', 'w-[80px]');
+                sidebarToggle.querySelector('i').classList.replace('ph-caret-double-left', 'ph-caret-double-right');
+                sidebarTexts.forEach(el => {
+                    el.classList.add('opacity-0');
+                    setTimeout(() => el.classList.add('hidden'), 200);
+                });
+                tooltips.forEach(el => el.classList.remove('hidden'));
+                document.querySelectorAll('nav a').forEach(a => a.classList.add('justify-center'));
+            } else {
+                sidebar.classList.replace('w-[80px]', 'w-[260px]');
+                sidebarToggle.querySelector('i').classList.replace('ph-caret-double-right', 'ph-caret-double-left');
+                sidebarTexts.forEach(el => {
+                    el.classList.remove('hidden');
+                    setTimeout(() => el.classList.remove('opacity-0'), 20);
+                });
+                tooltips.forEach(el => el.classList.add('hidden'));
+                document.querySelectorAll('nav a').forEach(a => a.classList.remove('justify-center'));
+            }
+        });
+
+        userMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userMenuDropdown.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!userMenuDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) {
+                userMenuDropdown.classList.add('hidden');
+            }
+        });
+
+        // Filter Interaction Logic
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const cards = document.querySelectorAll('.kanban-card');
+
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 1. Update Buttons State
+                filterButtons.forEach(b => {
+                    // Reset to default style
+                    b.classList.remove('bg-slate-900', 'text-white', 'shadow-sm');
+                    b.classList.add('bg-white', 'text-slate-600', 'hover:bg-slate-50', 'border-transparent', 'hover:border-slate-200');
+                    // Add border class back (removed by active state previously)
+                    b.classList.add('border'); 
+                });
+
+                // Set active style
+                btn.classList.remove('bg-white', 'text-slate-600', 'hover:bg-slate-50', 'border-transparent', 'hover:border-slate-200', 'border');
+                btn.classList.add('bg-slate-900', 'text-white', 'shadow-sm');
+
+                // 2. Filter Logic
+                const filter = btn.getAttribute('data-filter');
+
+                cards.forEach(card => {
+                    const category = card.getAttribute('data-category');
+                    if (filter === 'all' || category === filter) {
+                        card.style.display = 'block';
+                        // Optional: Add fade-in animation
+                        card.classList.add('animate-fade-in-up');
+                        setTimeout(() => card.classList.remove('animate-fade-in-up'), 300);
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>

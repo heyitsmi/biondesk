@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposal: SaaS Redesign | Dealis Workspace</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Sans Flex -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Google Sans Flex"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        indigo: { 50: '#eef2ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' },
+                        slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 800: '#1e293b', 900: '#0f172a' },
+                    },
+                    boxShadow: {
+                        'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
+                        'paper': '0 4px 20px rgba(0, 0, 0, 0.05)',
+                        'dropdown': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.2s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Modern Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .transition-smooth { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased h-screen flex overflow-hidden">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside id="sidebar" class="w-[260px] bg-white border-r border-slate-200 flex flex-col shrink-0 z-30 transition-all duration-300 relative">
+        <div id="sidebarHeader" class="h-16 flex items-center justify-between px-6 border-b border-slate-100 transition-all duration-300">
+            <div class="flex items-center gap-2 text-slate-900 overflow-hidden whitespace-nowrap">
+                <div class="w-8 h-8 shrink-0 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-sm shadow-indigo-200">
+                    <i class="ph-bold ph-lightning text-lg"></i>
+                </div>
+                <span class="text-lg font-[650] tracking-tight sidebar-text transition-opacity duration-200">Dealis.</span>
+            </div>
+            <button id="sidebarToggle" class="text-slate-400 hover:text-indigo-600 transition-colors p-1 rounded-md hover:bg-slate-50 shrink-0">
+                <i class="ph-bold ph-caret-double-left text-lg"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-8 no-scrollbar">
+            <!-- Workspace -->
+            <div class="space-y-1">
+                <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth whitespace-nowrap overflow-hidden group relative">
+                    <i class="ph ph-squares-four text-xl shrink-0"></i>
+                    <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Dashboard</span>
+                    <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Dashboard</div>
+                </a>
+            </div>
+
+            <!-- Growth (Lane A) -->
+            <div>
+                <div class="px-3 mb-2 text-[11px] font-[600] text-slate-400 uppercase tracking-wider sidebar-text whitespace-nowrap overflow-hidden transition-opacity duration-200">Growth & Sales</div>
+                <div class="space-y-1">
+                    <a href="opportunities.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-rocket-launch text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Opportunities</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Opportunities</div>
+                    </a>
+                    <!-- ACTIVE STATE: Proposal Generator (Context) -->
+                    <a href="proposal-generator.html" class="flex items-center gap-3 px-3 py-2.5 text-sm font-[500] text-indigo-700 bg-indigo-50/80 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-magic-wand text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Proposal Generator</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Proposal Generator</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Operations (Lane B) -->
+            <div>
+                <div class="px-3 mb-2 text-[11px] font-[600] text-slate-400 uppercase tracking-wider sidebar-text whitespace-nowrap overflow-hidden transition-opacity duration-200">Operations</div>
+                <div class="space-y-1">
+                    <a href="contacts.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-users text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Contacts</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Contacts</div>
+                    </a>
+                    <a href="quotations.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-file-text text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Quotations</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Quotations</div>
+                    </a>
+                    <a href="invoices.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-receipt text-xl shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Invoices</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Invoices</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Assets -->
+            <div>
+                <div class="px-3 mb-2 text-[11px] font-[600] text-slate-400 uppercase tracking-wider sidebar-text whitespace-nowrap overflow-hidden transition-opacity duration-200">Assets</div>
+                <div class="space-y-1">
+                    <a href="templates.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-stack text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Templates</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Templates</div>
+                    </a>
+                    <a href="profile-library.html" class="flex items-center gap-3 px-3 py-2 text-sm font-[500] text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-smooth group relative whitespace-nowrap overflow-hidden">
+                        <i class="ph ph-user-circle text-xl text-slate-400 group-hover:text-indigo-600 transition-colors shrink-0"></i>
+                        <span class="sidebar-text opacity-100 transition-opacity duration-200 delay-75">Profile Library</span>
+                        <div class="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap hidden collapsed-tooltip">Profile Library</div>
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- User Profile (Consistent) -->
+        <div class="p-4 border-t border-slate-100 relative">
+            <div id="userMenuDropdown" class="hidden absolute bottom-20 left-4 w-60 bg-white border border-slate-200 rounded-xl shadow-dropdown z-50 p-1 animate-fade-in-up origin-bottom-left">
+                <div class="px-3 py-2 border-b border-slate-100 mb-1">
+                    <p class="text-sm font-[600] text-slate-900">Alex Designer</p>
+                    <p class="text-xs text-slate-500">alex@designstudio.com</p>
+                </div>
+                <a href="#" class="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
+                    <i class="ph ph-gear"></i> Settings
+                </a>
+                <div class="h-px bg-slate-100 my-1"></div>
+                <a href="#" class="flex items-center gap-2 px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                    <i class="ph ph-sign-out"></i> Sign out
+                </a>
+            </div>
+            <button id="userMenuBtn" class="flex items-center gap-3 w-full p-2 hover:bg-slate-50 rounded-lg transition-smooth text-left group overflow-hidden">
+                <div class="w-9 h-9 shrink-0 rounded-full bg-slate-200 border border-slate-300 overflow-hidden relative">
+                    <img src="https://ui-avatars.com/api/?name=Alex+Designer&background=0f172a&color=fff" alt="User" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1 min-w-0 sidebar-text transition-opacity duration-200">
+                    <p class="text-sm font-[600] text-slate-900 truncate">Alex Designer</p>
+                    <p class="text-xs font-[450] text-slate-500 truncate">Pro Plan</p>
+                </div>
+                <i class="ph ph-caret-up text-slate-400 sidebar-text"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT: Proposal Detail View -->
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-slate-50/50 transition-all duration-300 ease-in-out">
+        
+        <!-- Header -->
+        <header class="h-16 px-8 flex items-center justify-between bg-white border-b border-slate-200 sticky top-0 z-20 shrink-0">
+            <div class="flex items-center gap-4">
+                <button onclick="history.back()" class="p-2 -ml-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                    <i class="ph-bold ph-arrow-left text-lg"></i>
+                </button>
+                <div class="h-6 w-px bg-slate-200"></div>
+                <div>
+                    <div class="flex items-center gap-2 text-xs font-[500] text-slate-500 mb-0.5">
+                        <span>Proposals</span>
+                        <i class="ph-bold ph-caret-right text-[10px] text-slate-300"></i>
+                        <span class="text-slate-800">SaaS Landing Page</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <h1 class="text-lg font-[600] text-slate-900 tracking-tight leading-none">Redesign for TechStart</h1>
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100 flex items-center gap-1.5">
+                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> Viewed
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button class="px-4 py-2 text-sm font-[550] text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all flex items-center gap-2">
+                    <i class="ph-bold ph-pencil-simple"></i> Edit
+                </button>
+                <div class="h-8 w-px bg-slate-200"></div>
+                <button class="px-4 py-2 text-sm font-[550] text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all" title="Duplicate">
+                    <i class="ph-bold ph-copy"></i>
+                </button>
+                <button class="px-4 py-2 text-sm font-[550] text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all" title="Download PDF">
+                    <i class="ph-bold ph-download-simple"></i>
+                </button>
+                <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-smooth">
+                    <i class="ph-bold ph-paper-plane-tilt"></i>
+                    <span>Resend</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace (Split View) -->
+        <div class="flex-1 flex overflow-hidden">
+            
+            <!-- LEFT COLUMN: Document Preview (65%) -->
+            <div class="flex-1 overflow-y-auto p-8 scroller-thin flex justify-center">
+                
+                <!-- A4 Paper Representation (Proposal Style) -->
+                <div class="w-full max-w-[210mm] bg-white shadow-paper border border-slate-200 min-h-[297mm] p-12 text-slate-800 text-sm leading-relaxed relative">
+                    
+                    <!-- Cover Letter Header -->
+                    <div class="mb-10">
+                        <div class="flex items-center gap-2 mb-6 text-indigo-600">
+                            <i class="ph-fill ph-lightning text-xl"></i>
+                            <span class="text-lg font-bold text-slate-900">Dealis Studio</span>
+                        </div>
+                        <p class="text-slate-500 mb-1">January 14, 2026</p>
+                        <h1 class="text-2xl font-bold text-slate-900">Proposal: SaaS Landing Page Redesign</h1>
+                        <p class="text-slate-600 mt-2">Prepared for <strong>TechStart Inc.</strong></p>
+                    </div>
+
+                    <!-- Proposal Body -->
+                    <div class="space-y-6 text-slate-700">
+                        <p>Dear Hiring Manager,</p>
+                        
+                        <p>I'm excited to submit this proposal for redesigning the TechStart landing page. Based on your brief, I understand you are looking to increase conversion rates while adopting a modern "Linear-style" aesthetic. My background in high-conversion SaaS design makes me a perfect fit for this project.</p>
+
+                        <div class="p-4 bg-slate-50 border-l-4 border-indigo-500 rounded-r-lg my-6">
+                            <h3 class="font-bold text-slate-900 mb-2">Why Dealis Studio?</h3>
+                            <ul class="list-disc pl-4 space-y-1 text-sm">
+                                <li>Proven track record with Fintech & SaaS clients</li>
+                                <li>Expertise in Figma to React handoff</li>
+                                <li>Focus on performance and conversion metrics</li>
+                            </ul>
+                        </div>
+
+                        <h3 class="text-lg font-bold text-slate-900 mt-8 mb-3">Scope of Work</h3>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li><strong>Discovery & Audit:</strong> Analyzing current friction points in user flow.</li>
+                            <li><strong>Wireframing:</strong> Establishing content hierarchy and layout structure.</li>
+                            <li><strong>UI Design:</strong> Creating high-fidelity mockups in dark/light mode variants.</li>
+                            <li><strong>Prototype:</strong> Interactive Figma prototype for stakeholder review.</li>
+                            <li><strong>Developer Handoff:</strong> Comprehensive design specs and assets.</li>
+                        </ul>
+
+                        <h3 class="text-lg font-bold text-slate-900 mt-8 mb-3">Estimated Timeline</h3>
+                        <p>I estimate this project will take approximately <strong>3-4 weeks</strong> to complete, broken down as follows:</p>
+                        <div class="flex gap-4 mt-3">
+                            <div class="flex-1 bg-white border border-slate-200 p-3 rounded-lg text-center">
+                                <div class="text-xs text-slate-500 uppercase font-bold">Week 1</div>
+                                <div class="text-sm font-medium">Discovery & Wireframes</div>
+                            </div>
+                            <div class="flex-1 bg-white border border-slate-200 p-3 rounded-lg text-center">
+                                <div class="text-xs text-slate-500 uppercase font-bold">Week 2-3</div>
+                                <div class="text-sm font-medium">Visual Design</div>
+                            </div>
+                            <div class="flex-1 bg-white border border-slate-200 p-3 rounded-lg text-center">
+                                <div class="text-xs text-slate-500 uppercase font-bold">Week 4</div>
+                                <div class="text-sm font-medium">Refinement & Handoff</div>
+                            </div>
+                        </div>
+
+                        <h3 class="text-lg font-bold text-slate-900 mt-8 mb-3">Investment</h3>
+                        <p>Based on the scope outlined above, the project is estimated at a fixed price.</p>
+                        <div class="mt-4 border border-slate-200 rounded-lg overflow-hidden">
+                            <div class="flex justify-between p-3 bg-slate-50 border-b border-slate-200 font-semibold text-xs uppercase text-slate-500">
+                                <span>Item</span>
+                                <span>Amount</span>
+                            </div>
+                            <div class="flex justify-between p-4 font-bold text-slate-900">
+                                <span>Project Total</span>
+                                <span>$4,500.00</span>
+                            </div>
+                        </div>
+
+                        <p class="mt-8">I look forward to discussing this further. Please let me know if you have any questions.</p>
+                        <p class="mt-4">Best regards,<br><strong>Alex Designer</strong></p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Activity & Status (35%) -->
+            <div class="w-[360px] bg-white border-l border-slate-200 flex flex-col shrink-0 overflow-y-auto">
+                
+                <!-- Status Timeline -->
+                <div class="p-6 border-b border-slate-100">
+                    <h3 class="text-sm font-[600] text-slate-900 mb-4">Proposal Status</h3>
+                    
+                    <div class="relative pl-4 border-l-2 border-slate-100 space-y-8">
+                        
+                        <!-- Step 1: Created -->
+                        <div class="relative">
+                            <div class="absolute -left-[21px] w-3 h-3 bg-indigo-600 rounded-full border-2 border-white shadow-sm"></div>
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold text-slate-900 uppercase">Drafted</span>
+                                <span class="text-xs text-slate-500">Jan 12, 09:00 AM by AI</span>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Sent -->
+                        <div class="relative">
+                            <div class="absolute -left-[21px] w-3 h-3 bg-indigo-600 rounded-full border-2 border-white shadow-sm"></div>
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold text-slate-900 uppercase">Sent</span>
+                                <span class="text-xs text-slate-500">Jan 12, 10:15 AM via Email</span>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Viewed (Active) -->
+                        <div class="relative">
+                            <div class="absolute -left-[21px] w-3 h-3 bg-emerald-500 rounded-full border-2 border-white shadow-sm ring-4 ring-emerald-50"></div>
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold text-emerald-600 uppercase">Viewed</span>
+                                <span class="text-xs text-slate-500">Jan 13, 02:30 PM by Client</span>
+                                <span class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
+                                    <i class="ph-bold ph-eye"></i> Last viewed 2 hours ago
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Won (Pending) -->
+                        <div class="relative opacity-50">
+                            <div class="absolute -left-[21px] w-3 h-3 bg-slate-200 rounded-full border-2 border-white"></div>
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold text-slate-400 uppercase">Won / Accepted</span>
+                                <span class="text-xs text-slate-400">Waiting for response</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Opportunity Context -->
+                <div class="p-6 border-b border-slate-100">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-sm font-[600] text-slate-900">Opportunity</h3>
+                        <a href="opportunities.html" class="text-xs text-indigo-600 hover:underline">View Details</a>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                        <p class="text-sm font-[600] text-slate-900 mb-1">SaaS Landing Page Redesign</p>
+                        <div class="flex items-center gap-2 text-xs text-slate-500">
+                            <span class="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-[10px]">Upwork</span>
+                            <span>$4k Budget</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Next Steps / Actions -->
+                <div class="p-6 bg-slate-50/50 flex-1">
+                    <h3 class="text-sm font-[600] text-slate-900 mb-3">Next Steps</h3>
+                    <div class="space-y-3">
+                        <!-- Create Quote (Primary for Won) -->
+                        <button class="w-full text-left p-3 bg-white border border-slate-200 hover:border-emerald-300 rounded-xl shadow-sm transition-all flex items-center gap-3 group">
+                            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
+                                <i class="ph-bold ph-check-circle"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-[600] text-slate-700 group-hover:text-emerald-700">Mark as Won</p>
+                                <p class="text-[10px] text-slate-500">Convert to Project / Quote</p>
+                            </div>
+                        </button>
+
+                        <button class="w-full text-left p-3 bg-white border border-slate-200 hover:border-amber-300 rounded-xl shadow-sm transition-all flex items-center gap-3 group">
+                            <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-100 transition-colors">
+                                <i class="ph-bold ph-clock"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-[600] text-slate-700 group-hover:text-amber-700">Send Follow-up</p>
+                                <p class="text-[10px] text-slate-500">Client viewed but hasn't replied</p>
+                            </div>
+                        </button>
+                        
+                        <button class="w-full text-left p-3 bg-white border border-slate-200 hover:border-rose-300 rounded-xl shadow-sm transition-all flex items-center gap-3 group">
+                            <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center group-hover:bg-rose-100 transition-colors">
+                                <i class="ph-bold ph-x-circle"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-[600] text-slate-700 group-hover:text-rose-700">Mark as Lost</p>
+                                <p class="text-[10px] text-slate-500">Archive this opportunity</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Interactions Script -->
+    <script>
+        // Sidebar Toggle (Consistent)
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userMenuDropdown = document.getElementById('userMenuDropdown');
+        let isCollapsed = false;
+
+        sidebarToggle.addEventListener('click', () => {
+            isCollapsed = !isCollapsed;
+            if (isCollapsed) {
+                sidebar.classList.replace('w-[260px]', 'w-[80px]');
+                sidebarToggle.querySelector('i').classList.replace('ph-caret-double-left', 'ph-caret-double-right');
+                // Hide texts logic would be here (simplified for this file)
+            } else {
+                sidebar.classList.replace('w-[80px]', 'w-[260px]');
+                sidebarToggle.querySelector('i').classList.replace('ph-caret-double-right', 'ph-caret-double-left');
+            }
+        });
+
+        userMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userMenuDropdown.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!userMenuDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) {
+                userMenuDropdown.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
