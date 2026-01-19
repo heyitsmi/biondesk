@@ -32,7 +32,7 @@ export default function Sidebar({ user }: SidebarProps) {
             section: 'Growth & Sales',
             items: [
                 { name: 'Opportunities', path: '/opportunities', icon: 'ph-rocket-launch' },
-                { name: 'Proposal Generator', path: '/proposal/create', icon: 'ph-magic-wand' },
+                { name: 'Proposal Generator', path: '/proposal/generate', icon: 'ph-magic-wand' },
             ]
         },
         {

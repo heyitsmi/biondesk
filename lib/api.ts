@@ -138,6 +138,7 @@ export const documentsApi = {
     opportunity_id?: string;
     title?: string;
     content?: string;
+    status?: 'draft' | 'sent' | 'viewed' | 'accepted' | 'paid' | 'overdue';
     amount?: number;
     tax?: number;
     discount?: number;

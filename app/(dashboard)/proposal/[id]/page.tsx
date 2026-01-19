@@ -1,213 +1,323 @@
-import Header from '@/components/dashboard/Header';
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { documentsApi, opportunitiesApi } from '@/lib/api';
+import { DocumentWithItems, Opportunity } from '@/lib/types';
 import Link from 'next/link';
 
-interface PageProps {
-    params: Promise<{ id: string }>;
-}
+export default function ProposalDetailPage() {
+    const params = useParams();
+    const router = useRouter();
+    const id = params.id as string;
 
-export default async function ProposalDetailPage({ params }: PageProps) {
-    const { id } = await params;
+    const [document, setDocument] = useState<DocumentWithItems | null>(null);
+    const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isEditing, setIsEditing] = useState(false);
+    const editorRef = useRef<HTMLDivElement>(null);
 
-    // Mock data - will be replaced with real data from Supabase
-    const proposal = {
-        id,
-        number: 'P-2024-001',
-        title: 'Website Redesign Proposal',
-        client: {
-            name: 'Acme Corp',
-            email: 'john@acmecorp.com',
-            company: 'Acme Corporation'
-        },
-        opportunity: 'Website Redesign Project',
-        status: 'sent',
-        createdAt: 'Jan 15, 2024',
-        sentAt: 'Jan 16, 2024',
-        viewCount: 3,
-        content: `Hi John,
+    useEffect(() => {
+        if (id) {
+            loadData();
+        }
+    }, [id]);
 
-Thank you for considering me for your website redesign project. I'm excited about the opportunity to help Acme Corp create a stunning new online presence.
-
-**Understanding Your Needs**
-
-Based on our initial conversation, I understand you're looking for:
-- A modern, professional website that reflects your brand
-- Improved user experience and navigation
-- Mobile-responsive design
-- Integration with your existing CRM system
-
-**My Approach**
-
-I propose a 4-week project timeline broken into three phases:
-
-**Phase 1: Discovery & Strategy (Week 1)**
-- Brand audit and competitor analysis
-- User persona development
-- Sitemap and wireframes
-
-**Phase 2: Design & Development (Week 2-3)**
-- High-fidelity mockups
-- Responsive development
-- CRM integration
-
-**Phase 3: Launch & Support (Week 4)**
-- Testing and optimization
-- Launch support
-- Training session
-
-**Investment**
-
-Based on the scope outlined above, the total investment for this project is $5,500.
-
-Payment terms: 50% upfront, 50% upon completion.
-
-I'd love to discuss this proposal in more detail. Are you available for a call this week?
-
-Best regards,
-[Your Name]`
+    const loadData = async () => {
+        setIsLoading(true);
+        try {
+            const doc = await documentsApi.get(id);
+            setDocument(doc);
+            if (doc.opportunity_id) {
+                const opp = await opportunitiesApi.get(doc.opportunity_id);
+                setOpportunity(opp);
+            }
+        } catch (error) {
+            console.error('Failed to load proposal', error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const getStatusBadge = (status: string) => {
-        const styles: Record<string, { bg: string; text: string; label: string }> = {
-            draft: { bg: 'bg-slate-100', text: 'text-slate-600', label: 'Draft' },
-            sent: { bg: 'bg-indigo-50', text: 'text-indigo-700', label: 'Sent' },
-            viewed: { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Viewed' },
-            accepted: { bg: 'bg-emerald-50', text: 'text-emerald-700', label: 'Accepted' }
-        };
-        return styles[status] || styles.draft;
+    const handleSave = async () => {
+        if (!document || !editorRef.current) return;
+        
+        try {
+            await documentsApi.update(document.id, {
+                content: editorRef.current.innerHTML
+            });
+            setIsEditing(false);
+            // Reload to ensure sync
+            loadData();
+        } catch (error) {
+            console.error('Failed to save', error);
+            alert('Failed to save changes');
+        }
     };
 
-    const statusBadge = getStatusBadge(proposal.status);
+    const handleStatusChange = async (newStatus: 'sent' | 'accepted' | 'lost') => {
+        if (!document) return;
+        
+        // Map UI status to DB status if needed, or simple update
+        // DB status: 'draft' | 'sent' | 'viewed' | 'accepted' | 'paid' | 'overdue'
+        let status = newStatus as any;
+        if (newStatus === 'lost') status = 'overdue'; // Mapping lost/archived? Or just keep it separate. 'lost' is opportunity stage.
+        // If "Mark as Won", update Opportunity?
+        
+        try {
+            await documentsApi.update(document.id, { status });
+            if (newStatus === 'accepted' && opportunity) {
+                await opportunitiesApi.update(opportunity.id, { stage: 'won' });
+            }
+            if (newStatus === 'lost' && opportunity) {
+                await opportunitiesApi.update(opportunity.id, { stage: 'lost' });
+            }
+            loadData();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleSend = async () => {
+        if (!document) return;
+        try {
+             await documentsApi.send(document.id);
+             alert('Proposal marked as sent. Public link generated.');
+             loadData();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    if (isLoading) {
+        return <div className="flex h-screen items-center justify-center">Loading...</div>;
+    }
+
+    if (!document) {
+        return <div className="flex h-screen items-center justify-center">Proposal not found</div>;
+    }
 
     return (
-        <>
-            <Header 
-                title={proposal.number}
-                subtitle={proposal.title}
-                showNewButton={false}
-            />
+        <div className="flex flex-col h-full bg-slate-50 relative overflow-hidden">
+            
+            {/* Header */}
+            <header className="h-16 px-8 flex items-center justify-between bg-white border-b border-slate-200 sticky top-0 z-20 shrink-0">
+                <div className="flex items-center gap-4">
+                    <button onClick={() => router.back()} className="p-2 -ml-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                        <i className="ph-bold ph-arrow-left text-lg"></i>
+                    </button>
+                    <div className="h-6 w-px bg-slate-200"></div>
+                    <div>
+                        <div className="flex items-center gap-2 text-xs font-[500] text-slate-500 mb-0.5">
+                            <span>Proposals</span>
+                            <i className="ph-bold ph-caret-right text-[10px] text-slate-300"></i>
+                            <span className="text-slate-800">{opportunity?.title || 'Unknown Project'}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-lg font-[600] text-slate-900 tracking-tight leading-none">{document.title}</h1>
+                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border flex items-center gap-1.5 capitalize
+                                ${document.status === 'accepted' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 
+                                  document.status === 'sent' ? 'bg-indigo-50 text-indigo-700 border-indigo-100' : 
+                                  'bg-slate-100 text-slate-600 border-slate-200'}`}>
+                                {document.status === 'accepted' && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>}
+                                {document.status}
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
-            <div className="flex-1 overflow-y-auto p-8">
-                <div className="w-full max-w-4xl">
+                <div className="flex items-center gap-3">
+                    {isEditing ? (
+                         <>
+                            <button 
+                                onClick={() => setIsEditing(false)}
+                                className="px-4 py-2 text-sm font-[550] text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={handleSave}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-smooth"
+                            >
+                                <i className="ph-bold ph-check"></i>
+                                Save Changes
+                            </button>
+                         </>
+                    ) : (
+                        <>
+                            <button 
+                                onClick={() => setIsEditing(true)}
+                                className="px-4 py-2 text-sm font-[550] text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all flex items-center gap-2"
+                            >
+                                <i className="ph-bold ph-pencil-simple"></i> Edit
+                            </button>
+                            <div className="h-8 w-px bg-slate-200"></div>
+                            {document.status === 'draft' && (
+                                <button 
+                                    onClick={handleSend}
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-smooth"
+                                >
+                                    <i className="ph-bold ph-paper-plane-tilt"></i>
+                                    <span>Send Now</span>
+                                </button>
+                            )}
+                            {document.status === 'sent' && (
+                                <button 
+                                    onClick={handleSend}
+                                    className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 px-5 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-smooth"
+                                >
+                                    <i className="ph-bold ph-paper-plane-tilt"></i>
+                                    <span>Resend</span>
+                                </button>
+                            )}
+                        </>
+                    )}
+                </div>
+            </header>
+
+            {/* Main Workspace (Split View) */}
+            <div className="flex-1 flex overflow-hidden">
+                
+                {/* LEFT COLUMN: Document Preview */}
+                <div className="flex-1 overflow-y-auto p-8 custom-scrollbar flex justify-center bg-slate-100">
                     
-                    {/* Back Link */}
-                    <Link 
-                        href="/opportunities" 
-                        className="inline-flex items-center gap-1.5 text-sm font-[500] text-slate-500 hover:text-slate-700 mb-6"
-                    >
-                        <i className="ph ph-arrow-left"></i>
-                        Back to Pipeline
-                    </Link>
+                    {/* A4 Paper Representation */}
+                    <div className="w-full max-w-[210mm] bg-white shadow-xl border border-slate-200 min-h-[297mm] p-12 text-slate-800 text-sm leading-relaxed relative">
+                        
+                        {/* Header Section (Dynamic) */}
+                        <div className="mb-10 pointer-events-none select-none">
+                            <div className="flex items-center gap-2 mb-6 text-indigo-600">
+                                <i className="ph-fill ph-lightning text-xl"></i>
+                                <span className="text-lg font-bold text-slate-900">Dealis Studio</span>
+                            </div>
+                            <p className="text-slate-500 mb-1">{new Date(document.created_at).toLocaleDateString()}</p>
+                            <h1 className="text-2xl font-bold text-slate-900">{document.title}</h1>
+                            <p className="text-slate-600 mt-2">Prepared for <strong>{opportunity?.client_name || 'Client'}</strong></p>
+                        </div>
 
-                    {/* Header Card */}
-                    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mb-6">
-                        <div className="p-6">
-                            <div className="flex items-start justify-between mb-4">
-                                <div>
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <h1 className="text-xl font-[600] text-slate-900">{proposal.title}</h1>
-                                        <span className={`px-2 py-1 rounded text-xs font-[500] ${statusBadge.bg} ${statusBadge.text}`}>
-                                            {statusBadge.label}
-                                        </span>
-                                    </div>
-                                    <p className="text-sm text-slate-500">
-                                        For: <span className="font-[500] text-slate-700">{proposal.client.name}</span> • {proposal.client.company}
-                                    </p>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <button className="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-[600] rounded-lg hover:border-slate-300 transition-all flex items-center gap-1.5">
-                                        <i className="ph ph-pencil-simple"></i>
-                                        Edit
-                                    </button>
-                                    <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-[600] rounded-lg transition-all flex items-center gap-1.5">
-                                        <i className="ph ph-paper-plane-tilt"></i>
-                                        Send
-                                    </button>
+                        {/* Editable Content */}
+                        <div 
+                            ref={editorRef}
+                            contentEditable={isEditing}
+                            suppressContentEditableWarning
+                            className={`space-y-6 text-slate-700 outline-none ${isEditing ? 'ring-2 ring-indigo-100 rounded p-2 -ml-2' : ''}`}
+                            dangerouslySetInnerHTML={{ __html: document.content || '<p>No content provided.</p>' }}
+                        />
+
+                        {/* Footer Section */}
+                        <div className="mt-12 pt-8 border-t border-slate-100 text-center text-xs text-slate-400 pointer-events-none">
+                            <p>Proposal #{document.number} • Valid until {new Date(new Date().setDate(new Date().getDate() + 14)).toLocaleDateString()}</p>
+                        </div>
+
+                    </div>
+                </div>
+
+                {/* RIGHT COLUMN: Activity & Status */}
+                <div className="w-[360px] bg-white border-l border-slate-200 flex flex-col shrink-0 overflow-y-auto custom-scrollbar">
+                    
+                    {/* Status Timeline */}
+                    <div className="p-6 border-b border-slate-100">
+                        <h3 className="text-sm font-[600] text-slate-900 mb-4">Proposal Status</h3>
+                        
+                        <div className="relative pl-4 border-l-2 border-slate-100 space-y-8">
+                            
+                            {/* Created */}
+                            <div className="relative">
+                                <div className="absolute -left-[21px] w-3 h-3 bg-indigo-600 rounded-full border-2 border-white shadow-sm"></div>
+                                <div className="flex flex-col">
+                                    <span className="text-xs font-bold text-slate-900 uppercase">Drafted</span>
+                                    <span className="text-xs text-slate-500">{new Date(document.created_at).toLocaleString()}</span>
                                 </div>
                             </div>
 
-                            {/* Stats */}
-                            <div className="flex items-center gap-6 pt-4 border-t border-slate-100">
-                                <div className="flex items-center gap-2 text-sm text-slate-500">
-                                    <i className="ph ph-calendar"></i>
-                                    Created {proposal.createdAt}
-                                </div>
-                                {proposal.sentAt && (
-                                    <div className="flex items-center gap-2 text-sm text-slate-500">
-                                        <i className="ph ph-paper-plane-tilt"></i>
-                                        Sent {proposal.sentAt}
-                                    </div>
-                                )}
-                                <div className="flex items-center gap-2 text-sm text-slate-500">
-                                    <i className="ph ph-eye"></i>
-                                    {proposal.viewCount} views
+                            {/* Sent */}
+                            <div className={`relative ${['sent', 'viewed', 'accepted'].includes(document.status) ? '' : 'opacity-40'}`}>
+                                <div className={`absolute -left-[21px] w-3 h-3 rounded-full border-2 border-white shadow-sm ${['sent', 'viewed', 'accepted'].includes(document.status) ? 'bg-indigo-600' : 'bg-slate-300'}`}></div>
+                                <div className="flex flex-col">
+                                    <span className="text-xs font-bold text-slate-900 uppercase">Sent</span>
+                                    {document.sent_at ? <span className="text-xs text-slate-500">{new Date(document.sent_at).toLocaleString()}</span> : <span className="text-xs text-slate-400">Not sent yet</span>}
                                 </div>
                             </div>
+
+                            {/* Accepted */}
+                            <div className={`relative ${document.status === 'accepted' ? '' : 'opacity-40'}`}>
+                                <div className={`absolute -left-[21px] w-3 h-3 rounded-full border-2 border-white shadow-sm ${document.status === 'accepted' ? 'bg-emerald-500' : 'bg-slate-300'}`}></div>
+                                <div className="flex flex-col">
+                                    <span className={`text-xs font-bold uppercase ${document.status === 'accepted' ? 'text-emerald-700' : 'text-slate-400'}`}>Accepted</span>
+                                    {document.accepted_at && <span className="text-xs text-slate-500">{new Date(document.accepted_at).toLocaleString()}</span>}
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 
-                    {/* Content */}
-                    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                            <h2 className="text-lg font-[600] text-slate-900">Proposal Content</h2>
-                            <button className="text-sm font-[500] text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
-                                <i className="ph ph-copy"></i>
-                                Copy
+                    {/* Opportunity Context */}
+                    {opportunity && (
+                        <div className="p-6 border-b border-slate-100">
+                            <div className="flex justify-between items-center mb-3">
+                                <h3 className="text-sm font-[600] text-slate-900">Opportunity</h3>
+                                <Link href={`/opportunities/${opportunity.id}`} className="text-xs text-indigo-600 hover:underline">View Details</Link>
+                            </div>
+                            <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <p className="text-sm font-[600] text-slate-900 mb-1">{opportunity.title}</p>
+                                <div className="flex items-center gap-2 text-xs text-slate-500">
+                                    {opportunity.source && <span className="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-[10px] capitalize">{opportunity.source}</span>}
+                                    {opportunity.value && <span>${opportunity.value.toLocaleString()} Budget</span>}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Actions */}
+                    <div className="p-6 bg-slate-50/50 flex-1">
+                        <h3 className="text-sm font-[600] text-slate-900 mb-3">Next Steps</h3>
+                        <div className="space-y-3">
+                            {/* Mark as Won */}
+                            {document.status !== 'accepted' && (
+                                <button 
+                                    onClick={() => handleStatusChange('accepted')}
+                                    className="w-full text-left p-3 bg-white border border-slate-200 hover:border-emerald-300 rounded-xl shadow-sm transition-all flex items-center gap-3 group"
+                                >
+                                    <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
+                                        <i className="ph-bold ph-check-circle"></i>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-[600] text-slate-700 group-hover:text-emerald-700">Mark as Accepted</p>
+                                        <p className="text-[10px] text-slate-500">Also marks opportunity as Won</p>
+                                    </div>
+                                </button>
+                            )}
+
+                             {/* Send Follow-up (Mock) */}
+                            <button className="w-full text-left p-3 bg-white border border-slate-200 hover:border-amber-300 rounded-xl shadow-sm transition-all flex items-center gap-3 group">
+                                <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-100 transition-colors">
+                                    <i className="ph-bold ph-clock"></i>
+                                </div>
+                                <div>
+                                    <p className="text-sm font-[600] text-slate-700 group-hover:text-amber-700">Send Follow-up</p>
+                                    <p className="text-[10px] text-slate-500">Reminder to client</p>
+                                </div>
+                            </button>
+                            
+                            {/* Mark as Lost */}
+                            <button 
+                                onClick={() => handleStatusChange('lost')}
+                                className="w-full text-left p-3 bg-white border border-slate-200 hover:border-rose-300 rounded-xl shadow-sm transition-all flex items-center gap-3 group"
+                            >
+                                <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center group-hover:bg-rose-100 transition-colors">
+                                    <i className="ph-bold ph-x-circle"></i>
+                                </div>
+                                <div>
+                                    <p className="text-sm font-[600] text-slate-700 group-hover:text-rose-700">Mark as Lost</p>
+                                    <p className="text-[10px] text-slate-500">Archive this proposal</p>
+                                </div>
                             </button>
                         </div>
-                        <div className="p-6">
-                            <div className="prose prose-sm max-w-none">
-                                <pre className="whitespace-pre-wrap font-sans text-sm text-slate-700 leading-relaxed">
-                                    {proposal.content}
-                                </pre>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Activity Timeline */}
-                    <div className="mt-6 bg-white rounded-xl border border-slate-200 overflow-hidden">
-                        <div className="px-6 py-4 border-b border-slate-100">
-                            <h2 className="text-lg font-[600] text-slate-900">Activity</h2>
-                        </div>
-                        <div className="p-6">
-                            <div className="space-y-4">
-                                <div className="flex items-start gap-3">
-                                    <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center shrink-0">
-                                        <i className="ph-fill ph-eye text-indigo-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-[500] text-slate-900">Client viewed proposal</p>
-                                        <p className="text-xs text-slate-400">Today, 2:45 PM</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-3">
-                                    <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center shrink-0">
-                                        <i className="ph-fill ph-paper-plane-tilt text-indigo-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-[500] text-slate-900">Proposal sent via email</p>
-                                        <p className="text-xs text-slate-400">{proposal.sentAt}, 10:30 AM</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-3">
-                                    <div className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center shrink-0">
-                                        <i className="ph-fill ph-file-text text-slate-500 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-[500] text-slate-900">Proposal created</p>
-                                        <p className="text-xs text-slate-400">{proposal.createdAt}, 3:00 PM</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                 </div>
-                
-                {/* Footer */}
-                <div className="mt-12 mb-6 text-center">
-                    <p className="text-xs text-slate-400">© 2026 Flova. Crafted for growth.</p>
-                </div>
+
             </div>
-        </>
+        </div>
     );
 }
