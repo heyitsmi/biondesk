@@ -1,211 +1,316 @@
-import Header from '@/components/dashboard/Header';
+'use client';
+
+import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { quotesApi } from '@/lib/api';
+import { DocumentWithItems } from '@/lib/types';
 
-interface PageProps {
-    params: Promise<{ id: string }>;
-}
+export default function QuoteDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = use(params);
+    const router = useRouter();
+    const [quote, setQuote] = useState<DocumentWithItems | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-export default async function QuotationDetailPage({ params }: PageProps) {
-    const { id } = await params;
-
-    // Mock data - will be replaced with real data from Supabase
-    const quotation = {
-        id,
-        number: 'Q-2024-001',
-        title: 'Website Redesign Project',
-        client: {
-            name: 'John Smith',
-            email: 'john@acmecorp.com',
-            company: 'Acme Corp'
-        },
-        status: 'sent',
-        createdAt: 'Jan 15, 2024',
-        validUntil: 'Jan 30, 2024',
-        viewCount: 2,
-        items: [
-            { description: 'UI/UX Design - Homepage & 5 Inner Pages', quantity: 1, unitPrice: 2500, amount: 2500 },
-            { description: 'Frontend Development (React/Next.js)', quantity: 1, unitPrice: 2500, amount: 2500 },
-            { description: 'CMS Integration & Training', quantity: 1, unitPrice: 500, amount: 500 }
-        ],
-        subtotal: 5500,
-        tax: 0,
-        total: 5500,
-        terms: '50% upfront deposit required. Balance due upon project completion. Quote valid for 14 days.',
-        notes: 'Thank you for considering us for your project. We look forward to working together!'
-    };
+    useEffect(() => {
+        const fetchQuote = async () => {
+            try {
+                const data = await quotesApi.get(id);
+                setQuote(data);
+            } catch (error) {
+                console.error('Error fetching quote:', error);
+                alert('Failed to load quote details');
+                // router.push('/quotations');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchQuote();
+    }, [id]);
 
     const getStatusBadge = (status: string) => {
-        const styles: Record<string, { bg: string; text: string; label: string }> = {
-            draft: { bg: 'bg-slate-100', text: 'text-slate-600', label: 'Draft' },
-            sent: { bg: 'bg-indigo-50', text: 'text-indigo-700', label: 'Sent' },
-            viewed: { bg: 'bg-amber-50', text: 'text-amber-700', label: 'Viewed' },
-            accepted: { bg: 'bg-emerald-50', text: 'text-emerald-700', label: 'Accepted' }
-        };
-        return styles[status] || styles.draft;
+        switch (status) {
+            case 'draft': return 'bg-slate-100 text-slate-600 border-slate-200';
+            case 'sent': return 'bg-indigo-50 text-indigo-700 border-indigo-100';
+            case 'viewed': return 'bg-amber-50 text-amber-700 border-amber-100';
+            case 'accepted': return 'bg-emerald-50 text-emerald-700 border-emerald-100';
+            case 'overdue': return 'bg-rose-50 text-rose-700 border-rose-100';
+            default: return 'bg-slate-100 text-slate-600 border-slate-200';
+        }
     };
 
-    const statusBadge = getStatusBadge(quotation.status);
+    if (isLoading) {
+        return (
+            <div className="flex h-screen items-center justify-center">
+                <i className="ph-bold ph-spinner animate-spin text-2xl text-indigo-600"></i>
+            </div>
+        );
+    }
+
+    if (!quote) {
+        return <div className="p-8 text-center text-slate-500">Quote not found</div>;
+    }
+
+    // Calculations if not present directly (though API should provide them, robust fallback)
+    const subtotal = quote.items?.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0) || 0;
+    // Assuming discount/tax/total stored in quote are correct. 
+    // If quote.amount is total, we display that.
 
     return (
-        <>
-            <Header 
-                title={quotation.number}
-                subtitle={quotation.title}
-                showNewButton={false}
-            />
-
-            <div className="flex-1 overflow-y-auto p-8">
-                <div className="w-full max-w-4xl">
-                    
-                    {/* Back Link */}
-                    <Link 
-                        href="/quotations" 
-                        className="inline-flex items-center gap-1.5 text-sm font-[500] text-slate-500 hover:text-slate-700 mb-6"
-                    >
-                        <i className="ph ph-arrow-left"></i>
-                        Back to Quotations
-                    </Link>
-
-                    {/* Header Card */}
-                    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mb-6">
-                        <div className="p-6">
-                            <div className="flex items-start justify-between mb-4">
-                                <div>
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <h1 className="text-xl font-[600] text-slate-900">{quotation.title}</h1>
-                                        <span className={`px-2 py-1 rounded text-xs font-[500] ${statusBadge.bg} ${statusBadge.text}`}>
-                                            {statusBadge.label}
-                                        </span>
-                                    </div>
-                                    <p className="text-sm text-slate-500">
-                                        For: <span className="font-[500] text-slate-700">{quotation.client.name}</span> • {quotation.client.company}
-                                    </p>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Link 
-                                        href={`/quotations/${id}/edit`}
-                                        className="px-4 py-2 bg-white border border-slate-200 text-slate-700 text-sm font-[600] rounded-lg hover:border-slate-300 transition-all flex items-center gap-1.5"
-                                    >
-                                        <i className="ph ph-pencil-simple"></i>
-                                        Edit
-                                    </Link>
-                                    <button className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-[600] rounded-lg transition-all flex items-center gap-1.5">
-                                        <i className="ph ph-paper-plane-tilt"></i>
-                                        Send
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Stats */}
-                            <div className="flex items-center gap-6 pt-4 border-t border-slate-100">
-                                <div className="flex items-center gap-2 text-sm text-slate-500">
-                                    <i className="ph ph-calendar"></i>
-                                    Created {quotation.createdAt}
-                                </div>
-                                <div className="flex items-center gap-2 text-sm text-slate-500">
-                                    <i className="ph ph-clock"></i>
-                                    Valid until {quotation.validUntil}
-                                </div>
-                                <div className="flex items-center gap-2 text-sm text-slate-500">
-                                    <i className="ph ph-eye"></i>
-                                    {quotation.viewCount} views
-                                </div>
-                                <Link 
-                                    href={`/quote/${id}`}
-                                    target="_blank"
-                                    className="flex items-center gap-2 text-sm text-indigo-600 hover:text-indigo-700 font-[500]"
-                                >
-                                    <i className="ph ph-link"></i>
-                                    Public Link
-                                </Link>
-                            </div>
+        <div className="flex-1 flex flex-col h-full relative overflow-hidden bg-slate-50/50 transition-all duration-300 ease-in-out">
+            
+            {/* Header */}
+            <header className="h-16 px-8 flex items-center justify-between bg-white border-b border-slate-200 sticky top-0 z-20 shrink-0">
+                <div className="flex items-center gap-4">
+                    <button onClick={() => router.back()} className="p-2 -ml-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                        <i className="ph-bold ph-arrow-left text-lg"></i>
+                    </button>
+                    <div className="h-6 w-px bg-slate-200"></div>
+                    <div>
+                        <div className="flex items-center gap-2 text-xs font-[500] text-slate-500 mb-0.5">
+                            <span>Quotations</span>
+                            <i className="ph-bold ph-caret-right text-[10px] text-slate-300"></i>
+                            <span className="text-slate-800">{quote.number}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-lg font-[600] text-slate-900 tracking-tight leading-none">{quote.title}</h1>
+                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border flex items-center gap-1.5 capitalize ${getStatusBadge(quote.status)}`}>
+                                <div className={`w-1.5 h-1.5 rounded-full ${quote.status === 'sent' ? 'bg-indigo-500' : 'bg-current'}`}></div> {quote.status}
+                            </span>
                         </div>
                     </div>
+                </div>
 
-                    {/* Quote Content */}
-                    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mb-6">
-                        <div className="px-6 py-4 border-b border-slate-100">
-                            <h2 className="text-lg font-[600] text-slate-900">Line Items</h2>
+                <div className="flex items-center gap-3">
+                    <Link href={`/quotations/${id}/edit`} className="px-4 py-2 text-sm font-[550] text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all flex items-center gap-2">
+                        <i className="ph-bold ph-pencil-simple"></i> Edit
+                    </Link>
+                    <div className="h-8 w-px bg-slate-200"></div>
+                    <button className="px-4 py-2 text-sm font-[550] text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all" title="Duplicate">
+                        <i className="ph-bold ph-copy"></i>
+                    </button>
+                    <button className="px-4 py-2 text-sm font-[550] text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all" title="Download PDF">
+                        <i className="ph-bold ph-download-simple"></i>
+                    </button>
+                    <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-smooth">
+                        <i className="ph-bold ph-paper-plane-tilt"></i>
+                        <span>Resend</span>
+                    </button>
+                </div>
+            </header>
+
+            {/* Main Workspace (Split View) */}
+            <div className="flex-1 flex overflow-hidden">
+                
+                {/* LEFT COLUMN: Document Preview (65%) */}
+                <div className="flex-1 overflow-y-auto p-8 scroller-thin flex justify-center">
+                    
+                    {/* A4 Paper Representation */}
+                    <div className="w-full max-w-[210mm] bg-white shadow-paper border border-slate-200 min-h-[297mm] p-12 text-slate-800 text-sm leading-relaxed relative">
+                        
+                        {/* Document Header */}
+                        <div className="flex justify-between items-start mb-12">
+                            <div>
+                                <div className="flex items-center gap-2 mb-4 text-indigo-600">
+                                    <i className="ph-fill ph-lightning text-2xl"></i>
+                                    <span className="text-xl font-bold text-slate-900">Dealis.</span>
+                                </div>
+                                <p className="text-slate-500">
+                                    123 Creative Studio, Tech City<br/>
+                                    Jakarta, Indonesia 12345
+                                </p>
+                            </div>
+                            <div className="text-right">
+                                <h1 className="text-3xl font-bold text-slate-900 mb-2">QUOTATION</h1>
+                                <p className="text-slate-500">#{quote.number}</p>
+                                <p className="text-slate-500 mt-1">Date: {new Date(quote.created_at).toLocaleDateString()}</p>
+                                <p className="text-slate-500">Valid Until: {quote.valid_until ? new Date(quote.valid_until).toLocaleDateString() : 'N/A'}</p>
+                            </div>
                         </div>
-                        <div className="p-6">
-                            <table className="w-full">
-                                <thead>
-                                    <tr className="border-b border-slate-100">
-                                        <th className="pb-3 text-left text-xs font-[600] text-slate-500 uppercase">Description</th>
-                                        <th className="pb-3 text-center text-xs font-[600] text-slate-500 uppercase w-20">Qty</th>
-                                        <th className="pb-3 text-right text-xs font-[600] text-slate-500 uppercase w-28">Price</th>
-                                        <th className="pb-3 text-right text-xs font-[600] text-slate-500 uppercase w-28">Amount</th>
+
+                        {/* Client Info */}
+                        <div className="mb-12 pb-8 border-b border-slate-100">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Prepared For</p>
+                            <h3 className="text-lg font-bold text-slate-900">{quote.contact?.name || 'Unknown Client'}</h3>
+                            <p className="text-slate-600">{quote.contact?.company}</p>
+                            <p className="text-slate-500">{quote.contact?.email}</p>
+                        </div>
+
+                        {/* Line Items */}
+                        <div className="mb-12">
+                            <table className="w-full text-left">
+                                <thead className="border-b-2 border-slate-100">
+                                    <tr>
+                                        <th className="py-3 font-semibold text-slate-900 w-[50%]">Description</th>
+                                        <th className="py-3 font-semibold text-slate-900 w-[15%] text-right">Qty</th>
+                                        <th className="py-3 font-semibold text-slate-900 w-[15%] text-right">Rate</th>
+                                        <th className="py-3 font-semibold text-slate-900 w-[20%] text-right">Amount</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    {quotation.items.map((item, idx) => (
-                                        <tr key={idx} className="border-b border-slate-50">
-                                            <td className="py-4 text-sm text-slate-700">{item.description}</td>
-                                            <td className="py-4 text-sm text-slate-600 text-center">{item.quantity}</td>
-                                            <td className="py-4 text-sm text-slate-600 text-right">${item.unitPrice.toLocaleString()}</td>
-                                            <td className="py-4 text-sm font-[600] text-slate-900 text-right">${item.amount.toLocaleString()}</td>
-                                        </tr>
-                                    ))}
+                                <tbody className="divide-y divide-slate-100">
+                                    {quote.items?.map((item) => {
+                                        const parts = (item.description || '').split('\n');
+                                        const title = parts[0];
+                                        const desc = parts.slice(1).join('\n');
+                                        return (
+                                            <tr key={item.id}>
+                                                <td className="py-4 align-top">
+                                                    <p className="font-medium text-slate-900">{title}</p>
+                                                    {desc && <p className="text-slate-500 text-xs mt-1 whitespace-pre-line">{desc}</p>}
+                                                </td>
+                                                <td className="py-4 align-top text-right text-slate-600">{item.quantity}</td>
+                                                <td className="py-4 align-top text-right text-slate-600">${item.unit_price.toFixed(2)}</td>
+                                                <td className="py-4 align-top text-right text-slate-900 font-medium">${(item.quantity * item.unit_price).toFixed(2)}</td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
+                        </div>
 
-                            {/* Totals */}
-                            <div className="mt-6 pt-4 border-t border-slate-200 space-y-2">
-                                <div className="flex justify-end gap-8">
-                                    <span className="text-sm text-slate-500">Subtotal</span>
-                                    <span className="text-sm font-[600] text-slate-900 w-28 text-right">${quotation.subtotal.toLocaleString()}</span>
+                        {/* Totals */}
+                        <div className="flex justify-end mb-12">
+                            <div className="w-64 space-y-3">
+                                <div className="flex justify-between text-slate-600">
+                                    <span>Subtotal</span>
+                                    <span>${subtotal.toFixed(2)}</span>
                                 </div>
-                                <div className="flex justify-end gap-8">
-                                    <span className="text-sm text-slate-500">Tax</span>
-                                    <span className="text-sm font-[600] text-slate-900 w-28 text-right">${quotation.tax.toLocaleString()}</span>
+                                {quote.discount > 0 && (
+                                    <div className="flex justify-between text-slate-600">
+                                        <span>Discount</span>
+                                        <span className="text-rose-500">-${quote.discount.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                {quote.tax > 0 && (
+                                    <div className="flex justify-between text-slate-600">
+                                        <span>Tax</span>
+                                        <span>${quote.tax.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                <div className="h-px bg-slate-200 my-2"></div>
+                                <div className="flex justify-between text-lg font-bold text-slate-900">
+                                    <span>Total</span>
+                                    <span>${quote.amount.toFixed(2)}</span>
                                 </div>
-                                <div className="flex justify-end gap-8 pt-3 border-t border-slate-100">
-                                    <span className="text-lg font-[600] text-slate-900">Total</span>
-                                    <span className="text-lg font-[700] text-indigo-600 w-28 text-right">${quotation.total.toLocaleString()}</span>
+                                {quote.deposit > 0 && (
+                                    <div className="flex justify-between text-sm font-semibold text-indigo-700 mt-2">
+                                        <span>Deposit Required</span>
+                                        <span>${quote.deposit.toFixed(2)}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Notes */}
+                        {quote.notes && (
+                            <div className="pt-8 border-t border-slate-100">
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Terms & Notes</p>
+                                <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
+                                    {quote.notes}
+                                </p>
+                            </div>
+                        )}
+
+                    </div>
+                </div>
+
+                {/* RIGHT COLUMN: Activity & Status (35%) */}
+                <div className="w-[360px] bg-white border-l border-slate-200 flex flex-col shrink-0 overflow-y-auto">
+                    
+                    {/* Status Timeline */}
+                    <div className="p-6 border-b border-slate-100">
+                        <h3 className="text-sm font-[600] text-slate-900 mb-4">Document Status</h3>
+                        
+                        <div className="relative pl-4 border-l-2 border-slate-100 space-y-8">
+                            
+                            {/* Created */}
+                            <div className="relative">
+                                <div className="absolute -left-[21px] w-3 h-3 bg-indigo-600 rounded-full border-2 border-white shadow-sm"></div>
+                                <div className="flex flex-col">
+                                    <span className="text-xs font-bold text-slate-900 uppercase">Created</span>
+                                    <span className="text-xs text-slate-500">{new Date(quote.created_at).toLocaleString()} by You</span>
                                 </div>
                             </div>
+
+                            {/* Sent (Conditional) */}
+                            {(quote.status === 'sent' || quote.status === 'viewed' || quote.status === 'accepted') && (
+                                <div className="relative">
+                                    <div className="absolute -left-[21px] w-3 h-3 bg-indigo-600 rounded-full border-2 border-white shadow-sm"></div>
+                                    <div className="flex flex-col">
+                                        <span className="text-xs font-bold text-slate-900 uppercase">Sent</span>
+                                        <span className="text-xs text-slate-500">Jan 14, 10:23 AM via Email</span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Accepted (Conditional) */}
+                            {quote.status === 'accepted' ? (
+                                <div className="relative">
+                                    <div className="absolute -left-[21px] w-3 h-3 bg-indigo-600 rounded-full border-2 border-white shadow-sm"></div>
+                                    <div className="flex flex-col">
+                                        <span className="text-xs font-bold text-indigo-600 uppercase">Accepted</span>
+                                        <span className="text-xs text-slate-500">Jan 15, 02:00 PM by Client</span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="relative opacity-50">
+                                    <div className="absolute -left-[21px] w-3 h-3 bg-slate-200 rounded-full border-2 border-white"></div>
+                                    <div className="flex flex-col">
+                                        <span className="text-xs font-bold text-slate-400 uppercase">Accepted</span>
+                                        <span className="text-xs text-slate-400">Pending action</span>
+                                    </div>
+                                </div>
+                            )}
+
                         </div>
                     </div>
 
-                    {/* Terms & Notes */}
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                            <div className="px-6 py-4 border-b border-slate-100">
-                                <h2 className="text-lg font-[600] text-slate-900">Terms</h2>
-                            </div>
-                            <div className="p-6">
-                                <p className="text-sm text-slate-600">{quotation.terms}</p>
-                            </div>
+                    {/* Client Card */}
+                    <div className="p-6 border-b border-slate-100">
+                        <div className="flex justify-between items-center mb-3">
+                            <h3 className="text-sm font-[600] text-slate-900">Client Details</h3>
+                            <Link href={`/contacts`} className="text-xs text-indigo-600 hover:underline">View Profile</Link>
                         </div>
-                        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                            <div className="px-6 py-4 border-b border-slate-100">
-                                <h2 className="text-lg font-[600] text-slate-900">Notes</h2>
-                            </div>
-                            <div className="p-6">
-                                <p className="text-sm text-slate-600">{quotation.notes}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Quick Actions */}
-                    <div className="mt-6 flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
                         <div className="flex items-center gap-3">
-                            <span className="text-sm text-slate-600">Quick Actions:</span>
-                            <button className="text-sm font-[500] text-indigo-600 hover:text-indigo-700">Download PDF</button>
-                            <span className="text-slate-300">•</span>
-                            <button className="text-sm font-[500] text-indigo-600 hover:text-indigo-700">Duplicate</button>
-                            <span className="text-slate-300">•</span>
-                            <button className="text-sm font-[500] text-indigo-600 hover:text-indigo-700">Convert to Invoice</button>
+                            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-sm">
+                                {(quote.contact?.name || '??').substring(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                                <p className="text-sm font-[600] text-slate-900">{quote.contact?.name || 'Unknown'}</p>
+                                <p className="text-xs text-slate-500">{quote.contact?.email}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Next Steps / Actions */}
+                    <div className="p-6 bg-slate-50/50 flex-1">
+                        <h3 className="text-sm font-[600] text-slate-900 mb-3">Next Steps</h3>
+                        <div className="space-y-3">
+                            <button className="w-full text-left p-3 bg-white border border-slate-200 hover:border-indigo-300 rounded-xl shadow-sm transition-all flex items-center gap-3 group">
+                                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
+                                    <i className="ph-bold ph-receipt"></i>
+                                </div>
+                                <div>
+                                    <p className="text-sm font-[600] text-slate-700 group-hover:text-indigo-700">Convert to Invoice</p>
+                                    <p className="text-[10px] text-slate-500">If quote is accepted</p>
+                                </div>
+                            </button>
+
+                            <button className="w-full text-left p-3 bg-white border border-slate-200 hover:border-indigo-300 rounded-xl shadow-sm transition-all flex items-center gap-3 group">
+                                <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-100 transition-colors">
+                                    <i className="ph-bold ph-bell-ringing"></i>
+                                </div>
+                                <div>
+                                    <p className="text-sm font-[600] text-slate-700 group-hover:text-indigo-700">Send Follow-up</p>
+                                    <p className="text-[10px] text-slate-500">Nudge the client gently</p>
+                                </div>
+                            </button>
                         </div>
                     </div>
 
                 </div>
-                
-                {/* Footer */}
-                <div className="mt-12 mb-6 text-center">
-                    <p className="text-xs text-slate-400">© 2026 Flova. Crafted for growth.</p>
-                </div>
+
             </div>
-        </>
+        </div>
     );
 }
