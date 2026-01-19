@@ -36,7 +36,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    if (!['sent', 'viewed'].includes(document.status)) {
+    if (!['sent', 'viewed', 'draft'].includes(document.status)) {
       return NextResponse.json(
         { error: 'Quote cannot be accepted in current status' },
         { status: 400 }

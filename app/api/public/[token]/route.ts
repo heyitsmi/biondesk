@@ -21,9 +21,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Only return documents that have been sent
-    if (document.status === 'draft') {
-      return NextResponse.json({ error: 'Document not available' }, { status: 404 });
-    }
+    // if (document.status === 'draft') {
+    //   return NextResponse.json({ error: 'Document not available' }, { status: 404 });
+    // }
 
     return NextResponse.json(document);
   } catch (error) {

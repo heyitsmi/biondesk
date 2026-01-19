@@ -188,7 +188,7 @@ export default function ProposalDetailPage() {
                         <div className="mb-10 pointer-events-none select-none">
                             <div className="flex items-center gap-2 mb-6 text-indigo-600">
                                 <i className="ph-fill ph-lightning text-xl"></i>
-                                <span className="text-lg font-bold text-slate-900">Dealis Studio</span>
+                                <span className="text-lg font-bold text-slate-900">Flova Studio</span>
                             </div>
                             <p className="text-slate-500 mb-1">{new Date(document.created_at).toLocaleDateString()}</p>
                             <h1 className="text-2xl font-bold text-slate-900">{document.title}</h1>

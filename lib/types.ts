@@ -121,6 +121,7 @@ export interface Document extends Timestamps {
   sent_at: string | null;
   accepted_at: string | null;
   paid_at: string | null;
+  signature: string | null;
 }
 
 export interface DocumentItem {

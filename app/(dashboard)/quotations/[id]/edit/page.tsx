@@ -7,7 +7,8 @@ import { Contact } from '@/lib/types';
 
 interface QuoteFormData {
     client_id: string;
-    reference: string;
+    reference: string; // Acts as Title
+    status: string; // string mainly to support all statuses
     issue_date: string;
     valid_until: string;
     items: {
@@ -18,6 +19,7 @@ interface QuoteFormData {
         unit_price: number;
     }[];
     notes: string;
+    description: string; // Project Scope / Content
     discount_percentage: number;
     tax_percentage: number;
     deposit_percentage: number;
@@ -35,10 +37,12 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
     const [formData, setFormData] = useState<QuoteFormData>({
         client_id: '',
         reference: '',
+        status: 'draft',
         issue_date: '',
         valid_until: '',
         items: [],
         notes: '',
+        description: '',
         discount_percentage: 0,
         tax_percentage: 0,
         deposit_percentage: 50,
@@ -63,6 +67,7 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
                 setFormData({
                     client_id: quoteData.contact_id,
                     reference: quoteData.title, // Assuming title is used as reference
+                    status: quoteData.status,
                     issue_date: new Date(quoteData.created_at).toISOString().split('T')[0], // Use created_at as issue date for now
                     valid_until: quoteData.valid_until ? new Date(quoteData.valid_until).toISOString().split('T')[0] : '',
                     items: quoteData.items?.map(item => {
@@ -79,6 +84,7 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
                         };
                     }) || [],
                     notes: quoteData.notes || '',
+                    description: quoteData.content || '',
                     discount_percentage: (quoteData.discount && quoteData.amount) ? (quoteData.discount / (quoteData.amount + quoteData.discount)) * 100 : 0, // Approx reverse calc if needed, or store separate
                     tax_percentage: quoteData.tax && quoteData.amount ? (quoteData.tax / (quoteData.amount - quoteData.tax)) * 100 : 0, // Placeholder calculation
                     deposit_percentage: quoteData.deposit && quoteData.amount ? (quoteData.deposit / quoteData.amount) * 100 : 50,
@@ -163,18 +169,21 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
         }
     };
 
-    const handleSubmit = async (status: 'draft' | 'sent') => {
+    const handleSubmit = async (saveAsStatus: 'draft' | 'sent' | null = null) => {
         if (!formData.client_id) {
             alert('Please select a client');
             return;
         }
+        
+        const finalStatus = saveAsStatus || formData.status;
 
         setIsSaving(true);
         try {
             await quotesApi.update(id, {
                 contact_id: formData.client_id,
                 title: formData.reference || 'Untitled Quote',
-                status: status,
+                content: formData.description,
+                status: finalStatus as any,
                 valid_until: formData.valid_until,
                 amount: total,
                 items: formData.items.map(item => ({
@@ -205,8 +214,35 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
 
     if (isLoading) {
         return (
-            <div className="flex h-screen items-center justify-center">
-                <i className="ph-bold ph-spinner animate-spin text-2xl text-indigo-600"></i>
+            <div className="flex-1 flex flex-col h-full bg-white relative overflow-hidden">
+                <div className="h-16 px-8 flex items-center justify-between border-b border-slate-200 shrink-0">
+                    <div className="w-32 h-6 bg-slate-200 rounded animate-pulse"></div>
+                    <div className="flex gap-3">
+                        <div className="w-24 h-9 bg-slate-200 rounded-lg animate-pulse"></div>
+                        <div className="w-24 h-9 bg-slate-200 rounded-lg animate-pulse"></div>
+                    </div>
+                </div>
+                <div className="flex-1 p-8 overflow-hidden">
+                    <div className="max-w-5xl mx-auto space-y-6">
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white p-6 rounded-xl border border-slate-200">
+                             <div className="space-y-4">
+                                <div className="w-20 h-4 bg-slate-200 rounded animate-pulse"></div>
+                                <div className="w-full h-10 bg-slate-200 rounded animate-pulse"></div>
+                             </div>
+                             <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <div className="w-20 h-4 bg-slate-200 rounded animate-pulse"></div>
+                                    <div className="w-full h-10 bg-slate-200 rounded animate-pulse"></div>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="w-20 h-4 bg-slate-200 rounded animate-pulse"></div>
+                                    <div className="w-full h-10 bg-slate-200 rounded animate-pulse"></div>
+                                </div>
+                             </div>
+                         </div>
+                         <div className="h-48 bg-white rounded-xl border border-slate-200 animate-pulse"></div>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -246,19 +282,12 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
                     </div>
 
                     <button 
-                        onClick={() => handleSubmit('draft')}
-                        disabled={isSaving}
-                        className="px-4 py-2 text-sm font-[550] text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all"
-                    >
-                        Save Application
-                    </button>
-                    <button 
-                        onClick={() => handleSubmit('sent')}
+                        onClick={() => handleSubmit()}
                         disabled={isSaving}
                         className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-smooth"
                     >
-                        <i className="ph-bold ph-paper-plane-tilt"></i>
-                        <span>{isSaving ? 'Updating...' : 'Update & Send'}</span>
+                        <i className="ph-bold ph-floppy-disk"></i>
+                        <span>{isSaving ? 'Updating...' : 'Update Quote'}</span>
                     </button>
                 </div>
             </header>
@@ -268,82 +297,115 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
                 <div className="max-w-5xl mx-auto space-y-6">
                     
                     {/* Metadata Card */}
-                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-8">
                         
-                        {/* Client Selection */}
-                        <div className="space-y-4">
-                            <div className="space-y-1.5">
-                                <label className="text-sm font-[600] text-slate-700">Client</label>
-                                <div className="relative">
-                                    <select 
-                                        value={formData.client_id}
-                                        onChange={(e) => {
-                                            if (e.target.value === 'new') {
-                                                setIsClientModalOpen(true);
-                                            } else {
-                                                setFormData({ ...formData, client_id: e.target.value });
-                                            }
-                                        }}
-                                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-sm font-[450] text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all appearance-none cursor-pointer"
-                                    >
-                                        <option value="" disabled>Select a client...</option>
-                                        {clients.map(client => (
-                                            <option key={client.id} value={client.id}>{client.name} {client.company ? `(${client.company})` : ''}</option>
-                                        ))}
-                                        <option value="new" className="font-bold text-indigo-600">+ Create New Client</option>
-                                    </select>
-                                    <i className="ph-bold ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {/* Client Selection */}
+                            <div className="space-y-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-[600] text-slate-700">Client</label>
+                                    <div className="relative">
+                                        <select 
+                                            value={formData.client_id}
+                                            onChange={(e) => {
+                                                if (e.target.value === 'new') {
+                                                    setIsClientModalOpen(true);
+                                                } else {
+                                                    setFormData({ ...formData, client_id: e.target.value });
+                                                }
+                                            }}
+                                            className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg text-sm font-[450] text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all appearance-none cursor-pointer"
+                                        >
+                                            <option value="" disabled>Select a client...</option>
+                                            {clients.map(client => (
+                                                <option key={client.id} value={client.id}>{client.name} {client.company ? `(${client.company})` : ''}</option>
+                                            ))}
+                                            <option value="new" className="font-bold text-indigo-600">+ Create New Client</option>
+                                        </select>
+                                        <i className="ph-bold ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                                    </div>
+                                </div>
+                                
+                                {formData.client_id && (() => {
+                                    const sc = clients.find(c => c.id === formData.client_id);
+                                    if (!sc) return null;
+                                    return (
+                                        <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
+                                            <p className="text-sm font-[600] text-slate-900">{sc.name}</p>
+                                            {sc.company && <p className="text-xs text-slate-500 mt-1">{sc.company}</p>}
+                                            {sc.email && <p className="text-xs text-slate-500">{sc.email}</p>}
+                                        </div>
+                                    );
+                                })()}
+                            </div>
+
+                            {/* Quote Details */}
+                            <div className="grid grid-cols-2 gap-4 h-fit">
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-[600] text-slate-700">Quote Number</label>
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-[600]">#</span>
+                                        <input type="text" value={id.substring(0, 8).toUpperCase()} disabled className="w-full pl-7 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-[500] text-slate-600 focus:outline-none focus:border-slate-300 transition-all" />
+                                    </div>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-[600] text-slate-700">Status</label>
+                                    <div className="relative">
+                                         <select 
+                                            value={formData.status}
+                                            onChange={(e) => setFormData({...formData, status: e.target.value})}
+                                            className="w-full pl-3 pr-8 py-2.5 bg-white border border-slate-200 rounded-lg text-sm font-[450] text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all appearance-none cursor-pointer"
+                                        >
+                                            <option value="draft">Draft</option>
+                                            <option value="sent">Sent</option>
+                                            <option value="accepted">Accepted</option>
+                                            <option value="overdue">Overdue</option>
+                                        </select>
+                                        <i className="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                                    </div>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-[600] text-slate-700">Issue Date</label>
+                                    <input 
+                                        type="date" 
+                                        value={formData.issue_date}
+                                        onChange={(e) => setFormData({...formData, issue_date: e.target.value})}
+                                        className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm font-[450] text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-[600] text-slate-700">Valid Until</label>
+                                    <input 
+                                        type="date" 
+                                        value={formData.valid_until}
+                                        onChange={(e) => setFormData({...formData, valid_until: e.target.value})}
+                                        className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm font-[450] text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                                    />
                                 </div>
                             </div>
-                            
-                            {formData.client_id && (() => {
-                                const sc = clients.find(c => c.id === formData.client_id);
-                                if (!sc) return null;
-                                return (
-                                    <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
-                                        <p className="text-sm font-[600] text-slate-900">{sc.name}</p>
-                                        {sc.company && <p className="text-xs text-slate-500 mt-1">{sc.company}</p>}
-                                        {sc.email && <p className="text-xs text-slate-500">{sc.email}</p>}
-                                    </div>
-                                );
-                            })()}
                         </div>
 
-                        {/* Quote Details */}
-                        <div className="grid grid-cols-2 gap-4">
+                        {/* Full Width Fields */}
+                        <div className="space-y-6 pt-2">
                             <div className="space-y-1.5">
-                                <label className="text-sm font-[600] text-slate-700">Quote Number</label>
-                                <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-[600]">#</span>
-                                    <input type="text" value={id.substring(0, 8).toUpperCase()} disabled className="w-full pl-7 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-[500] text-slate-600 focus:outline-none focus:border-slate-300 transition-all" />
-                                </div>
-                            </div>
-                            <div className="space-y-1.5">
-                                <label className="text-sm font-[600] text-slate-700">Reference (Opt)</label>
+                                <label className="text-sm font-[600] text-slate-700">Project Title</label>
                                 <input 
                                     type="text" 
-                                    placeholder="e.g. Project Alpha"
+                                    placeholder="e.g. Website Redesign Phase 2"
                                     value={formData.reference}
                                     onChange={(e) => setFormData({...formData, reference: e.target.value})}
                                     className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm font-[450] text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                                 />
                             </div>
+
                             <div className="space-y-1.5">
-                                <label className="text-sm font-[600] text-slate-700">Issue Date</label>
-                                <input 
-                                    type="date" 
-                                    value={formData.issue_date}
-                                    onChange={(e) => setFormData({...formData, issue_date: e.target.value})}
-                                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm font-[450] text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                                />
-                            </div>
-                            <div className="space-y-1.5">
-                                <label className="text-sm font-[600] text-slate-700">Valid Until</label>
-                                <input 
-                                    type="date" 
-                                    value={formData.valid_until}
-                                    onChange={(e) => setFormData({...formData, valid_until: e.target.value})}
-                                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm font-[450] text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                                <label className="text-sm font-[600] text-slate-700">Scope Description</label>
+                                <textarea 
+                                    placeholder="Describe the scope of work..."
+                                    rows={3}
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({...formData, description: e.target.value})}
+                                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm font-[450] text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none"
                                 />
                             </div>
                         </div>

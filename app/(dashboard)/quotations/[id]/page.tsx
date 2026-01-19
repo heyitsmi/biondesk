@@ -1,16 +1,35 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { quotesApi } from '@/lib/api';
 import { DocumentWithItems } from '@/lib/types';
+import { useReactToPrint } from 'react-to-print';
 
 export default function QuoteDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const router = useRouter();
     const [quote, setQuote] = useState<DocumentWithItems | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [showToast, setShowToast] = useState(false);
+    const printRef = useRef<HTMLDivElement>(null);
+
+    const handleCopyLink = () => {
+        if (!quote?.public_token) {
+            alert('This quote does not have a public link generated yet.');
+            return;
+        }
+        const url = `${window.location.origin}/quote/${quote.public_token}`;
+        navigator.clipboard.writeText(url);
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
+    };
+
+    const handlePrint = useReactToPrint({
+        contentRef: printRef,
+        documentTitle: quote ? `Quote ${quote.number}` : 'Quote',
+    });
 
     useEffect(() => {
         const fetchQuote = async () => {
@@ -20,7 +39,6 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
             } catch (error) {
                 console.error('Error fetching quote:', error);
                 alert('Failed to load quote details');
-                // router.push('/quotations');
             } finally {
                 setIsLoading(false);
             }
@@ -41,8 +59,71 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
 
     if (isLoading) {
         return (
-            <div className="flex h-screen items-center justify-center">
-                <i className="ph-bold ph-spinner animate-spin text-2xl text-indigo-600"></i>
+            <div className="flex-1 flex flex-col h-full relative overflow-hidden bg-slate-50/50">
+                 {/* Header Skeleton */}
+                 <header className="h-16 px-8 flex items-center justify-between bg-white border-b border-slate-200 shrink-0">
+                    <div className="flex items-center gap-4">
+                        <div className="w-8 h-8 bg-slate-200 rounded-lg animate-pulse"></div>
+                        <div className="h-6 w-px bg-slate-200"></div>
+                        <div className="space-y-1">
+                            <div className="w-20 h-3 bg-slate-200 rounded animate-pulse"></div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-32 h-5 bg-slate-200 rounded animate-pulse"></div>
+                                <div className="w-16 h-5 bg-slate-200 rounded-full animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex gap-3">
+                        <div className="w-24 h-9 bg-slate-200 rounded-lg animate-pulse"></div>
+                        <div className="w-24 h-9 bg-slate-200 rounded-lg animate-pulse"></div>
+                    </div>
+                </header>
+                {/* Body Skeleton */}
+                <div className="flex-1 overflow-hidden flex">
+                    <div className="flex-1 p-8 flex justify-center overflow-y-auto">
+                        <div className="w-full max-w-[210mm] aspect-[210/297] bg-white border border-slate-200 shadow-sm p-12 space-y-8">
+                             <div className="flex justify-between">
+                                <div className="space-y-2">
+                                    <div className="w-32 h-6 bg-slate-200 rounded animate-pulse"></div>
+                                    <div className="w-48 h-4 bg-slate-200 rounded animate-pulse"></div>
+                                </div>
+                                <div className="space-y-2 flex flex-col items-end">
+                                    <div className="w-40 h-8 bg-slate-200 rounded animate-pulse"></div>
+                                    <div className="w-32 h-4 bg-slate-200 rounded animate-pulse"></div>
+                                </div>
+                             </div>
+                             <div className="grid grid-cols-2 gap-8 pt-8 border-t border-slate-100">
+                                <div className="space-y-2">
+                                    <div className="w-24 h-3 bg-slate-200 rounded animate-pulse"></div>
+                                    <div className="w-40 h-5 bg-slate-200 rounded animate-pulse"></div>
+                                    <div className="w-32 h-4 bg-slate-200 rounded animate-pulse"></div>
+                                </div>
+                                <div className="space-y-2 flex flex-col items-end">
+                                    <div className="w-24 h-3 bg-slate-200 rounded animate-pulse"></div>
+                                    <div className="w-40 h-5 bg-slate-200 rounded animate-pulse"></div>
+                                    <div className="w-32 h-4 bg-slate-200 rounded animate-pulse"></div>
+                                </div>
+                             </div>
+                             <div className="space-y-4 pt-8">
+                                <div className="w-full h-8 bg-slate-100 rounded animate-pulse"></div>
+                                <div className="w-full h-16 bg-slate-50 rounded animate-pulse"></div>
+                                <div className="w-full h-16 bg-slate-50 rounded animate-pulse"></div>
+                             </div>
+                        </div>
+                    </div>
+                    <div className="w-[360px] border-l border-slate-200 bg-white p-6 space-y-6">
+                        <div className="h-4 bg-slate-200 rounded w-1/3 animate-pulse"></div>
+                        <div className="space-y-4">
+                            <div className="flex gap-3">
+                                <div className="w-3 h-3 rounded-full bg-slate-200"></div>
+                                <div className="flex-1 space-y-2">
+                                    <div className="h-3 bg-slate-200 rounded w-1/2 animate-pulse"></div>
+                                    <div className="h-3 bg-slate-200 rounded w-3/4 animate-pulse"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -86,10 +167,18 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
                         <i className="ph-bold ph-pencil-simple"></i> Edit
                     </Link>
                     <div className="h-8 w-px bg-slate-200"></div>
-                    <button className="px-4 py-2 text-sm font-[550] text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all" title="Duplicate">
-                        <i className="ph-bold ph-copy"></i>
+                    <button 
+                        onClick={handleCopyLink}
+                        className="px-4 py-2 text-sm font-[550] text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all relative" 
+                        title="Copy Public Link"
+                    >
+                        <i className="ph-bold ph-link"></i>
                     </button>
-                    <button className="px-4 py-2 text-sm font-[550] text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all" title="Download PDF">
+                    <button 
+                        onClick={handlePrint}
+                        className="px-4 py-2 text-sm font-[550] text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all" 
+                        title="Download PDF"
+                    >
                         <i className="ph-bold ph-download-simple"></i>
                     </button>
                     <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-smooth">
@@ -99,6 +188,14 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
                 </div>
             </header>
 
+            {/* Toast Notification */}
+            {showToast && (
+                <div className="absolute top-20 right-8 z-50 bg-slate-900 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 text-sm font-medium animate-fade-in-up">
+                    <i className="ph-fill ph-check-circle text-emerald-400"></i>
+                    Public link copied to clipboard!
+                </div>
+            )}
+
             {/* Main Workspace (Split View) */}
             <div className="flex-1 flex overflow-hidden">
                 
@@ -106,14 +203,14 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
                 <div className="flex-1 overflow-y-auto p-8 scroller-thin flex justify-center">
                     
                     {/* A4 Paper Representation */}
-                    <div className="w-full max-w-[210mm] bg-white shadow-paper border border-slate-200 min-h-[297mm] p-12 text-slate-800 text-sm leading-relaxed relative">
+                    <div ref={printRef} className="w-full max-w-[210mm] bg-white shadow-paper border border-slate-200 min-h-[297mm] p-12 text-slate-800 text-sm leading-relaxed relative print:shadow-none print:border-none print:m-0 print:p-8">
                         
                         {/* Document Header */}
                         <div className="flex justify-between items-start mb-12">
                             <div>
                                 <div className="flex items-center gap-2 mb-4 text-indigo-600">
                                     <i className="ph-fill ph-lightning text-2xl"></i>
-                                    <span className="text-xl font-bold text-slate-900">Dealis.</span>
+                                    <span className="text-xl font-bold text-slate-900">Flova.</span>
                                 </div>
                                 <p className="text-slate-500">
                                     123 Creative Studio, Tech City<br/>

@@ -274,7 +274,7 @@ export const publicApi = {
   getDocument: (token: string) =>
     fetchApi<DocumentWithItems>(`/public/${token}`),
 
-  acceptQuote: (token: string, data?: { signature_name?: string }) =>
+  acceptQuote: (token: string, data?: { signature_name?: string; signature?: string }) =>
     fetchApi<{ success: boolean; message: string }>(`/public/${token}/accept`, {
       method: 'POST',
       body: JSON.stringify(data || {}),

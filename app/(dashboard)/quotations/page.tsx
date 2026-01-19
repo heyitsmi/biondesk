@@ -159,14 +159,35 @@ export default function QuotationsPage() {
                             </thead>
                             <tbody className="divide-y divide-slate-100 text-sm">
                                 {isLoading ? (
-                                    <tr>
-                                        <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
-                                            <div className="flex justify-center items-center gap-2 mb-2">
-                                                <i className="ph-bold ph-spinner animate-spin text-xl text-indigo-500"></i>
-                                            </div>
-                                            Loading quotations...
-                                        </td>
-                                    </tr>
+                                    // Skeleton Loader
+                                    Array.from({ length: 5 }).map((_, index) => (
+                                        <tr key={index} className="animate-pulse">
+                                            <td className="px-6 py-4">
+                                                <div className="h-4 bg-slate-200 rounded w-24"></div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 bg-slate-200 rounded"></div>
+                                                    <div className="space-y-2">
+                                                        <div className="h-4 bg-slate-200 rounded w-32"></div>
+                                                        <div className="h-3 bg-slate-200 rounded w-20"></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="h-6 bg-slate-200 rounded-full w-20"></div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="h-4 bg-slate-200 rounded w-24"></div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="h-4 bg-slate-200 rounded w-20 ml-auto"></div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="h-8 bg-slate-200 rounded w-8 ml-auto"></div>
+                                            </td>
+                                        </tr>
+                                    ))
                                 ) : quotations.length === 0 ? (
                                     <tr>
                                         <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
