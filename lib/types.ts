@@ -247,6 +247,7 @@ export interface ApiError {
 
 export interface DashboardStats {
   totalRevenue: number;
+  paidThisMonth: number;
   pendingAmount: number;
   overdueAmount: number;
   activeOpportunities: number;

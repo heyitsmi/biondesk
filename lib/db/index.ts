@@ -342,7 +342,7 @@ export async function getDocumentById(
 
   const { data, error } = await supabase
     .from('documents')
-    .select('*, contact:contacts(*), items:document_items(*)')
+    .select('*, contact:contacts(*), items:document_items(*), workspace:workspaces(*)')
     .eq('workspace_id', workspaceId)
     .eq('id', documentId)
     .single();
@@ -769,9 +769,11 @@ export async function getRecentEvents(
 // ============================================
 export async function getDashboardStats(workspaceId: string) {
   const supabase = createServerClient();
+  const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
 
   const [
     { data: revenueData },
+    { data: paidMonthData },
     { data: pendingData },
     { data: overdueData },
     { count: activeOpps },
@@ -784,6 +786,13 @@ export async function getDashboardStats(workspaceId: string) {
       .select('amount')
       .eq('workspace_id', workspaceId)
       .eq('status', 'paid'),
+    // Paid this month
+    supabase
+      .from('documents')
+      .select('amount')
+      .eq('workspace_id', workspaceId)
+      .eq('status', 'paid')
+      .gte('paid_at', startOfMonth),
     // Pending invoices
     supabase
       .from('documents')
@@ -810,7 +819,7 @@ export async function getDashboardStats(workspaceId: string) {
       .select('*', { count: 'exact', head: true })
       .eq('workspace_id', workspaceId)
       .eq('stage', 'won')
-      .gte('updated_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()),
+      .gte('updated_at', startOfMonth),
     // Total contacts
     supabase
       .from('contacts')
@@ -819,11 +828,13 @@ export async function getDashboardStats(workspaceId: string) {
   ]);
 
   const totalRevenue = (revenueData || []).reduce((sum, d) => sum + (d.amount || 0), 0);
+  const paidThisMonth = (paidMonthData || []).reduce((sum, d) => sum + (d.amount || 0), 0);
   const pendingAmount = (pendingData || []).reduce((sum, d) => sum + (d.amount || 0), 0);
   const overdueAmount = (overdueData || []).reduce((sum, d) => sum + (d.amount || 0), 0);
 
   return {
     totalRevenue,
+    paidThisMonth,
     pendingAmount,
     overdueAmount,
     activeOpportunities: activeOpps || 0,

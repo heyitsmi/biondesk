@@ -219,6 +219,41 @@ export default function SettingsClient({ initialWorkspace, user }: SettingsClien
                                         ></textarea>
                                     </div>
 
+                                    <div className="pt-4 border-t border-slate-100">
+                                        <h3 className="text-sm font-[600] text-slate-900 mb-4">Payment Details</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="space-y-1.5">
+                                                <label className="text-sm font-[500] text-slate-700">Bank Name</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={(formData.bank_details as any)?.bank_name || ''} 
+                                                    onChange={(e) => handleInputChange('bank_details', { ...formData.bank_details, bank_name: e.target.value })}
+                                                    placeholder="e.g. BCA, Chase, Stripe"
+                                                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" 
+                                                />
+                                            </div>
+                                            <div className="space-y-1.5">
+                                                <label className="text-sm font-[500] text-slate-700">Account Number</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={(formData.bank_details as any)?.account_number || ''} 
+                                                    onChange={(e) => handleInputChange('bank_details', { ...formData.bank_details, account_number: e.target.value })}
+                                                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" 
+                                                />
+                                            </div>
+                                            <div className="space-y-1.5 md:col-span-2">
+                                                <label className="text-sm font-[500] text-slate-700">Account Holder Name</label>
+                                                <input 
+                                                    type="text" 
+                                                    value={(formData.bank_details as any)?.account_name || ''} 
+                                                    onChange={(e) => handleInputChange('bank_details', { ...formData.bank_details, account_name: e.target.value })}
+                                                    placeholder="Name on the account"
+                                                    className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" 
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div className="space-y-1.5">
                                         <label className="text-sm font-[500] text-slate-700">Logo</label>
                                         <div className="flex items-center gap-4">
