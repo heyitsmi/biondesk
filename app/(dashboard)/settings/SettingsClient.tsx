@@ -16,6 +16,10 @@ export default function SettingsClient({ initialWorkspace, user }: SettingsClien
     
     // Form States
     const [formData, setFormData] = useState<Partial<Workspace>>(initialWorkspace || {});
+    const [userData, setUserData] = useState({
+        name: user?.name || '',
+        email: user?.email || '',
+    });
 
     const handleInputChange = (field: keyof Workspace, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -72,6 +76,15 @@ export default function SettingsClient({ initialWorkspace, user }: SettingsClien
             });
 
             if (!res.ok) throw new Error('Save failed');
+
+            // Save User Profile
+            const userRes = await fetch('/api/user', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData),
+            });
+
+            if (!userRes.ok) throw new Error('Failed to update profile');
 
             const { workspace: updatedWorkspace } = await res.json();
             
@@ -331,7 +344,8 @@ export default function SettingsClient({ initialWorkspace, user }: SettingsClien
                                         <label className="text-sm font-[500] text-slate-700">Full Name</label>
                                         <input 
                                             type="text" 
-                                            defaultValue={user?.name || 'Alex Designer'} 
+                                            value={userData.name}
+                                            onChange={(e) => setUserData({...userData, name: e.target.value})}
                                             className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" 
                                         />
                                     </div>
@@ -339,7 +353,8 @@ export default function SettingsClient({ initialWorkspace, user }: SettingsClien
                                         <label className="text-sm font-[500] text-slate-700">Email Address</label>
                                         <input 
                                             type="email" 
-                                            defaultValue={user?.email || 'alex@designstudio.com'} 
+                                            value={userData.email}
+                                            onChange={(e) => setUserData({...userData, email: e.target.value})}
                                             className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" 
                                         />
                                     </div>
