@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { opportunitiesApi } from '@/lib/api';
 import { Opportunity } from '@/lib/types';
+import { FlagIcon } from 'react-flag-kit';
 
 const STAGE_CONFIG = [
     { id: 'inbox', name: 'New Inbox', color: 'bg-slate-400' },
@@ -283,7 +284,10 @@ export default function OpportunitiesPage() {
                                                                                 <div className="flex flex-col gap-1">
                                                                                     <h4 className="text-sm font-[600] text-slate-900 line-through decoration-slate-400 group-hover:text-emerald-800 transition-colors">{opp.title}</h4>
                                                                                     {opp.client_name && (
-                                                                                        <span className="text-[10px] text-slate-500">{opp.client_name}</span>
+                                                                                        <div className="flex items-center gap-1.5">
+                                                                                            {opp.country_code && <FlagIcon code={opp.country_code as any} size={12} />}
+                                                                                            <span className="text-[10px] text-slate-500">{opp.client_name}</span>
+                                                                                        </div>
                                                                                     )}
                                                                                 </div>
                                                                                 <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
@@ -325,6 +329,7 @@ export default function OpportunitiesPage() {
                                                                                 {opp.client_name && (
                                                                                     <div className="flex items-center gap-1.5 pt-2 border-t border-slate-50 text-[10px] text-slate-400 font-[500] uppercase tracking-wide">
                                                                                         <i className="ph-fill ph-building"></i>
+                                                                                        {opp.country_code && <FlagIcon code={opp.country_code as any} size={12} />}
                                                                                         {opp.client_name}
                                                                                     </div>
                                                                                 )}

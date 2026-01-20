@@ -87,6 +87,7 @@ export interface Opportunity extends Timestamps {
   notes: string | null;
   client_name: string | null;
   budget_type: 'fixed' | 'hourly' | 'tbd' | null;
+  country_code: string | null;
 }
 
 export interface OpportunityWithContact extends Opportunity {

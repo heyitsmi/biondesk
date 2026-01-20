@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { opportunitiesApi } from '@/lib/api';
 import { Opportunity, OpportunitySource, Priority } from '@/lib/types';
+import CountrySelect from '@/components/CountrySelect';
 
 export default function CreateOpportunityPage() {
     const router = useRouter();
@@ -22,6 +23,7 @@ export default function CreateOpportunityPage() {
         priority: Priority;
         description: string;
         notes: string;
+        country_code: string;
     }>({
         title: '',
         source: 'direct',
@@ -31,7 +33,8 @@ export default function CreateOpportunityPage() {
         budget_type: 'fixed',
         priority: 'medium',
         description: '',
-        notes: ''
+        notes: '',
+        country_code: 'US'
     });
 
     const handlePasteFromClipboard = async () => {
@@ -60,7 +63,9 @@ export default function CreateOpportunityPage() {
                     value: data.budget ? String(data.budget).replace(/[^0-9.]/g, '') : prev.value,
                     budget_type: (['fixed', 'hourly', 'tbd'].includes(data.budget_type) ? data.budget_type : 'fixed') as any,
                     priority: (['low', 'medium', 'high'].includes(data.priority) ? data.priority : 'medium') as any,
+
                     source: (['upwork', 'linkedin', 'email', 'direct', 'other'].includes(data.source) ? data.source : 'other') as any,
+                    country_code: data.country_code || prev.country_code,
                 }));
             }
         } catch (error) {
@@ -86,6 +91,7 @@ export default function CreateOpportunityPage() {
                 priority: formData.priority,
                 description: formData.description || null,
                 notes: formData.notes || null,
+                country_code: formData.country_code || null,
                 stage: 'inbox', // Default stage
                 workspace_id: 'default' // This will be ignored/overridden by API implementation usually, or I need to handle it. api creates with fetched workspace or session.
                 // Actually `opportunitiesApi.create` in DB helper takes workspaceId. The client api calls the route. 
@@ -140,10 +146,10 @@ export default function CreateOpportunityPage() {
                         
                         {/* Section 1: Basic Info */}
                         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 
                                 {/* Title */}
-                                <div className="md:col-span-2 space-y-1.5">
+                                <div className="md:col-span-3 space-y-1.5">
                                     <label className="text-sm font-[600] text-slate-700">Project Title <span className="text-rose-500">*</span></label>
                                     <input 
                                         type="text" 
@@ -186,8 +192,17 @@ export default function CreateOpportunityPage() {
                                     />
                                 </div>
 
+                                {/* Country */}
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-[600] text-slate-700">Country</label>
+                                    <CountrySelect 
+                                        value={formData.country_code}
+                                        onChange={(code) => setFormData(prev => ({ ...prev, country_code: code }))}
+                                    />
+                                </div>
+
                                 {/* Link */}
-                                <div className="md:col-span-2 space-y-1.5">
+                                <div className="md:col-span-3 space-y-1.5">
                                     <label className="text-sm font-[600] text-slate-700">Job Link / URL</label>
                                     <div className="relative">
                                         <i className="ph ph-link absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>

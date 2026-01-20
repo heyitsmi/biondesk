@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { opportunitiesApi } from '@/lib/api';
 import { Opportunity, OpportunitySource, Priority } from '@/lib/types';
+import CountrySelect from '@/components/CountrySelect';
 
 export default function EditOpportunityPage() {
     const router = useRouter();
@@ -27,6 +28,7 @@ export default function EditOpportunityPage() {
         description: string;
         notes: string;
         stage: string; // Keep track of stage
+        country_code: string;
     }>({
         title: '',
         source: 'direct',
@@ -37,7 +39,9 @@ export default function EditOpportunityPage() {
         priority: 'medium',
         description: '',
         notes: '',
-        stage: 'inbox'
+        notes: '',
+        stage: 'inbox',
+        country_code: 'US'
     });
 
     useEffect(() => {
@@ -56,7 +60,8 @@ export default function EditOpportunityPage() {
                     priority: data.priority || 'medium',
                     description: data.description || '',
                     notes: data.notes || '',
-                    stage: data.stage
+                    stage: data.stage,
+                    country_code: data.country_code || 'US'
                 });
             } catch (error) {
                 console.error('Failed to fetch opportunity:', error);
@@ -101,6 +106,7 @@ export default function EditOpportunityPage() {
                     budget_type: (['fixed', 'hourly', 'tbd'].includes(data.budget_type) ? data.budget_type : prev.budget_type) as any,
                     priority: (['low', 'medium', 'high'].includes(data.priority) ? data.priority : prev.priority) as any,
                     source: (['upwork', 'linkedin', 'email', 'direct', 'other'].includes(data.source) ? data.source : prev.source) as any,
+                    country_code: data.country_code || prev.country_code,
                 }));
             }
         } catch (error) {
@@ -125,6 +131,7 @@ export default function EditOpportunityPage() {
                 priority: formData.priority,
                 description: formData.description || null,
                 notes: formData.notes || null,
+                country_code: formData.country_code || null,
                 // We don't update stage here unless we add a dropdown, but usually stage is managed in board
             });
             
@@ -190,10 +197,10 @@ export default function EditOpportunityPage() {
                         
                         {/* Section 1: Basic Info */}
                         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 
                                 {/* Title */}
-                                <div className="md:col-span-2 space-y-1.5">
+                                <div className="md:col-span-3 space-y-1.5">
                                     <label className="text-sm font-[600] text-slate-700">Project Title <span className="text-rose-500">*</span></label>
                                     <input 
                                         type="text" 
@@ -236,8 +243,17 @@ export default function EditOpportunityPage() {
                                     />
                                 </div>
 
+                                {/* Country */}
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-[600] text-slate-700">Country</label>
+                                    <CountrySelect 
+                                        value={formData.country_code}
+                                        onChange={(code) => setFormData(prev => ({ ...prev, country_code: code }))}
+                                    />
+                                </div>
+
                                 {/* Link */}
-                                <div className="md:col-span-2 space-y-1.5">
+                                <div className="md:col-span-3 space-y-1.5">
                                     <label className="text-sm font-[600] text-slate-700">Job Link / URL</label>
                                     <div className="relative">
                                         <i className="ph ph-link absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
