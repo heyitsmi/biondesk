@@ -227,7 +227,7 @@ export default function QuoteDetailPage({ params }: { params: Promise<{ id: stri
 
                         {/* Client Info */}
                         <div className="mb-12 pb-8 border-b border-slate-100">
-                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Prepared For</p>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Prepared For</p>
                             <h3 className="text-lg font-bold text-slate-900">{quote.contact?.name || 'Unknown Client'}</h3>
                             <p className="text-slate-600">{quote.contact?.company}</p>
                             <p className="text-slate-500">{quote.contact?.email}</p>
