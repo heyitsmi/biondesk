@@ -34,6 +34,21 @@ export async function getWorkspaceFromSession(userId: string): Promise<Workspace
 }
 
 // ============================================
+// Auth Helper - Get workspace by username
+// ============================================
+export async function getWorkspaceByUsername(username: string): Promise<Workspace | null> {
+  const supabase = createServerClient();
+  
+  const { data } = await supabase
+    .from('workspaces')
+    .select('*')
+    .eq('username', username)
+    .single();
+    
+  return data;
+}
+
+// ============================================
 // Contacts
 // ============================================
 export async function getContacts(

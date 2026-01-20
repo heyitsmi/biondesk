@@ -40,6 +40,7 @@ export interface Workspace extends Timestamps {
   locale: string;
   default_payment_link: string | null;
   bank_details: Record<string, unknown> | null;
+  username: string | null;
 }
 
 // ============================================

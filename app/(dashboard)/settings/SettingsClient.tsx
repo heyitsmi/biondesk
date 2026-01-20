@@ -67,6 +67,7 @@ export default function SettingsClient({ initialWorkspace, user }: SettingsClien
                     logo_url: formData.logo_url,
                     default_payment_link: formData.default_payment_link,
                     bank_details: formData.bank_details,
+                    username: formData.username,
                 }),
             });
 
@@ -181,6 +182,22 @@ export default function SettingsClient({ initialWorkspace, user }: SettingsClien
                                             />
                                         </div>
                                         <div className="space-y-1.5">
+                                            <label className="text-sm font-[500] text-slate-700">Public Username</label>
+                                            <div className="flex rounded-lg shadow-sm">
+                                                <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-200 bg-slate-50 text-slate-500 sm:text-sm">
+                                                    flova.app/p/
+                                                </span>
+                                                <input
+                                                    type="text"
+                                                    value={formData.username || ''}
+                                                    onChange={(e) => handleInputChange('username', e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ''))}
+                                                    placeholder={user.name ? user.name.split(' ')[0].toLowerCase() : 'username'}
+                                                    className="flex-1 min-w-0 block w-full px-3 py-2.5 rounded-none rounded-r-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                                                />
+                                            </div>
+                                            <p className="text-xs text-slate-500">Leave blank to auto-generate from your name.</p>
+                                        </div>
+                                        {/* <div className="space-y-1.5">
                                             <label className="text-sm font-[500] text-slate-700">Default Payment Link</label>
                                             <input 
                                                 type="url" 
@@ -189,7 +206,7 @@ export default function SettingsClient({ initialWorkspace, user }: SettingsClien
                                                 placeholder="https://..."
                                                 className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" 
                                             />
-                                        </div>
+                                        </div> */}
                                     </div>
                                     
                                     <div className="space-y-1.5">
