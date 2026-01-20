@@ -360,7 +360,10 @@ export async function getDocumentByToken(token: string): Promise<DocumentWithIte
     .eq('public_token', token)
     .single();
 
-  if (error) return null;
+  if (error) {
+    console.error(`[DB] Error fetching document by token ${token}:`, error);
+    return null;
+  }
 
   // Increment view count
   await supabase

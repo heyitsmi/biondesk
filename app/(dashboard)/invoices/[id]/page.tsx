@@ -14,6 +14,7 @@ export default function InvoiceDetailPage() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [isSending, setIsSending] = useState(false);
+    const [isCopied, setIsCopied] = useState(false);
     const [invoice, setInvoice] = useState<DocumentWithItems | null>(null);
     const printRef = useRef<HTMLDivElement>(null);
 
@@ -76,6 +77,25 @@ export default function InvoiceDetailPage() {
             alert(`Failed to send invoice: ${error.message}`);
         } finally {
             setIsSending(false);
+        }
+    };
+
+    const handleCopyLink = async () => {
+        if (!invoice) return;
+        // Use public_token if available (it should be), otherwise fallback to id (which might fail if API requires token)
+        const token = invoice.public_token; 
+        if (!token) {
+            alert('Public token not available for this invoice.');
+            return;
+        }
+        const publicUrl = `${window.location.origin}/invoice/${token}`;
+        try {
+            await navigator.clipboard.writeText(publicUrl);
+            setIsCopied(true);
+            setTimeout(() => setIsCopied(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy: ', err);
+            alert('Failed to copy link');
         }
     };
 
@@ -174,6 +194,13 @@ export default function InvoiceDetailPage() {
                         title="Download PDF"
                     >
                         <i className="ph-bold ph-download-simple"></i>
+                    </button>
+                    <button 
+                        onClick={handleCopyLink}
+                        className="px-4 py-2 text-sm font-[550] text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all" 
+                        title="Copy Public Link"
+                    >
+                        {isCopied ? <i className="ph-bold ph-check text-emerald-600"></i> : <i className="ph-bold ph-link"></i>}
                     </button>
                     <button 
                         onClick={handleSend}
