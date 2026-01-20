@@ -1,220 +1,236 @@
-import Header from '@/components/dashboard/Header';
+import { redirect } from 'next/navigation';
+import { getCurrentUser, getUserWorkspace } from '@/lib/auth';
+import { getAnalyticsData } from '@/lib/db';
+import type { Metadata } from 'next';
 
-export default function AnalyticsPage() {
-    // Mock data - will be replaced with real data from Supabase
-    const stats = {
-        totalRevenue: '$24,500',
-        revenueChange: '+12%',
-        avgTimeToPayDays: 8,
-        avgTimeToPayChange: '-2 days',
-        winRate: '42%',
-        winRateChange: '+5%',
-        activeDeals: 12,
-        activeDealsValue: '$15,200'
-    };
+export const metadata: Metadata = {
+  title: 'Analytics',
+};
 
-    const monthlyData = [
-        { month: 'Aug', invoiced: 4200, paid: 3800 },
-        { month: 'Sep', invoiced: 5100, paid: 4900 },
-        { month: 'Oct', invoiced: 4800, paid: 4600 },
-        { month: 'Nov', invoiced: 6200, paid: 5800 },
-        { month: 'Dec', invoiced: 7500, paid: 6200 },
-        { month: 'Jan', invoiced: 5400, paid: 4100 }
-    ];
+// Helper for currency
+const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0
+    }).format(amount);
+};
 
-    const pipelineBreakdown = [
-        { stage: 'New Inbox', count: 5, value: '$8,500', color: 'bg-slate-400' },
-        { stage: 'Drafting', count: 3, value: '$5,200', color: 'bg-indigo-400' },
-        { stage: 'Sent', count: 4, value: '$12,800', color: 'bg-amber-400' },
-        { stage: 'Negotiation', count: 2, value: '$6,500', color: 'bg-emerald-400' }
-    ];
+export default async function AnalyticsPage() {
+    const user = await getCurrentUser();
+    if (!user) redirect('/login');
 
-    const topClients = [
-        { name: 'Acme Corp', totalValue: '$12,500', projects: 4, status: 'Active' },
-        { name: 'Startup.io', totalValue: '$8,200', projects: 2, status: 'Active' },
-        { name: 'Tech Solutions', totalValue: '$6,800', projects: 3, status: 'Inactive' },
-        { name: 'Studio Design', totalValue: '$5,400', projects: 2, status: 'Active' }
-    ];
+    const workspace = await getUserWorkspace(user.id);
+    if (!workspace) return <div className="p-8">No workspace found.</div>;
+
+    const data = await getAnalyticsData(workspace.id);
+
+    if (!data) return <div className="p-8">Failed to load analytics data.</div>;
 
     return (
         <>
-            <Header 
-                title="Analytics"
-                subtitle="Track your business performance"
-                showNewButton={false}
-            />
+            {/* Header */}
+            <header className="h-16 px-8 flex items-center justify-between bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20 shrink-0">
+                <h1 className="text-xl font-[600] text-slate-900 tracking-tight">Performance Analytics</h1>
+                <div className="flex items-center gap-3">
+                    <select className="px-3 py-1.5 text-xs font-[500] text-slate-600 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500 hover:bg-slate-50 cursor-pointer">
+                        <option>Last 30 Days</option>
+                        <option>Last 3 Months</option>
+                        <option>This Year</option>
+                    </select>
+                    <button className="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100 transition-colors">
+                        <i className="ph-bold ph-download-simple text-lg"></i>
+                    </button>
+                </div>
+            </header>
 
-            <div className="flex-1 overflow-y-auto p-8">
-                <div className="w-full space-y-8">
-                    
-                    {/* KPI Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        {/* Total Revenue */}
-                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-card">
-                            <div className="flex items-center justify-between mb-3">
-                                <p className="text-xs font-[600] text-slate-500 uppercase tracking-wide">Total Revenue (6mo)</p>
-                                <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
-                                    <i className="ph ph-currency-dollar"></i>
+            {/* Analytics Content */}
+            <div className="flex-1 overflow-y-auto p-8 scroller-thin">
+                <div className="max-w-6xl mx-auto space-y-8">
+
+                    {/* 1. Key Metrics Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        
+                        {/* Quote Win Rate */}
+                        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <div className="flex justify-between items-start mb-2">
+                                    <p className="text-xs font-[600] text-slate-400 uppercase tracking-wide">Quote Win Rate</p>
+                                    {/* Mock change value for now */}
+                                    <span className="bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded text-[10px] font-bold">+5%</span>
                                 </div>
+                                <h2 className="text-3xl font-[700] text-slate-900">{data.quoteWinRate}%</h2>
                             </div>
-                            <h3 className="text-2xl font-[600] text-slate-900">{stats.totalRevenue}</h3>
-                            <p className="text-xs text-emerald-600 mt-2 font-[500]">{stats.revenueChange} vs last period</p>
+                            <div className="mt-4">
+                                <div className="w-full bg-slate-100 rounded-full h-2">
+                                    <div className="bg-indigo-500 h-2 rounded-full transition-all duration-1000" style={{ width: `${data.quoteWinRate}%` }}></div>
+                                </div>
+                                <p className="text-xs text-slate-500 mt-2">{data.acceptedQuotes} accepted out of {data.totalQuotes} sent</p>
+                            </div>
                         </div>
 
-                        {/* Avg Time to Pay */}
-                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-card">
-                            <div className="flex items-center justify-between mb-3">
-                                <p className="text-xs font-[600] text-slate-500 uppercase tracking-wide">Avg Time to Pay</p>
-                                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
-                                    <i className="ph ph-clock"></i>
+                        {/* Invoice Paid Ratio */}
+                        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <div className="flex justify-between items-start mb-2">
+                                    <p className="text-xs font-[600] text-slate-400 uppercase tracking-wide">Paid Ratio</p>
+                                    <i className="ph-fill ph-check-circle text-emerald-400 text-xl"></i>
                                 </div>
+                                <h2 className="text-3xl font-[700] text-slate-900">{data.paidRatio}%</h2>
                             </div>
-                            <h3 className="text-2xl font-[600] text-slate-900">{stats.avgTimeToPayDays} days</h3>
-                            <p className="text-xs text-emerald-600 mt-2 font-[500]">{stats.avgTimeToPayChange} improvement</p>
+                            <div className="mt-4">
+                                <div className="w-full bg-slate-100 rounded-full h-2">
+                                    <div className="bg-emerald-500 h-2 rounded-full transition-all duration-1000" style={{ width: `${data.paidRatio}%` }}></div>
+                                </div>
+                                <p className="text-xs text-slate-500 mt-2">{data.paidInvoices} paid out of {data.totalInvoices} invoices</p>
+                            </div>
                         </div>
 
-                        {/* Win Rate */}
-                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-card">
-                            <div className="flex items-center justify-between mb-3">
-                                <p className="text-xs font-[600] text-slate-500 uppercase tracking-wide">Win Rate</p>
-                                <div className="p-2 bg-amber-50 text-amber-600 rounded-lg">
-                                    <i className="ph ph-target"></i>
+                        {/* Avg Time to Payment */}
+                        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
+                             <div>
+                                <div className="flex justify-between items-start mb-2">
+                                    <p className="text-xs font-[600] text-slate-400 uppercase tracking-wide">Avg. Time to Pay</p>
+                                    <i className="ph-fill ph-clock text-amber-400 text-xl"></i>
                                 </div>
+                                <h2 className="text-3xl font-[700] text-slate-900">{data.avgTimeToPay} Days</h2>
                             </div>
-                            <h3 className="text-2xl font-[600] text-slate-900">{stats.winRate}</h3>
-                            <p className="text-xs text-emerald-600 mt-2 font-[500]">{stats.winRateChange} vs last period</p>
-                        </div>
-
-                        {/* Active Deals */}
-                        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-card">
-                            <div className="flex items-center justify-between mb-3">
-                                <p className="text-xs font-[600] text-slate-500 uppercase tracking-wide">Active Deals</p>
-                                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
-                                    <i className="ph ph-briefcase"></i>
-                                </div>
+                             <div className="mt-auto pt-4">
+                                <p className="text-xs text-slate-500">Faster than industry avg (14 days)</p>
                             </div>
-                            <h3 className="text-2xl font-[600] text-slate-900">{stats.activeDeals}</h3>
-                            <p className="text-xs text-slate-500 mt-2 font-[500]">{stats.activeDealsValue} total value</p>
                         </div>
                     </div>
 
-                    {/* Charts Row */}
+                    {/* 2. Detailed Breakdown Grid */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        {/* Revenue Chart */}
-                        <div className="bg-white p-6 rounded-xl border border-slate-200">
+                        
+                        {/* Quotes Breakdown */}
+                        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
                             <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-lg font-[600] text-slate-900">Revenue Overview</h2>
-                                <select className="text-xs font-[500] text-slate-600 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5">
-                                    <option>Last 6 months</option>
-                                    <option>Last 12 months</option>
-                                </select>
+                                <h3 className="text-sm font-[600] text-slate-900">Quotes Pipeline</h3>
+                                <button className="text-xs text-indigo-600 font-medium hover:underline">View All</button>
                             </div>
-                            
-                            {/* Simple bar chart representation */}
-                            <div className="h-64 flex items-end justify-between gap-4 px-4">
-                                {monthlyData.map((data, idx) => (
-                                    <div key={idx} className="flex-1 flex flex-col items-center gap-2">
-                                        <div className="w-full flex flex-col gap-1">
-                                            <div 
-                                                className="w-full bg-indigo-200 rounded-t"
-                                                style={{ height: `${(data.invoiced / 8000) * 180}px` }}
-                                            ></div>
-                                            <div 
-                                                className="w-full bg-indigo-500 rounded-t"
-                                                style={{ height: `${(data.paid / 8000) * 180}px`, marginTop: `-${(data.invoiced / 8000) * 180}px` }}
-                                            ></div>
-                                        </div>
-                                        <span className="text-xs text-slate-500">{data.month}</span>
-                                    </div>
-                                ))}
-                            </div>
-                            
-                            <div className="flex items-center justify-center gap-6 mt-4">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 bg-indigo-200 rounded"></div>
-                                    <span className="text-xs text-slate-500">Invoiced</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 bg-indigo-500 rounded"></div>
-                                    <span className="text-xs text-slate-500">Paid</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Pipeline Breakdown */}
-                        <div className="bg-white p-6 rounded-xl border border-slate-200">
-                            <h2 className="text-lg font-[600] text-slate-900 mb-6">Pipeline Breakdown</h2>
                             
                             <div className="space-y-4">
-                                {pipelineBreakdown.map((stage, idx) => (
-                                    <div key={idx}>
-                                        <div className="flex items-center justify-between mb-2">
-                                            <span className="text-sm font-[500] text-slate-700">{stage.stage}</span>
-                                            <div className="flex items-center gap-3">
-                                                <span className="text-xs text-slate-500">{stage.count} deals</span>
-                                                <span className="text-sm font-[600] text-slate-900">{stage.value}</span>
-                                            </div>
-                                        </div>
-                                        <div className="w-full bg-slate-100 rounded-full h-2">
-                                            <div 
-                                                className={`${stage.color} h-2 rounded-full`}
-                                                style={{ width: `${(parseInt(stage.value.replace(/[$,]/g, '')) / 15000) * 100}%` }}
-                                            ></div>
-                                        </div>
+                                {/* Sent */}
+                                <div>
+                                    <div className="flex justify-between text-xs mb-1">
+                                        <span className="font-medium text-slate-600">Sent</span>
+                                        <span className="text-slate-500">{data.quoteStats.sent.count} ({formatCurrency(data.quoteStats.sent.val)})</span>
                                     </div>
-                                ))}
-                            </div>
+                                    <div className="w-full bg-slate-100 rounded-full h-2.5">
+                                        <div className="bg-indigo-400 h-2.5 rounded-full transition-all duration-1000" style={{ width: '100%' }}></div>
+                                    </div>
+                                </div>
 
-                            <div className="mt-6 pt-4 border-t border-slate-100">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm font-[600] text-slate-900">Total Pipeline Value</span>
-                                    <span className="text-lg font-[600] text-indigo-600">$33,000</span>
+                                {/* Viewed */}
+                                <div>
+                                    <div className="flex justify-between text-xs mb-1">
+                                        <span className="font-medium text-slate-600">Viewed</span>
+                                        <span className="text-slate-500">{data.quoteStats.viewed.count} ({formatCurrency(data.quoteStats.viewed.val)})</span>
+                                    </div>
+                                    <div className="w-full bg-slate-100 rounded-full h-2.5">
+                                        <div className="bg-indigo-500 h-2.5 rounded-full transition-all duration-1000" style={{ width: `${data.quoteStats.sent.count > 0 ? (data.quoteStats.viewed.count / data.quoteStats.sent.count) * 100 : 0}%` }}></div>
+                                    </div>
+                                </div>
+
+                                 {/* Accepted */}
+                                 <div>
+                                    <div className="flex justify-between text-xs mb-1">
+                                        <span className="font-medium text-slate-600">Accepted</span>
+                                        <span className="text-slate-500">{data.quoteStats.accepted.count} ({formatCurrency(data.quoteStats.accepted.val)})</span>
+                                    </div>
+                                    <div className="w-full bg-slate-100 rounded-full h-2.5">
+                                        <div className="bg-emerald-500 h-2.5 rounded-full transition-all duration-1000" style={{ width: `${data.quoteStats.sent.count > 0 ? (data.quoteStats.accepted.count / data.quoteStats.sent.count) * 100 : 0}%` }}></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
+                        {/* Invoices Breakdown */}
+                        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-sm font-[600] text-slate-900">Invoice Status</h3>
+                                 <button className="text-xs text-indigo-600 font-medium hover:underline">View All</button>
+                            </div>
+
+                             <div className="space-y-4">
+                                {/* Paid */}
+                                <div>
+                                    <div className="flex justify-between text-xs mb-1">
+                                        <span className="font-medium text-slate-600">Paid</span>
+                                        <span className="text-slate-500">{data.invoiceStats.paid.count} ({formatCurrency(data.invoiceStats.paid.val)})</span>
+                                    </div>
+                                    <div className="w-full bg-slate-100 rounded-full h-2.5">
+                                        <div className="bg-emerald-500 h-2.5 rounded-full transition-all duration-1000" style={{ width: '100%' }}></div>
+                                    </div>
+                                </div>
+
+                                {/* Outstanding */}
+                                <div>
+                                    <div className="flex justify-between text-xs mb-1">
+                                        <span className="font-medium text-slate-600">Outstanding (Sent)</span>
+                                        <span className="text-slate-500">{data.invoiceStats.outstanding.count} ({formatCurrency(data.invoiceStats.outstanding.val)})</span>
+                                    </div>
+                                    <div className="w-full bg-slate-100 rounded-full h-2.5">
+                                        <div className="bg-indigo-400 h-2.5 rounded-full transition-all duration-1000" style={{ width: `${data.invoiceStats.outstanding.count > 0 ? '50%' : '0%'}` }}></div>
+                                    </div>
+                                </div>
+
+                                 {/* Overdue */}
+                                 <div>
+                                    <div className="flex justify-between text-xs mb-1">
+                                        <span className="font-medium text-slate-600">Overdue</span>
+                                        <span className="text-slate-500">{data.invoiceStats.overdue.count} ({formatCurrency(data.invoiceStats.overdue.val)})</span>
+                                    </div>
+                                    <div className="w-full bg-slate-100 rounded-full h-2.5">
+                                        <div className="bg-rose-500 h-2.5 rounded-full transition-all duration-1000" style={{ width: `${data.invoiceStats.overdue.count > 0 ? '25%' : '0%'}` }}></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
-                    {/* Top Clients */}
-                    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                            <h2 className="text-lg font-[600] text-slate-900">Top Clients</h2>
-                            <button className="text-sm font-[550] text-indigo-600 hover:text-indigo-700">View all</button>
-                        </div>
-                        <table className="w-full text-left">
-                            <thead className="bg-slate-50 border-b border-slate-100">
-                                <tr>
-                                    <th className="px-6 py-3 text-xs font-[600] text-slate-500 uppercase tracking-wider">Client</th>
-                                    <th className="px-6 py-3 text-xs font-[600] text-slate-500 uppercase tracking-wider">Total Value</th>
-                                    <th className="px-6 py-3 text-xs font-[600] text-slate-500 uppercase tracking-wider">Projects</th>
-                                    <th className="px-6 py-3 text-xs font-[600] text-slate-500 uppercase tracking-wider text-right">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {topClients.map((client, idx) => (
-                                    <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-xs font-[600]">
-                                                    {client.name.charAt(0)}
-                                                </div>
-                                                <span className="text-sm font-[500] text-slate-900">{client.name}</span>
+                    {/* 3. Top Services */}
+                    <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                        <h3 className="text-sm font-[600] text-slate-900 mb-6">Top Performing Services</h3>
+                        
+                        <div className="space-y-5">
+                            {data.topServices.length > 0 ? (
+                                data.topServices.map((service: any, index: number) => {
+                                    const maxVal = data.topServices[0].value;
+                                    const percent = (service.value / maxVal) * 100;
+                                    const colors = [
+                                       { bg: 'bg-indigo-50', text: 'text-indigo-600', bar: 'bg-indigo-600', icon: 'ph-globe' },
+                                       { bg: 'bg-purple-50', text: 'text-purple-600', bar: 'bg-purple-500', icon: 'ph-device-mobile' },
+                                       { bg: 'bg-emerald-50', text: 'text-emerald-600', bar: 'bg-emerald-500', icon: 'ph-pencil-circle' },
+                                       { bg: 'bg-amber-50', text: 'text-amber-600', bar: 'bg-amber-500', icon: 'ph-star' },
+                                       { bg: 'bg-rose-50', text: 'text-rose-600', bar: 'bg-rose-500', icon: 'ph-heart' },
+                                    ];
+                                    const theme = colors[index % colors.length];
+
+                                    return (
+                                        <div key={index} className="flex items-center gap-4">
+                                            <div className={`w-10 h-10 rounded-lg ${theme.bg} ${theme.text} flex items-center justify-center shrink-0`}>
+                                                <i className={`ph-bold ${theme.icon} text-lg`}></i>
                                             </div>
-                                        </td>
-                                        <td className="px-6 py-4 text-sm font-[600] text-slate-900">{client.totalValue}</td>
-                                        <td className="px-6 py-4 text-sm text-slate-600">{client.projects} projects</td>
-                                        <td className="px-6 py-4 text-right">
-                                            <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-[500] ${
-                                                client.status === 'Active' 
-                                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' 
-                                                    : 'bg-slate-100 text-slate-600 border border-slate-200'
-                                            }`}>
-                                                {client.status}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                            <div className="flex-1">
+                                                <div className="flex justify-between items-center mb-1.5">
+                                                    <span className="text-sm font-[600] text-slate-900">{service.name}</span>
+                                                    <span className="text-sm font-[600] text-slate-900">{formatCurrency(service.value)}</span>
+                                                </div>
+                                                <div className="w-full bg-slate-100 rounded-full h-2">
+                                                    <div className={`${theme.bar} h-2 rounded-full transition-all duration-1000`} style={{ width: `${percent}%` }}></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            ) : (
+                                <p className="text-sm text-slate-500 text-center py-4">No service data available yet.</p>
+                            )}
+                        </div>
                     </div>
 
                 </div>

@@ -1011,3 +1011,121 @@ export async function getReminderHistory(workspaceId: string, limit: number = 10
     if (error) return [];
     return data || [];
 }
+
+// ============================================
+// Analytics Data
+// ============================================
+
+export async function getAnalyticsData(workspaceId: string) {
+  const supabase = createServerClient();
+  
+  // 1. Fetch all documents for calculation
+  const { data: documents, error } = await supabase
+    .from('documents')
+    .select('id, type, status, amount, sent_at, paid_at, view_count, created_at')
+    .eq('workspace_id', workspaceId);
+
+  if (error) {
+    console.error('Error fetching analytics documents:', error);
+    return null;
+  }
+
+  // 2. Fetch all document items for "Top Services"
+  // We fetch minimal fields
+  const { data: items } = await supabase
+    .from('document_items')
+    .select('description, amount, document_id');
+
+  const docs = documents || [];
+  // Filter items that belong to our docs (client-side join to avoid complex query for now)
+  const docIds = new Set(docs.map(d => d.id));
+  const relevantItems = (items || []).filter(item => docIds.has(item.document_id));
+  
+  // --- Quote Win Rate ---
+  const quotes = docs.filter(d => d.type === 'quote');
+  const totalQuotes = quotes.length;
+  const acceptedQuotes = quotes.filter(d => d.status === 'accepted');
+  const quoteWinRate = totalQuotes > 0 ? Math.round((acceptedQuotes.length / totalQuotes) * 100) : 0;
+
+  // --- Invoice Paid Ratio ---
+  const invoices = docs.filter(d => d.type === 'invoice');
+  // Exclude drafts from denominator? Usually yes.
+  const activeInvoices = invoices.filter(d => d.status !== 'draft');
+  const paidInvoices = invoices.filter(d => d.status === 'paid');
+  const paidRatio = activeInvoices.length > 0 ? Math.round((paidInvoices.length / activeInvoices.length) * 100) : 0;
+
+  // --- Avg Time to Pay ---
+  // Diff between sent_at (or created_at) and paid_at
+  let totalDays = 0;
+  let countPaidWithDates = 0;
+  paidInvoices.forEach(inv => {
+    if (inv.paid_at && (inv.sent_at || inv.created_at)) {
+      const start = new Date(inv.sent_at || inv.created_at).getTime();
+      const end = new Date(inv.paid_at).getTime();
+      const diffDays = (end - start) / (1000 * 3600 * 24);
+      if (diffDays >= 0) {
+        totalDays += diffDays;
+        countPaidWithDates++;
+      }
+    }
+  });
+  const avgTimeToPay = countPaidWithDates > 0 ? Math.round(totalDays / countPaidWithDates) : 0;
+
+  // --- Quotes Pipeline ---
+  const quoteStats = {
+      sent: { 
+          count: quotes.filter(d => d.status === 'sent').length, 
+          val: quotes.filter(d => d.status === 'sent').reduce((sum, d) => sum + (d.amount || 0), 0) 
+      },
+      viewed: { 
+          count: quotes.filter(d => d.status === 'viewed').length, 
+          val: quotes.filter(d => d.status === 'viewed').reduce((sum, d) => sum + (d.amount || 0), 0) 
+      },
+      accepted: { 
+          count: quotes.filter(d => d.status === 'accepted').length, 
+          val: quotes.filter(d => d.status === 'accepted').reduce((sum, d) => sum + (d.amount || 0), 0) 
+      }
+  };
+
+  // --- Invoice Status ---
+  const invoiceStats = {
+      paid: { 
+          count: paidInvoices.length, 
+          val: paidInvoices.reduce((sum, d) => sum + (d.amount || 0), 0) 
+      },
+      outstanding: { 
+          count: invoices.filter(d => ['sent', 'viewed'].includes(d.status)).length, 
+          val: invoices.filter(d => ['sent', 'viewed'].includes(d.status)).reduce((sum, d) => sum + (d.amount || 0), 0) 
+      },
+      overdue: { 
+          count: invoices.filter(d => d.status === 'overdue').length, 
+          val: invoices.filter(d => d.status === 'overdue').reduce((sum, d) => sum + (d.amount || 0), 0) 
+      }
+  };
+
+  // --- Top Services ---
+  const serviceMap = new Map<string, number>();
+  relevantItems.forEach(item => {
+      const key = (item.description || 'Untitled').trim();
+      const current = serviceMap.get(key) || 0;
+      serviceMap.set(key, current + (item.amount || 0));
+  });
+
+  const topServices = Array.from(serviceMap.entries())
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 5);
+
+  return {
+    quoteWinRate,
+    totalQuotes: quotes.length,
+    acceptedQuotes: acceptedQuotes.length,
+    paidRatio,
+    totalInvoices: activeInvoices.length,
+    paidInvoices: paidInvoices.length,
+    avgTimeToPay,
+    quoteStats,
+    invoiceStats,
+    topServices
+  };
+}
