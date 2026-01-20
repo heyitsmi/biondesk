@@ -160,7 +160,7 @@ export interface Template extends Timestamps {
 // ============================================
 // Profile Library Assets
 // ============================================
-export type ProfileAssetType = 'portfolio' | 'testimonial' | 'snippet';
+export type ProfileAssetType = 'portfolio' | 'testimonial' | 'snippet' | 'profile_info';
 
 export interface ProfileAsset extends Timestamps {
   id: string;

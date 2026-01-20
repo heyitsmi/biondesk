@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser, getUserWorkspace } from '@/lib/auth';
-import { getProfileAssets, createProfileAsset } from '@/lib/db';
+import { getProfileAssets, createProfileAsset } from '@/lib/db/assets';
+import { ProfileAssetType } from '@/lib/types';
 
 // GET /api/profile-assets - List all profile assets
 export async function GET(request: NextRequest) {
@@ -16,9 +17,9 @@ export async function GET(request: NextRequest) {
     }
 
     const searchParams = request.nextUrl.searchParams;
-    const type = searchParams.get('type') || undefined;
+    const type = searchParams.get('type') as ProfileAssetType | undefined;
 
-    const assets = await getProfileAssets(workspace.id, { type });
+    const assets = await getProfileAssets(workspace.id, type);
     
     return NextResponse.json({ data: assets });
   } catch (error) {

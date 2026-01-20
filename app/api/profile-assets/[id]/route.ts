@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser, getUserWorkspace } from '@/lib/auth';
-import { getProfileAssetById, updateProfileAsset, deleteProfileAsset } from '@/lib/db';
+import { getProfileAssetById, updateProfileAsset, deleteProfileAsset } from '@/lib/db/assets';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
