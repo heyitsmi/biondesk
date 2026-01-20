@@ -27,6 +27,10 @@ export const metadata: Metadata = {
   manifest: '/favicon/site.webmanifest',
 };
 
+import CookieConsent from "@/components/CookieConsent";
+
+// ... existing imports
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -45,6 +49,7 @@ export default function RootLayout({
       </head>
       <body className="overflow-x-hidden antialiased">
         {children}
+        <CookieConsent />
       </body>
     </html>
   );
