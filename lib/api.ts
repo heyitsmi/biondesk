@@ -281,3 +281,26 @@ export const publicApi = {
       body: JSON.stringify(data || {}),
     }),
 };
+
+// ============================================
+// Reminders API
+// ============================================
+export const remindersApi = {
+  getRules: () => fetchApi<any[]>('/reminders/rules'),
+  toggleRule: (id: string, isActive: boolean) => 
+    fetchApi<{ success: boolean }>('/reminders/rules', {
+      method: 'PUT',
+      body: JSON.stringify({ id, isActive }),
+    }),
+  getScheduled: () => fetchApi<any[]>('/reminders/scheduled'),
+  createScheduled: (data: { document_id: string; scheduled_at: string; content?: string }) =>
+    fetchApi<any>('/reminders/scheduled', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  deleteScheduled: (id: string) =>
+    fetchApi<{ success: boolean }>(`/reminders/scheduled/${id}`, {
+      method: 'DELETE',
+    }),
+  getHistory: () => fetchApi<any[]>('/reminders/history'),
+};

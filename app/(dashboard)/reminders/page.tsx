@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from 'react';
-import Header from '@/components/dashboard/Header';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { remindersApi, documentsApi } from '@/lib/api';
+import { DocumentWithItems } from '@/lib/types';
 
 // Types
 interface ReminderRule {
-    id: string;
+    id: string; // This ID must match the DB ID if possible, or we map by 'type'/name
+    dbId?: string;
     title: string;
     description: string;
     icon: string;
@@ -19,7 +21,7 @@ interface UpcomingReminder {
     scheduledFor: string;
     client: string;
     document: string;
-    type: 'Pre-due' | 'Overdue' | 'Follow-up';
+    type: 'Follow-up' | 'Manual'; // Simplified for now
     typeStyle: string;
     typeIcon: string;
 }
@@ -35,15 +37,16 @@ interface SentHistoryItem {
 
 export default function RemindersPage() {
     // --- State ---
+    const [isLoading, setIsLoading] = useState(true);
     const [showManualModal, setShowManualModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [reminderToDelete, setReminderToDelete] = useState<string | null>(null);
     const [toast, setToast] = useState<{ message: string; visible: boolean }>({ message: '', visible: false });
 
-    // Mock Data State
+    // Data State
     const [rules, setRules] = useState<ReminderRule[]>([
         {
-            id: '1',
+            id: 'rule_approaching_due',
             title: 'Approaching Due Date',
             description: 'Send a gentle nudge 3 days before invoice is due.',
             icon: 'ph-clock-afternoon',
@@ -51,7 +54,7 @@ export default function RemindersPage() {
             isActive: true
         },
         {
-            id: '2',
+            id: 'rule_overdue',
             title: 'On Overdue',
             description: 'Send a reminder immediately when invoice is overdue.',
             icon: 'ph-warning-circle',
@@ -59,7 +62,7 @@ export default function RemindersPage() {
             isActive: true
         },
         {
-            id: '3',
+            id: 'rule_quote_followup',
             title: 'Quote Follow-up',
             description: 'Send check-in email 2 days after quote is viewed but not accepted.',
             icon: 'ph-repeat',
@@ -68,59 +71,105 @@ export default function RemindersPage() {
         }
     ]);
 
-    const [upcoming, setUpcoming] = useState<UpcomingReminder[]>([
-        {
-            id: '1',
-            scheduledFor: 'Tomorrow, 9:00 AM',
-            client: 'TechStart Inc',
-            document: 'INV-2026-003',
-            type: 'Pre-due',
-            typeStyle: 'bg-amber-50 text-amber-700 border-amber-100',
-            typeIcon: 'ph-clock'
-        },
-        {
-            id: '2',
-            scheduledFor: 'Jan 18, 9:00 AM',
-            client: 'Studio Design',
-            document: 'INV-2026-002',
-            type: 'Overdue',
-            typeStyle: 'bg-rose-50 text-rose-700 border-rose-100',
-            typeIcon: 'ph-warning'
-        }
-    ]);
+    const [upcoming, setUpcoming] = useState<UpcomingReminder[]>([]);
+    const [historyItems, setHistoryItems] = useState<SentHistoryItem[]>([]);
+    const [documents, setDocuments] = useState<DocumentWithItems[]>([]);
 
-    const historyItems: SentHistoryItem[] = [
-        {
-            id: '1',
-            time: 'Today, 10:30 AM',
-            title: 'Payment Reminder Sent',
-            subtitle: 'To: Acme Corp (INV-001)',
-            opened: true,
-            statusColor: 'bg-emerald-500' // green dot
-        },
-        {
-            id: '2',
-            time: 'Yesterday',
-            title: 'Quote Follow-up',
-            subtitle: 'To: TechStart (Q-003)',
-            opened: false,
-            statusColor: 'bg-slate-300' // gray dot
-        },
-        {
-            id: '3',
-            time: 'Jan 12',
-            title: 'Invoice Created',
-            subtitle: 'System Auto-notification',
-            opened: false, // irrelevant for syst notif
-            statusColor: 'bg-slate-300'
-        }
-    ];
+    // --- Data Fetching ---
+    useEffect(() => {
+        const loadData = async () => {
+             try {
+                 setIsLoading(true);
+                 const [rulesData, scheduledData, historyData, docsData] = await Promise.all([
+                     remindersApi.getRules().catch(() => []),
+                     remindersApi.getScheduled().catch(() => []),
+                     remindersApi.getHistory().catch(() => []),
+                     documentsApi.list({ limit: 100 }).then(res => res.data).catch(() => []) 
+                 ]);
+
+                 // 1. Sync Rules
+                 if (rulesData.length > 0) {
+                     setRules(prevRules => prevRules.map(r => {
+                         const dbRule = rulesData.find((dr: any) => dr.type === r.id || dr.name === r.title); // loose matching
+                         return dbRule ? { ...r, isActive: dbRule.is_active, dbId: dbRule.id } : r;
+                     }));
+                 }
+
+                 // 2. Map Scheduled
+                 const mappedUpcoming: UpcomingReminder[] = scheduledData.map((job: any) => ({
+                     id: job.id,
+                     scheduledFor: new Date(job.scheduled_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }),
+                     client: job.document?.contact?.company || job.document?.contact?.name || 'Unknown Client',
+                     document: `${job.document?.type === 'invoice' ? 'Invoice' : 'Doc'} #${job.document?.number}`,
+                     type: 'Follow-up', // Default for now
+                     typeStyle: 'bg-indigo-50 text-indigo-700 border-indigo-100',
+                     typeIcon: 'ph-paper-plane-tilt'
+                 }));
+                 setUpcoming(mappedUpcoming);
+
+                 // 3. Map History
+                 const mappedHistory: SentHistoryItem[] = historyData.map((event: any) => ({
+                     id: event.id,
+                     time: new Date(event.created_at).toLocaleDateString(), // Simplification
+                     title: event.details?.title || 'Reminder Sent',
+                     subtitle: event.details?.subtitle || '',
+                     opened: false, // Need tracking pixel data ideally
+                     statusColor: 'bg-emerald-500'
+                 }));
+                 setHistoryItems(mappedHistory);
+
+                 setDocuments(docsData);
+
+             } catch (error) {
+                 console.error("Failed to load reminder data", error);
+                 showToast("Error loading data");
+             } finally {
+                 setIsLoading(false);
+             }
+        };
+
+        loadData();
+    }, []);
+
 
     // --- Actions ---
 
-    const toggleRule = (id: string) => {
-        setRules(rules.map(r => r.id === id ? { ...r, isActive: !r.isActive } : r));
-        showToast('Rule settings updated');
+    const toggleRule = async (ruleIndex: number) => {
+        const rule = rules[ruleIndex];
+        const newStatus = !rule.isActive;
+        
+        // Optimistic update
+        const newRules = [...rules];
+        newRules[ruleIndex].isActive = newStatus;
+        setRules(newRules);
+
+        try {
+            if (rule.dbId) {
+                await remindersApi.toggleRule(rule.dbId, newStatus);
+            } else {
+                // If it doesn't have a DB ID yet (should be covered by auto-seed, but just in case)
+                // We'll re-fetch rules which should now be seeded
+                await remindersApi.getRules();
+                // But for now, let's just show a toast. 
+                // In reality, if we just seeded, the next page load fixes it. 
+                // But if we want it instant, we'd need a create endpoint.
+                // Since I added auto-seed to GET, simply calling GET again would allow us to get the ID.
+                const refreshedRules = await remindersApi.getRules();
+                const matchedRule = refreshedRules.find((dr: any) => dr.type === rule.id);
+                if (matchedRule) {
+                     await remindersApi.toggleRule(matchedRule.id, newStatus);
+                     // Update local state with new ID
+                     newRules[ruleIndex].dbId = matchedRule.id;
+                     setRules([...newRules]);
+                }
+            }
+            showToast('Rule settings updated');
+        } catch (err) {
+            // Revert
+            newRules[ruleIndex].isActive = !newStatus;
+            setRules(newRules);
+            showToast('Failed to update rule');
+        }
     };
 
     const handleDeleteClick = (id: string) => {
@@ -128,30 +177,63 @@ export default function RemindersPage() {
         setShowDeleteModal(true);
     };
 
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         if (reminderToDelete) {
-            setUpcoming(upcoming.filter(r => r.id !== reminderToDelete));
-            showToast('Reminder deleted successfully');
+            try {
+                await remindersApi.deleteScheduled(reminderToDelete);
+                setUpcoming(upcoming.filter(r => r.id !== reminderToDelete));
+                showToast('Reminder deleted successfully');
+            } catch (err) {
+                showToast('Failed to delete reminder');
+            }
         }
         setShowDeleteModal(false);
         setReminderToDelete(null);
     };
 
-    const handleManualSchedule = (e: React.FormEvent) => {
+    const handleManualSchedule = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Mock addition
-        const newReminder: UpcomingReminder = {
-            id: Date.now().toString(),
-            scheduledFor: 'Jan 25, 09:00 AM',
-            client: 'Acme Corp',
-            document: 'INV-2026-003',
-            type: 'Follow-up',
-            typeStyle: 'bg-indigo-50 text-indigo-700 border-indigo-100',
-            typeIcon: 'ph-paper-plane-tilt'
-        };
-        setUpcoming([...upcoming, newReminder]);
-        setShowManualModal(false);
-        showToast('Reminder scheduled successfully');
+        const form = e.target as HTMLFormElement;
+        const docId = (form.elements.namedItem('document_id') as HTMLSelectElement).value;
+        const date = (form.elements.namedItem('date') as HTMLInputElement).value;
+        const time = (form.elements.namedItem('time') as HTMLInputElement).value;
+        const notes = (form.elements.namedItem('notes') as HTMLTextAreaElement).value;
+
+        if (!docId || !date || !time) {
+            showToast('Please fill all required fields');
+            return;
+        }
+
+        const scheduledAt = new Date(`${date}T${time}`).toISOString();
+
+        try {
+            const newJob = await remindersApi.createScheduled({
+                document_id: docId,
+                scheduled_at: scheduledAt,
+                content: notes
+            });
+
+            // Refresh upcoming list (or optimally fetch just the new one and map it)
+            // Ideally we get the inserted object back.
+            // Let's do a re-fetch of upcoming for simplicity to get the joined data.
+            const scheduledData = await remindersApi.getScheduled();
+             const mappedUpcoming: UpcomingReminder[] = scheduledData.map((job: any) => ({
+                     id: job.id,
+                     scheduledFor: new Date(job.scheduled_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }),
+                     client: job.document?.contact?.company || job.document?.contact?.name || 'Unknown Client',
+                     document: `${job.document?.type === 'invoice' ? 'Invoice' : 'Doc'} #${job.document?.number}`,
+                     type: 'Follow-up',
+                     typeStyle: 'bg-indigo-50 text-indigo-700 border-indigo-100',
+                     typeIcon: 'ph-paper-plane-tilt'
+                 }));
+            setUpcoming(mappedUpcoming);
+            
+            setShowManualModal(false);
+            showToast('Reminder scheduled successfully');
+        } catch (err) {
+            console.error(err);
+            showToast('Failed to schedule reminder');
+        }
     };
 
     const showToast = (msg: string) => {
@@ -166,15 +248,16 @@ export default function RemindersPage() {
                 <h1 className="text-xl font-[600] text-slate-900 tracking-tight">Reminders</h1>
                 <button 
                     onClick={() => setShowManualModal(true)}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-all"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-all duration-300"
                 >
                     <i className="ph-bold ph-plus"></i>
                     <span>Manual Reminder</span>
                 </button>
             </header>
 
+
             {/* Content Area */}
-            <div className="flex-1 overflow-y-auto p-8 scroller-thin">
+            <div className={`flex-1 overflow-y-auto p-8 scroller-thin ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
                 <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
                     
                     {/* LEFT COLUMN (2/3): Configuration & Upcoming */}
@@ -193,7 +276,7 @@ export default function RemindersPage() {
                             </div>
 
                             <div className="space-y-4">
-                                {rules.map((rule) => (
+                                {rules.map((rule, index) => (
                                     <div key={rule.id} className={`flex items-center justify-between p-4 border border-slate-100 rounded-xl hover:border-slate-200 transition-colors ${!rule.isActive ? 'opacity-75' : ''}`}>
                                         <div className="flex items-start gap-3">
                                             <i className={`ph-fill ${rule.icon} ${rule.iconColor} text-lg mt-0.5`}></i>
@@ -206,7 +289,7 @@ export default function RemindersPage() {
                                             <input 
                                                 type="checkbox" 
                                                 checked={rule.isActive} 
-                                                onChange={() => toggleRule(rule.id)}
+                                                onChange={() => toggleRule(index)}
                                                 className="sr-only peer" 
                                             />
                                             <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
@@ -219,7 +302,7 @@ export default function RemindersPage() {
                         {/* 2. Upcoming Reminders */}
                         <div>
                             <h3 className="text-sm font-[600] text-slate-900 mb-4">Upcoming Schedule</h3>
-                            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden min-h-[100px]">
                                 <table className="w-full text-left">
                                     <thead className="bg-slate-50 border-b border-slate-200 text-xs font-[600] text-slate-500 uppercase">
                                         <tr>
@@ -258,7 +341,7 @@ export default function RemindersPage() {
                                         ) : (
                                             <tr>
                                                 <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
-                                                    No reminders scheduled.
+                                                    {isLoading ? 'Loading...' : 'No upcoming reminders scheduled.'}
                                                 </td>
                                             </tr>
                                         )}
@@ -271,14 +354,14 @@ export default function RemindersPage() {
 
                     {/* RIGHT COLUMN (1/3): History */}
                     <div className="space-y-6">
-                        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 h-full">
+                        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 h-full min-h-[200px]">
                             <div className="flex items-center justify-between mb-6">
                                 <h3 className="text-sm font-[600] text-slate-900">Sent History</h3>
                                 <button className="text-xs text-indigo-600 hover:underline">View All</button>
                             </div>
                             
                             <div className="relative pl-4 border-l-2 border-slate-100 space-y-8">
-                                {historyItems.map((item) => (
+                                {historyItems.length > 0 ? historyItems.map((item) => (
                                     <div key={item.id} className="relative">
                                         <div className={`absolute -left-[21px] w-3 h-3 ${item.statusColor} rounded-full border-2 border-white shadow-sm ${item.statusColor === 'bg-emerald-500' ? 'ring-4 ring-emerald-50' : ''}`}></div>
                                         <div className="flex flex-col gap-1">
@@ -292,7 +375,9 @@ export default function RemindersPage() {
                                             )}
                                         </div>
                                     </div>
-                                ))}
+                                )) : (
+                                    <p className="text-xs text-slate-400 italic">No history yet.</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -321,27 +406,30 @@ export default function RemindersPage() {
                             <div className="p-6 space-y-4">
                                 <div className="space-y-1">
                                     <label className="text-xs font-[500] text-slate-700">Document Context</label>
-                                    <select className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-600">
-                                        <option>Invoice #INV-2026-003 (TechStart)</option>
-                                        <option>Quote #Q-2026-005 (Acme Corp)</option>
-                                        <option>Invoice #INV-2026-002 (Studio Design)</option>
+                                    <select name="document_id" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-600">
+                                        <option value="">Select a document...</option>
+                                        {documents.map(doc => (
+                                            <option key={doc.id} value={doc.id}>
+                                                {doc.type.toUpperCase()} #{doc.number} ({doc.contact?.company || doc.contact?.name})
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1">
                                         <label className="text-xs font-[500] text-slate-700">Schedule Date</label>
-                                        <input type="date" className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-600" />
+                                        <input name="date" type="date" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-600" />
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-xs font-[500] text-slate-700">Time</label>
-                                        <input type="time" defaultValue="09:00" className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-600" />
+                                        <input name="time" type="time" defaultValue="09:00" required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-600" />
                                     </div>
                                 </div>
 
                                 <div className="space-y-1">
                                     <label className="text-xs font-[500] text-slate-700">Custom Note (Optional)</label>
-                                    <textarea rows={3} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 placeholder:text-slate-400" placeholder="e.g. Just checking in on the payment status..."></textarea>
+                                    <textarea name="notes" rows={3} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 placeholder:text-slate-400" placeholder="e.g. Just checking in on the payment status..."></textarea>
                                 </div>
                             </div>
 

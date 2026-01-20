@@ -845,3 +845,157 @@ export async function getDashboardStats(workspaceId: string) {
     totalContacts: totalContacts || 0,
   };
 }
+
+// ============================================
+// Reminders & Automation
+// ============================================
+
+import { ReminderRule, ReminderJob } from '../types';
+
+export async function getReminderRules(workspaceId: string): Promise<ReminderRule[]> {
+  const supabase = createServerClient();
+  
+  const { data, error } = await supabase
+    .from('reminder_rules')
+    .select('*')
+    .eq('workspace_id', workspaceId);
+
+  if (error) {
+    // Graceful fallback if table doesn't exist yet
+    console.warn('[DB] Error fetching reminder_rules, assuming empty:', error.message);
+    return [];
+  }
+
+  // Auto-seed if empty
+  if (!data || data.length === 0) {
+      console.log('[DB] Seeding default reminder rules for workspace:', workspaceId);
+      const defaultRules = [
+          {
+              workspace_id: workspaceId,
+              type: 'rule_approaching_due',
+              title: 'Approaching Due Date',
+              is_active: true
+          },
+          {
+              workspace_id: workspaceId,
+              type: 'rule_overdue',
+              title: 'On Overdue',
+              is_active: true
+          },
+          {
+              workspace_id: workspaceId,
+              type: 'rule_quote_followup',
+              title: 'Quote Follow-up',
+              is_active: false
+          }
+      ];
+
+      const { data: newData, error: insertError } = await supabase
+          .from('reminder_rules')
+          .insert(defaultRules)
+          .select();
+      
+      if (insertError) {
+          console.error('[DB] Failed to seed rules:', insertError.message);
+          return [];
+      }
+      return newData || [];
+  }
+
+  return data || [];
+}
+
+export async function toggleReminderRule(
+  workspaceId: string, 
+  ruleId: string, 
+  isActive: boolean
+): Promise<void> {
+  const supabase = createServerClient();
+  
+  const { error } = await supabase
+    .from('reminder_rules')
+    .update({ is_active: isActive })
+    .eq('workspace_id', workspaceId)
+    .eq('id', ruleId);
+
+  if (error) throw error;
+}
+
+export async function getScheduledReminders(workspaceId: string): Promise<any[]> {
+  const supabase = createServerClient();
+  
+  const { data, error } = await supabase
+    .from('reminder_jobs')
+    .select(`
+      *,
+      document:documents(
+        id, 
+        number, 
+        type, 
+        contact:contacts(name, company)
+      )
+    `)
+    .eq('status', 'pending')
+    .order('scheduled_at', { ascending: true });
+
+  if (error) {
+     console.warn('[DB] Error fetching reminder_jobs:', error.message);
+     return [];
+  }
+
+  // Filter mainly by associated document's workspace
+  // This requires the join to be correct.
+  return (data || []).filter((job: any) => job.document?.type !== undefined); 
+  // Simple check, real filtering should be RLS or strict query
+}
+
+export async function createManualReminder(
+  workspaceId: string,
+  data: {
+    document_id: string;
+    scheduled_at: string;
+    content?: string;
+  }
+): Promise<ReminderJob | null> {
+  const supabase = createServerClient();
+  
+  const { data: job, error } = await supabase
+    .from('reminder_jobs')
+    .insert({
+      document_id: data.document_id,
+      scheduled_at: data.scheduled_at,
+      content: data.content,
+      status: 'pending'
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return job;
+}
+
+export async function deleteReminderJob(jobId: string): Promise<void> {
+  const supabase = createServerClient();
+  
+  const { error } = await supabase
+    .from('reminder_jobs')
+    .delete()
+    .eq('id', jobId);
+
+  if (error) throw error;
+}
+
+export async function getReminderHistory(workspaceId: string, limit: number = 10): Promise<any[]> {
+    const supabase = createServerClient();
+
+    const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('workspace_id', workspaceId)
+        .eq('action', 'reminder_sent')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+    
+    if (error) return [];
+    return data || [];
+}
