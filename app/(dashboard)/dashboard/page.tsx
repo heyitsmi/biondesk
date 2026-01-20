@@ -33,7 +33,7 @@ export default function DashboardPage() {
             title: 'Follow up Proposal: E-commerce Redesign',
             subtitle: 'Sent 2 days ago • High Priority',
             action: 'Write Follow-up',
-            href: '/proposal/2'
+            href: '/proposals/2'
         },
         {
             id: '3',
@@ -218,7 +218,7 @@ export default function DashboardPage() {
                             </div>
 
                             {/* Mini Promo for AI */}
-                            <Link href="/proposal/generate" className="block bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-xl p-5 text-white shadow-lg relative overflow-hidden group cursor-pointer">
+                            <Link href="/proposals/generate" className="block bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-xl p-5 text-white shadow-lg relative overflow-hidden group cursor-pointer">
                                 <div className="relative z-10">
                                     <h3 className="text-base font-[600] mb-1">Generate Proposal</h3>
                                     <p className="text-xs font-[400] text-indigo-100 mb-3">Turn a messy job post into a winning proposal in seconds.</p>

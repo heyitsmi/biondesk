@@ -92,7 +92,7 @@ function ProposalGeneratorReact() {
         });
         
         // Redirect to detail page
-        router.push(`/proposal/${doc.id}`);
+        router.push(`/proposals/${doc.id}`);
     } catch (error) {
         console.error(error);
         alert('Failed to create proposal');

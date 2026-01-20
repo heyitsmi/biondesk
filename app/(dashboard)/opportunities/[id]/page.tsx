@@ -39,7 +39,7 @@ export default function EditOpportunityPage() {
         priority: 'medium',
         description: '',
         notes: '',
-        notes: '',
+
         stage: 'inbox',
         country_code: 'US'
     });
@@ -176,7 +176,7 @@ export default function EditOpportunityPage() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <Link href={`/proposal/generate?opportunityId=${id}`} className="px-4 py-2 text-sm font-[550] text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 hover:border-indigo-200 rounded-lg transition-all flex items-center gap-2">
+                    <Link href={`/proposals/generate?opportunityId=${id}`} className="px-4 py-2 text-sm font-[550] text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 hover:border-indigo-200 rounded-lg transition-all flex items-center gap-2">
                         <i className="ph-bold ph-magic-wand"></i> Generate Proposal
                     </Link>
                     <Link href="/opportunities" className="px-4 py-2 text-sm font-[550] text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all">
