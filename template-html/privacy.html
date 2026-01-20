@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | Flova</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts: Google Sans Flex -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Google Sans Flex"', 'sans-serif'],
+                    },
+                    colors: {
+                        dark: {
+                            900: '#050505',
+                            800: '#121212',
+                            700: '#1F1F1F',
+                        },
+                        light: {
+                            50: '#FAFAFA',
+                            100: '#F5F5F5',
+                        },
+                        accent: {
+                            500: '#6366f1', 
+                            600: '#4f46e5',
+                        }
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { 
+            background-color: #FAFAFA; 
+            color: #050505;
+        }
+        /* Mobile Menu Animation */
+        #mobile-menu {
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        #mobile-menu.open {
+            max-height: 400px;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <!-- 1. Floating Navbar (Consistent with Home) -->
+    <nav class="fixed top-4 md:top-6 left-4 right-4 z-50 flex flex-col items-center px-0">
+        <div class="bg-white/80 backdrop-blur-xl border border-white/40 shadow-sm rounded-3xl md:rounded-full px-2 py-2 pl-4 md:pl-6 w-full max-w-5xl transition-all duration-300">
+            <div class="flex items-center justify-between">
+                
+                <!-- Logo -->
+                <a href="home.html" class="flex items-center gap-2 group shrink-0">
+                    <div class="w-8 h-8 bg-dark-900 rounded-lg flex items-center justify-center text-white shadow-lg group-hover:rotate-12 transition-transform duration-300">
+                        <i class="ph-bold ph-lightning text-lg"></i>
+                    </div>
+                    <span class="font-bold text-lg tracking-tight text-dark-900">Flova</span>
+                </a>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center gap-1 bg-light-100/50 p-1 rounded-full border border-black/5">
+                    <a href="home.html#features" class="px-5 py-2 text-sm font-medium text-slate-600 hover:text-dark-900 hover:bg-white rounded-full transition-all">Features</a>
+                    <a href="home.html#how-it-works" class="px-5 py-2 text-sm font-medium text-slate-600 hover:text-dark-900 hover:bg-white rounded-full transition-all">Workflow</a>
+                    <a href="home.html#pricing" class="px-5 py-2 text-sm font-medium text-slate-600 hover:text-dark-900 hover:bg-white rounded-full transition-all">Pricing</a>
+                </div>
+
+                <!-- Actions -->
+                <div class="hidden md:flex items-center gap-3 pr-1">
+                    <a href="login.html" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-dark-900 transition-colors">Log in</a>
+                    <a href="register.html" class="bg-dark-900 hover:bg-black text-white px-6 py-2.5 rounded-full text-sm font-semibold transition-all hover:shadow-lg active:scale-95 flex items-center gap-2">
+                        Get Started
+                    </a>
+                </div>
+
+                <!-- Mobile Hamburger -->
+                <button id="mobile-menu-btn" class="md:hidden p-2 text-dark-900 hover:bg-slate-100 rounded-lg transition-colors focus:outline-none">
+                    <i class="ph-bold ph-list text-2xl" id="menu-icon"></i>
+                </button>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="md:hidden w-full flex flex-col items-center gap-4 pt-4 pb-2 border-t border-slate-100 mt-2">
+                <a href="home.html" class="text-sm font-medium text-slate-600 hover:text-dark-900 w-full text-center py-2">Home</a>
+                <a href="login.html" class="text-sm font-semibold text-slate-600 hover:text-dark-900 w-full text-center py-2">Log in</a>
+                <a href="register.html" class="bg-dark-900 hover:bg-black text-white px-6 py-3 rounded-xl text-sm font-semibold w-full text-center shadow-lg">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 2. Content Section -->
+    <section class="pt-32 pb-20 px-6">
+        <div class="max-w-3xl mx-auto">
+            
+            <!-- Header -->
+            <div class="text-center mb-16">
+                <h1 class="text-4xl md:text-5xl font-[800] tracking-tight text-dark-900 mb-4">Privacy Policy</h1>
+                <p class="text-slate-500">Last updated: January 14, 2026</p>
+            </div>
+
+            <!-- Policy Text -->
+            <div class="prose prose-slate prose-lg mx-auto text-slate-600 leading-relaxed space-y-12">
+                
+                <section>
+                    <h2 class="text-2xl font-bold text-dark-900 mb-4">1. Introduction</h2>
+                    <p>
+                        Welcome to Flova ("we," "our," or "us"). We are committed to protecting your privacy and ensuring you have a positive experience on our website and in using our products and services (collectively, "Services"). This policy explains how we handle your personal information.
+                    </p>
+                </section>
+
+                <section>
+                    <h2 class="text-2xl font-bold text-dark-900 mb-4">2. Information We Collect</h2>
+                    <p class="mb-4">We collect information to provide better services to all our users. The types of information we collect include:</p>
+                    <ul class="list-disc pl-6 space-y-2 marker:text-accent-500">
+                        <li><strong>Account Information:</strong> When you register, we collect your name, email address, and company details.</li>
+                        <li><strong>Content:</strong> Data you input into Flova, such as client details, proposals, quotes, and invoices.</li>
+                        <li><strong>Usage Data:</strong> Information on how you interact with our Services, including access times and pages viewed.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2 class="text-2xl font-bold text-dark-900 mb-4">3. How We Use Information</h2>
+                    <p>We use the information we collect to operate, maintain, and improve our Services, such as:</p>
+                    <ul class="list-disc pl-6 space-y-2 marker:text-accent-500">
+                        <li>To provide and deliver the products and services you request.</li>
+                        <li>To send you technical notices, updates, security alerts, and support messages.</li>
+                        <li>To respond to your comments, questions, and customer service requests.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2 class="text-2xl font-bold text-dark-900 mb-4">4. Data Security</h2>
+                    <p>
+                        We implement appropriate technical and organizational measures to protect the security of your personal information. However, please note that no system is completely secure. We use industry-standard encryption to protect your data in transit and at rest.
+                    </p>
+                </section>
+
+                <section>
+                    <h2 class="text-2xl font-bold text-dark-900 mb-4">5. Your Rights</h2>
+                    <p>
+                        You have the right to access, correct, or delete your personal information. You can manage your information directly within your account settings or by contacting us.
+                    </p>
+                </section>
+
+                <section>
+                    <h2 class="text-2xl font-bold text-dark-900 mb-4">6. Contact Us</h2>
+                    <p>
+                        If you have any questions about this Privacy Policy, please contact us at:
+                        <br>
+                        <a href="mailto:privacy@flova.io" class="text-accent-600 font-medium hover:underline">privacy@flova.io</a>
+                    </p>
+                </section>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- 3. Footer -->
+    <footer class="py-12 px-6 border-t border-slate-100 bg-white mt-12">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="flex flex-col items-center md:items-start gap-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-dark-900 rounded flex items-center justify-center text-white text-xs">
+                        <i class="ph-bold ph-lightning"></i>
+                    </div>
+                    <span class="font-bold text-lg text-dark-900">Flova.</span>
+                </div>
+                <p class="text-sm text-slate-500">The operating system for independent creatives.</p>
+            </div>
+            
+            <div class="flex gap-8 text-sm font-medium text-slate-500">
+                <a href="#" class="hover:text-dark-900 transition-colors">Twitter</a>
+                <a href="#" class="hover:text-dark-900 transition-colors">LinkedIn</a>
+                <a href="#" class="hover:text-dark-900 transition-colors">Email</a>
+            </div>
+
+            <div class="flex gap-6 text-xs text-slate-400">
+                <a href="privacy-policy.html" class="hover:text-slate-600 text-dark-900 font-medium">Privacy Policy</a>
+                <a href="#" class="hover:text-slate-600">Terms of Service</a>
+                <span>© 2026 Flova Inc.</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile Menu Logic
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('open');
+            if (mobileMenu.classList.contains('open')) {
+                menuIcon.classList.replace('ph-list', 'ph-x');
+            } else {
+                menuIcon.classList.replace('ph-x', 'ph-list');
+            }
+        });
+    </script>
+
+</body>
+</html>

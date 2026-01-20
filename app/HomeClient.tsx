@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-export default function HomeClient() {
+export default function HomeClient({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
@@ -62,10 +62,18 @@ export default function HomeClient() {
 
                         {/* Actions (Desktop) */}
                         <div className="hidden md:flex items-center gap-3 pr-1">
-                            <Link href="/login" className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-dark-900 transition-colors">Log in</Link>
-                            <Link href="/register" className="bg-dark-900 hover:bg-black text-white px-6 py-2.5 rounded-full text-sm font-semibold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2">
-                                Get Started <i className="ph-bold ph-arrow-right"></i>
-                            </Link>
+                            {isLoggedIn ? (
+                                <Link href="/dashboard" className="bg-dark-900 hover:bg-black text-white px-6 py-2.5 rounded-full text-sm font-semibold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2">
+                                    Dashboard <i className="ph-bold ph-arrow-right"></i>
+                                </Link>
+                            ) : (
+                                <>
+                                    <Link href="/login" className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-dark-900 transition-colors">Log in</Link>
+                                    <Link href="/register" className="bg-dark-900 hover:bg-black text-white px-6 py-2.5 rounded-full text-sm font-semibold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2">
+                                        Get Started <i className="ph-bold ph-arrow-right"></i>
+                                    </Link>
+                                </>
+                            )}
                         </div>
 
                         {/* Mobile Hamburger Button */}
@@ -84,8 +92,15 @@ export default function HomeClient() {
                         <a href="#how-it-works" className="text-sm font-medium text-slate-600 hover:text-dark-900 w-full text-center py-2">Workflow</a>
                         <a href="#pricing" className="text-sm font-medium text-slate-600 hover:text-dark-900 w-full text-center py-2">Pricing</a>
                         <div className="h-px w-full bg-slate-100 my-1"></div>
-                        <Link href="/login" className="text-sm font-semibold text-slate-600 hover:text-dark-900 w-full text-center py-2">Log in</Link>
-                        <Link href="/register" className="bg-dark-900 hover:bg-black text-white px-6 py-3 rounded-xl text-sm font-semibold w-full text-center shadow-lg">Get Started</Link>
+                        
+                        {isLoggedIn ? (
+                            <Link href="/dashboard" className="bg-dark-900 hover:bg-black text-white px-6 py-3 rounded-xl text-sm font-semibold w-full text-center shadow-lg">Dashboard</Link>
+                        ) : (
+                            <>
+                                <Link href="/login" className="text-sm font-semibold text-slate-600 hover:text-dark-900 w-full text-center py-2">Log in</Link>
+                                <Link href="/register" className="bg-dark-900 hover:bg-black text-white px-6 py-3 rounded-xl text-sm font-semibold w-full text-center shadow-lg">Get Started</Link>
+                            </>
+                        )}
                     </div>
                 </div>
             </nav>
