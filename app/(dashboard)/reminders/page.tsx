@@ -44,9 +44,9 @@ export default function RemindersPage() {
     const [toast, setToast] = useState<{ message: string; visible: boolean }>({ message: '', visible: false });
 
     // Data State
-    const [rules, setRules] = useState<ReminderRule[]>([
+                const [rules, setRules] = useState<ReminderRule[]>([
         {
-            id: 'rule_approaching_due',
+            id: 'pre_due',
             title: 'Approaching Due Date',
             description: 'Send a gentle nudge 3 days before invoice is due.',
             icon: 'ph-clock-afternoon',
@@ -54,7 +54,7 @@ export default function RemindersPage() {
             isActive: true
         },
         {
-            id: 'rule_overdue',
+            id: 'overdue',
             title: 'On Overdue',
             description: 'Send a reminder immediately when invoice is overdue.',
             icon: 'ph-warning-circle',
@@ -62,7 +62,7 @@ export default function RemindersPage() {
             isActive: true
         },
         {
-            id: 'rule_quote_followup',
+            id: 'quote_followup',
             title: 'Quote Follow-up',
             description: 'Send check-in email 2 days after quote is viewed but not accepted.',
             icon: 'ph-repeat',
@@ -87,10 +87,10 @@ export default function RemindersPage() {
                      documentsApi.list({ limit: 100 }).then(res => res.data).catch(() => []) 
                  ]);
 
-                 // 1. Sync Rules
+                // 1. Sync Rules
                  if (rulesData.length > 0) {
                      setRules(prevRules => prevRules.map(r => {
-                         const dbRule = rulesData.find((dr: any) => dr.type === r.id || dr.name === r.title); // loose matching
+                         const dbRule = rulesData.find((dr: any) => dr.type === r.id);
                          return dbRule ? { ...r, isActive: dbRule.is_active, dbId: dbRule.id } : r;
                      }));
                  }

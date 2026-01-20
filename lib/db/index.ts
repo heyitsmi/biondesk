@@ -872,19 +872,19 @@ export async function getReminderRules(workspaceId: string): Promise<ReminderRul
       const defaultRules = [
           {
               workspace_id: workspaceId,
-              type: 'rule_approaching_due',
+              type: 'pre_due',
               title: 'Approaching Due Date',
               is_active: true
           },
           {
               workspace_id: workspaceId,
-              type: 'rule_overdue',
+              type: 'overdue',
               title: 'On Overdue',
               is_active: true
           },
           {
               workspace_id: workspaceId,
-              type: 'rule_quote_followup',
+              type: 'quote_followup',
               title: 'Quote Follow-up',
               is_active: false
           }
@@ -912,13 +912,24 @@ export async function toggleReminderRule(
 ): Promise<void> {
   const supabase = createServerClient();
   
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('reminder_rules')
     .update({ is_active: isActive })
     .eq('workspace_id', workspaceId)
-    .eq('id', ruleId);
+    .eq('id', ruleId)
+    .select(); // Select to verify update occurred
 
-  if (error) throw error;
+  if (error) {
+      console.error('[DB] Toggle Rule Error:', error.message);
+      throw error;
+  }
+  
+  if (!data || data.length === 0) {
+      console.warn(`[DB] Toggle Rule: No rows updated. Workspace: ${workspaceId}, Rule: ${ruleId}`);
+      // Only throw if we are strict, but for now log warning
+  } else {
+      console.log(`[DB] Toggle Rule Success. New state: ${data[0].is_active}`);
+  }
 }
 
 export async function getScheduledReminders(workspaceId: string): Promise<any[]> {

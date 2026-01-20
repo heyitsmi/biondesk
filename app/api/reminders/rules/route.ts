@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getReminderRules, toggleReminderRule } from '@/lib/db';
-
 import { getCurrentUser, getUserWorkspace } from '@/lib/auth';
+
+export const dynamic = 'force-dynamic'; // Ensure no caching
 
 export async function GET(request: NextRequest) {
     try {
@@ -14,6 +15,7 @@ export async function GET(request: NextRequest) {
         const rules = await getReminderRules(workspace.id);
         return NextResponse.json(rules);
     } catch (error) {
+        console.error('API Error [GET Rules]:', error);
         return NextResponse.json({ error: 'Failed to fetch rules' }, { status: 500 });
     }
 }
@@ -29,10 +31,13 @@ export async function PUT(request: NextRequest) {
         const body = await request.json();
         const { id, isActive } = body;
         
+        console.log(`[API] Toggling rule ${id} to ${isActive} for workspace ${workspace.id}`);
+        
         await toggleReminderRule(workspace.id, id, isActive);
         
         return NextResponse.json({ success: true });
     } catch (error) {
+        console.error('API Error [PUT Rules]:', error);
         return NextResponse.json({ error: 'Failed to update rule' }, { status: 500 });
     }
 }
