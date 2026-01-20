@@ -4,8 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { supabase } from '@/lib/supabase';
-
 export default function LoginClient() {
     const router = useRouter();
     const [email, setEmail] = useState('');
@@ -40,21 +38,9 @@ export default function LoginClient() {
         }
     };
 
-    const handleGoogleLogin = async () => {
+    const handleGoogleLogin = () => {
         setIsLoading(true);
-        setError('');
-        try {
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: `${window.location.origin}/api/auth/callback`,
-                },
-            });
-            if (error) throw error;
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to connect to Google');
-            setIsLoading(false);
-        }
+        window.location.href = '/api/auth/google';
     };
 
     return (
