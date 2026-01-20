@@ -1,20 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-
-// Mock template data
-const mockTemplate = {
-  id: 'tpl-001',
-  name: 'Standard Web Design Quote',
-  type: 'quote',
-  description: 'Used for standard 5-page website projects with basic SEO included.',
-  content: `Payment is due within {{payment_terms_days}} days of invoice date.
-
-Includes {{revision_count}} rounds of revisions. Additional revisions will be charged at our standard hourly rate.
-
-Timeline: {{project_timeline_weeks}} weeks from deposit payment.`,
-};
 
 const validVariables = [
   '{{client_name}}', '{{client_company}}', '{{client_address}}',
@@ -52,12 +39,39 @@ export default function EditTemplatePage() {
   const router = useRouter();
   const templateId = params.id as string;
   
-  const [name, setName] = useState(mockTemplate.name);
-  const [type, setType] = useState(mockTemplate.type);
-  const [description, setDescription] = useState(mockTemplate.description);
-  const [content, setContent] = useState(mockTemplate.content);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [name, setName] = useState('');
+  const [type, setType] = useState('quote');
+  const [description, setDescription] = useState('');
+  const [content, setContent] = useState('');
   const [showPreview, setShowPreview] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  useEffect(() => {
+    const fetchTemplate = async () => {
+      try {
+        const res = await fetch(`/api/templates/${templateId}`);
+        if (!res.ok) throw new Error('Failed to fetch template');
+        
+        const data = await res.json();
+        setName(data.name);
+        setType(data.type);
+        setDescription(data.content || ''); // Content field in DB maps to Description in UI
+        setContent(data.default_terms || ''); // Default Terms in DB maps to Content (Editor) in UI
+      } catch (error) {
+        console.error(error);
+        setToast({ message: 'Error loading template', type: 'error' });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (templateId) {
+      fetchTemplate();
+    }
+  }, [templateId]);
 
   const insertVariable = (variable: string) => {
     setContent(prev => prev + variable);
@@ -74,7 +88,7 @@ export default function EditTemplatePage() {
     return previewContent.replace(/\n/g, '<br>');
   };
 
-  const validateAndSave = () => {
+  const validateAndSave = async () => {
     const foundVariables = content.match(/{{[a-zA-Z0-9_]+}}/g) || [];
     const invalidVars = foundVariables.filter(v => !validVariables.includes(v));
 
@@ -85,11 +99,33 @@ export default function EditTemplatePage() {
           : `${invalidVars.length} unknown variables found (e.g., ${invalidVars[0]})`,
         type: 'error'
       });
-    } else {
-      setToast({ message: 'Changes saved successfully!', type: 'success' });
+      return;
     }
 
-    setTimeout(() => setToast(null), 3000);
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`/api/templates/${templateId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          type,
+          default_terms: content,
+          content: description
+        }),
+      });
+
+      if (!res.ok) throw new Error('Failed to update template');
+
+      setToast({ message: 'Changes saved successfully!', type: 'success' });
+      
+      setTimeout(() => {
+        router.push('/templates');
+      }, 1500);
+    } catch (error) {
+      setToast({ message: 'Failed to update template', type: 'error' });
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -120,7 +156,7 @@ export default function EditTemplatePage() {
               <i className="ph-bold ph-caret-right text-[10px] text-slate-300" />
               <span>Templates</span>
               <i className="ph-bold ph-caret-right text-[10px] text-slate-300" />
-              <span className="text-slate-800">{mockTemplate.name}</span>
+              <span className="text-slate-800">{name || 'Loading...'}</span>
             </div>
             <h1 className="text-lg font-semibold text-slate-900 tracking-tight leading-none">Edit Template</h1>
           </div>
@@ -149,19 +185,37 @@ export default function EditTemplatePage() {
           </button>
           <button 
             onClick={validateAndSave}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center gap-2 transition-colors"
+            disabled={isSubmitting}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <i className="ph-bold ph-floppy-disk" />
-            <span>Save Changes</span>
+            {isSubmitting ? (
+              <>
+                <i className="ph-bold ph-spinner animate-spin" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <i className="ph-bold ph-floppy-disk" />
+                <span>Save Changes</span>
+              </>
+            )}
           </button>
         </div>
       </header>
 
       {/* Split Layout Content */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
+        {isLoading && (
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-3">
+              <i className="ph-bold ph-spinner animate-spin text-3xl text-indigo-600" />
+              <span className="text-sm font-medium text-slate-600">Loading template...</span>
+            </div>
+          </div>
+        )}
         
         {/* LEFT: Template Editor */}
-        <div className="flex-1 flex flex-col overflow-y-auto bg-slate-50/50 p-8 relative">
+        <div className={`flex-1 flex flex-col bg-slate-50/50 p-8 relative ${showPreview ? 'overflow-hidden' : 'overflow-y-auto'}`}>
           {/* Editor Container */}
           <div className={`max-w-4xl mx-auto w-full space-y-6 transition-opacity ${showPreview ? 'opacity-0 pointer-events-none' : ''}`}>
             

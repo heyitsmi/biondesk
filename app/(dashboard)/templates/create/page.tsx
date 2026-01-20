@@ -58,7 +58,9 @@ export default function CreateTemplatePage() {
     return previewContent.replace(/\n/g, '<br>');
   };
 
-  const validateAndSave = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const validateAndSave = async () => {
     const foundVariables = content.match(/{{[a-zA-Z0-9_]+}}/g) || [];
     const invalidVars = foundVariables.filter(v => !validVariables.includes(v));
 
@@ -69,11 +71,41 @@ export default function CreateTemplatePage() {
           : `${invalidVars.length} unknown variables found (e.g., ${invalidVars[0]})`,
         type: 'error'
       });
-    } else {
-      setToast({ message: 'Template saved successfully!', type: 'success' });
+      return;
     }
 
-    setTimeout(() => setToast(null), 3000);
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          type,
+          default_terms: content,
+          content: description 
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to save template');
+      }
+
+      setToast({ message: 'Template saved successfully!', type: 'success' });
+      
+      // Redirect after short delay
+      setTimeout(() => {
+        router.push('/templates');
+      }, 1500);
+
+    } catch (error) {
+      setToast({ 
+        message: error instanceof Error ? error.message : 'Failed to save template', 
+        type: 'error' 
+      });
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -127,16 +159,27 @@ export default function CreateTemplatePage() {
 
           <button 
             onClick={() => router.back()}
-            className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all"
+            disabled={isSubmitting}
+            className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all disabled:opacity-50"
           >
             Cancel
           </button>
           <button 
             onClick={validateAndSave}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center gap-2 transition-colors"
+            disabled={isSubmitting}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <i className="ph-bold ph-floppy-disk" />
-            <span>Save Template</span>
+            {isSubmitting ? (
+              <>
+                <i className="ph-bold ph-spinner animate-spin" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <i className="ph-bold ph-floppy-disk" />
+                <span>Save Template</span>
+              </>
+            )}
           </button>
         </div>
       </header>
@@ -145,7 +188,7 @@ export default function CreateTemplatePage() {
       <div className="flex-1 flex overflow-hidden">
         
         {/* LEFT: Template Editor */}
-        <div className="flex-1 flex flex-col overflow-y-auto bg-slate-50/50 p-8 relative">
+        <div className={`flex-1 flex flex-col bg-slate-50/50 p-8 relative ${showPreview ? 'overflow-hidden' : 'overflow-y-auto'}`}>
           {/* Editor Container */}
           <div className={`max-w-4xl mx-auto w-full space-y-6 transition-opacity ${showPreview ? 'opacity-0 pointer-events-none' : ''}`}>
             
