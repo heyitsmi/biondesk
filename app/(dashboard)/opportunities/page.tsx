@@ -149,23 +149,58 @@ export default function OpportunitiesPage() {
         if (!destination) return;
         if (destination.droppableId === source.droppableId && destination.index === source.index) return;
         
+        // Find the item being dragged
+        const draggedItem = opportunities.find(o => o.id === draggableId);
+        if (!draggedItem) return;
+
+        // Get items in the destination column
+        // We must sort them by sort_order to determine the correct position
+        const destColumnItems = opportunities
+            .filter(o => o.stage === destination.droppableId && o.id !== draggableId)
+            .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0) || new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+        let newSortOrder = 0;
+
+        if (destColumnItems.length === 0) {
+            newSortOrder = 1000;
+        } else if (destination.index === 0) {
+            newSortOrder = (destColumnItems[0].sort_order || 0) - 1000;
+        } else if (destination.index >= destColumnItems.length) {
+            newSortOrder = (destColumnItems[destColumnItems.length - 1].sort_order || 0) + 1000;
+        } else {
+            const prevItemOrder = destColumnItems[destination.index - 1].sort_order || 0;
+            const nextItemOrder = destColumnItems[destination.index].sort_order || 0;
+            // Handle edge case where orders are too close (collision), though unlikely with double precision
+            newSortOrder = (prevItemOrder + nextItemOrder) / 2;
+        }
+
         // Optimistic Update
         const updatedOpportunities = opportunities.map(opp => {
             if (opp.id === draggableId) {
-                return { ...opp, stage: destination.droppableId as any };
+                return { 
+                    ...opp, 
+                    stage: destination.droppableId as any,
+                    sort_order: newSortOrder
+                };
             }
             return opp;
         });
         
+        // We need to re-sort the whole list locally to update UI correctly immediately
+        updatedOpportunities.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0) || new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
         setOpportunities(updatedOpportunities);
 
         // API Call
         try {
-            await opportunitiesApi.update(draggableId, { stage: destination.droppableId as any });
+            await opportunitiesApi.update(draggableId, { 
+                stage: destination.droppableId as any,
+                sort_order: newSortOrder 
+            });
         } catch (error) {
-            console.error('Failed to update stage:', error);
-            // Revert on error (optional, skipping for simplicity)
-            fetchOpportunities(); 
+            console.error('Failed to update opportunity:', error);
+            // Revert on error (optional)
+             fetchOpportunities();
         }
     };
 
@@ -328,7 +363,6 @@ export default function OpportunitiesPage() {
                                                                                 {/* Footer/Client */}
                                                                                 {opp.client_name && (
                                                                                     <div className="flex items-center gap-1.5 pt-2 border-t border-slate-50 text-[10px] text-slate-400 font-[500] uppercase tracking-wide">
-                                                                                        <i className="ph-fill ph-building"></i>
                                                                                         {opp.country_code && <FlagIcon code={opp.country_code as any} size={12} />}
                                                                                         {opp.client_name}
                                                                                     </div>

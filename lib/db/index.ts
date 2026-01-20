@@ -187,6 +187,7 @@ export async function getOpportunities(
     .from('opportunities')
     .select('*, contact:contacts(*)', { count: 'exact' })
     .eq('workspace_id', workspaceId)
+    .order('sort_order', { ascending: true })
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
