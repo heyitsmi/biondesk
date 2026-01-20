@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work with Dealis Studio | Inquiry Form</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Sans Flex -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Google Sans Flex"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        indigo: { 50: '#eef2ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' },
+                        slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 800: '#1e293b', 900: '#0f172a' },
+                    },
+                    boxShadow: {
+                        'form': '0 20px 40px -10px rgba(0, 0, 0, 0.08)',
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f8fafc; }
+    </style>
+</head>
+<body class="font-sans antialiased text-slate-900 min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+
+    <!-- Background Decoration -->
+    <div class="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-indigo-50 to-transparent -z-10"></div>
+    <div class="absolute top-[-100px] right-[-100px] w-96 h-96 bg-purple-100 rounded-full blur-3xl opacity-50"></div>
+    <div class="absolute bottom-[-100px] left-[-100px] w-96 h-96 bg-indigo-100 rounded-full blur-3xl opacity-50"></div>
+
+    <div class="sm:mx-auto sm:w-full sm:max-w-md text-center mb-8 animate-fade-in-up">
+        <!-- User Branding (Dynamically loaded) -->
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white shadow-sm border border-slate-100 mb-6">
+            <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
+                <i class="ph-bold ph-lightning text-xl"></i>
+            </div>
+        </div>
+        <h2 class="text-3xl font-[800] tracking-tight text-slate-900">Work with Dealis Studio</h2>
+        <p class="mt-2 text-sm text-slate-500 max-w-xs mx-auto">
+            Tell us about your project. We usually respond within 24 hours.
+        </p>
+    </div>
+
+    <div class="sm:mx-auto sm:w-full sm:max-w-[600px] animate-fade-in-up" style="animation-delay: 100ms;">
+        <div class="bg-white py-8 px-4 shadow-form sm:rounded-2xl sm:px-10 border border-slate-100 relative overflow-hidden">
+            
+            <!-- Form State -->
+            <form class="space-y-6" id="inquiryForm">
+                
+                <!-- Contact Info Group -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-1.5">
+                        <label for="name" class="block text-xs font-[600] text-slate-700 uppercase tracking-wide">Your Name <span class="text-rose-500">*</span></label>
+                        <input id="name" name="name" type="text" required class="appearance-none block w-full px-3 py-2.5 border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 sm:text-sm transition-all" placeholder="John Doe">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label for="email" class="block text-xs font-[600] text-slate-700 uppercase tracking-wide">Email Address <span class="text-rose-500">*</span></label>
+                        <input id="email" name="email" type="email" required class="appearance-none block w-full px-3 py-2.5 border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 sm:text-sm transition-all" placeholder="john@company.com">
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label for="company" class="block text-xs font-[600] text-slate-700 uppercase tracking-wide">Company / Website (Optional)</label>
+                    <input id="company" name="company" type="text" class="appearance-none block w-full px-3 py-2.5 border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 sm:text-sm transition-all" placeholder="https://acme.com">
+                </div>
+
+                <!-- Project Details Group -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                    <div class="space-y-1.5">
+                        <label for="service" class="block text-xs font-[600] text-slate-700 uppercase tracking-wide">Looking For</label>
+                        <div class="relative">
+                            <select id="service" name="service" class="appearance-none block w-full px-3 py-2.5 border border-slate-200 rounded-xl shadow-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 sm:text-sm cursor-pointer transition-all bg-white">
+                                <option>Web Design</option>
+                                <option>Mobile App Design</option>
+                                <option>Branding</option>
+                                <option>Development</option>
+                                <option>Other</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-400">
+                                <i class="ph-bold ph-caret-down"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label for="budget" class="block text-xs font-[600] text-slate-700 uppercase tracking-wide">Budget Range</label>
+                        <div class="relative">
+                            <select id="budget" name="budget" class="appearance-none block w-full px-3 py-2.5 border border-slate-200 rounded-xl shadow-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 sm:text-sm cursor-pointer transition-all bg-white">
+                                <option>< $1,000</option>
+                                <option>$1,000 - $5,000</option>
+                                <option>$5,000 - $10,000</option>
+                                <option>$10,000+</option>
+                                <option>Not sure yet</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-400">
+                                <i class="ph-bold ph-caret-down"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEW FIELD: Detailed Needs -->
+                <div class="space-y-1.5">
+                    <label for="detailed_needs" class="block text-xs font-[600] text-slate-700 uppercase tracking-wide">Detailed Requirements & Goals</label>
+                    <textarea id="detailed_needs" name="detailed_needs" rows="5" class="appearance-none block w-full px-3 py-2.5 border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 sm:text-sm transition-all resize-y" placeholder="Please describe your needs, problems to solve, and expected outcomes in detail..."></textarea>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label for="message" class="block text-xs font-[600] text-slate-700 uppercase tracking-wide">Additional Context / Timeline <span class="text-rose-500">*</span></label>
+                    <textarea id="message" name="message" rows="2" required class="appearance-none block w-full px-3 py-2.5 border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 sm:text-sm transition-all resize-none" placeholder="Any specific timeline or other constraints?"></textarea>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg text-sm font-[600] text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all transform hover:-translate-y-0.5" id="submitBtn">
+                        <span class="flex items-center gap-2">
+                            Send Inquiry <i class="ph-bold ph-paper-plane-right"></i>
+                        </span>
+                    </button>
+                    <p class="mt-4 text-center text-xs text-slate-400">
+                        <i class="ph-fill ph-lock-key mr-1"></i> Your information is secure and never shared.
+                    </p>
+                </div>
+            </form>
+
+            <!-- Success State (Hidden initially) -->
+            <div id="successState" class="hidden absolute inset-0 bg-white flex flex-col items-center justify-center p-8 text-center animate-fade-in-up">
+                <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-6 text-emerald-500 animate-bounce">
+                    <i class="ph-fill ph-check-circle text-4xl"></i>
+                </div>
+                <h3 class="text-2xl font-[800] text-slate-900 mb-2">Message Sent!</h3>
+                <p class="text-slate-500 mb-8 max-w-xs mx-auto">
+                    Thanks for reaching out. We've received your inquiry and will get back to you shortly.
+                </p>
+                <button onclick="window.location.reload()" class="px-6 py-2.5 bg-slate-100 text-slate-700 font-[600] rounded-xl hover:bg-slate-200 transition-colors text-sm">
+                    Back to Form
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer Branding -->
+    <div class="mt-8 text-center">
+        <a href="#" class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-slate-600 transition-colors">
+            <i class="ph-fill ph-lightning"></i> Powered by Flova
+        </a>
+    </div>
+
+    <script>
+        const form = document.getElementById('inquiryForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const successState = document.getElementById('successState');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Loading State
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="ph-bold ph-spinner animate-spin text-lg"></i> Sending...';
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+
+            // Mock Submission Delay
+            setTimeout(() => {
+                successState.classList.remove('hidden');
+                // In a real app, this is where you'd POST data to create an 'Opportunity' record
+            }, 1500);
+        });
+    </script>
+</body>
+</html>

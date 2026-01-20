@@ -8,6 +8,7 @@ import { Contact } from '@/lib/types';
 interface QuoteFormData {
     client_id: string;
     title: string;
+    number: string;
     reference: string;
     status: string; // string mainly to support all statuses
     issue_date: string;
@@ -38,6 +39,7 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
     const [formData, setFormData] = useState<QuoteFormData>({
         client_id: '',
         title: '',
+        number: '', 
         reference: '',
         status: 'draft',
         issue_date: '',
@@ -67,8 +69,9 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
                 
                 // Populate form
                 setFormData({
-                    client_id: quoteData.contact_id,
+                    client_id: quoteData.contact_id || '',
                     title: quoteData.title || '',
+                    number: quoteData.number,
                     reference: quoteData.reference || '',
                     status: quoteData.status,
                     issue_date: new Date(quoteData.created_at).toISOString().split('T')[0], // Use created_at as issue date for now
@@ -349,7 +352,7 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
                                     <label className="text-sm font-[600] text-slate-700">Quote Number</label>
                                     <div className="relative">
                                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-[600]">#</span>
-                                        <input type="text" value={id.substring(0, 8).toUpperCase()} disabled className="w-full pl-7 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-[500] text-slate-600 focus:outline-none focus:border-slate-300 transition-all" />
+                                        <input type="text" value={formData.number || id.substring(0, 8).toUpperCase()} disabled className="w-full pl-7 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm font-[500] text-slate-600 focus:outline-none focus:border-slate-300 transition-all" />
                                     </div>
                                 </div>
                                 <div className="space-y-1.5">
