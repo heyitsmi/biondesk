@@ -94,6 +94,11 @@ export default function PublicInvoicePage({ params }: { params: Promise<{ id: st
                     background-image: radial-gradient(#f8fafc 1px, transparent 1px); 
                     background-size: 20px 20px; 
                 }
+                @media print {
+                    @page { margin: 0; }
+                    body { background: white; }
+                    .print\:shadow-none { shadow: none; }
+                }
              `}</style>
              {/* TOP BAR */}
             <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
+import { useReactToPrint } from 'react-to-print';
 import { invoicesApi } from '@/lib/api';
 import { DocumentWithItems } from '@/lib/types';
 
@@ -12,7 +13,14 @@ export default function InvoiceDetailPage() {
     const id = params.id as string;
 
     const [isLoading, setIsLoading] = useState(true);
+    const [isSending, setIsSending] = useState(false);
     const [invoice, setInvoice] = useState<DocumentWithItems | null>(null);
+    const printRef = useRef<HTMLDivElement>(null);
+
+    const handlePrint = useReactToPrint({
+        contentRef: printRef,
+        documentTitle: invoice ? `Invoice-${invoice.number}` : 'Invoice',
+    });
 
     useEffect(() => {
         const fetchInvoice = async () => {
@@ -34,13 +42,45 @@ export default function InvoiceDetailPage() {
 
     const handleSend = async () => {
         if (!invoice) return;
-        // Logic to send invoice (e.g. open modal or direct API call)
-        alert('Send functionality to be implemented');
+        
+        const confirmSend = window.confirm(`Send invoice ${invoice.number} to ${invoice.contact?.email}?`);
+        if (!confirmSend) return;
+
+        setIsSending(true);
+        try {
+            const publicUrl = `${window.location.origin}/invoice/${invoice.public_token || invoice.id}`; // Fallback to ID if token missing, usually token is preferred for public access
+            
+            const res = await fetch('/api/invoices/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    invoiceId: invoice.id,
+                    invoiceNumber: invoice.number,
+                    recipientEmail: invoice.contact?.email,
+                    recipientName: invoice.contact?.name,
+                    workspaceName: invoice.workspace?.name,
+                    publicUrl,
+                }),
+            });
+
+            const result = await res.json();
+
+            if (!res.ok) throw new Error(result.error);
+            
+            alert('Invoice sent successfully!');
+            // Optimistically update status or re-fetch
+            setInvoice(prev => prev ? { ...prev, status: 'sent', sent_at: new Date().toISOString() } : null);
+
+        } catch (error: any) {
+            console.error('Error sending invoice:', error);
+            alert(`Failed to send invoice: ${error.message}`);
+        } finally {
+            setIsSending(false);
+        }
     };
 
     const handleDownload = () => {
-        // Logic to download PDF
-        alert('Download functionality to be implemented');
+        handlePrint(); 
     };
 
     const getStatusBadge = (status: string) => {
@@ -87,6 +127,12 @@ export default function InvoiceDetailPage() {
 
     return (
         <div className="flex-1 flex flex-col h-full bg-slate-50/50 relative overflow-hidden">
+             <style jsx global>{`
+                @media print {
+                    @page { margin: 0; }
+                    body { background: white; }
+                }
+             `}</style>
             {/* Header */}
             <header className="h-16 px-8 flex items-center justify-between bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20 shrink-0">
                 <div className="flex items-center gap-4">
@@ -131,10 +177,11 @@ export default function InvoiceDetailPage() {
                     </button>
                     <button 
                         onClick={handleSend}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-smooth"
+                        disabled={isSending}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-smooth disabled:opacity-70 disabled:cursor-not-allowed"
                     >
-                        <i className="ph-bold ph-paper-plane-tilt"></i>
-                        <span>{invoice.status === 'sent' ? 'Resend Invoice' : 'Send Invoice'}</span>
+                        {isSending ? <i className="ph-bold ph-spinner animate-spin"></i> : <i className="ph-bold ph-paper-plane-tilt"></i>}
+                        <span>{isSending ? 'Sending...' : (invoice.status === 'sent' ? 'Resend Invoice' : 'Send Invoice')}</span>
                     </button>
                 </div>
             </header>
@@ -146,7 +193,7 @@ export default function InvoiceDetailPage() {
                 <div className="flex-1 overflow-y-auto p-8 pb-16 scroller-thin flex justify-center">
                     
                     {/* A4 Paper Representation */}
-                    <div className="w-full max-w-[210mm] bg-white shadow-paper border border-slate-200 min-h-[297mm] p-12 text-slate-800 text-sm leading-relaxed relative break-words">
+                    <div ref={printRef} className="w-full max-w-[210mm] bg-white shadow-paper border border-slate-200 min-h-[297mm] p-12 text-slate-800 text-sm leading-relaxed relative break-words print:shadow-none print:border-none print:m-0 print:p-8">
 
                         {/* Document Header */}
                         <div className="flex justify-between items-start mb-12">
@@ -167,7 +214,7 @@ export default function InvoiceDetailPage() {
                                     ) : (
                                         <p className="text-slate-400 italic">Address not set</p>
                                     )}
-                                    <p>Tax ID: 987-654-321</p>
+                                    {/* <p>Tax ID: 987-654-321</p> */}
                                 </div>
                             </div>
                             <div className="text-right">
