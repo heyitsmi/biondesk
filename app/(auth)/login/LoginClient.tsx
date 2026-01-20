@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import { supabase } from '@/lib/supabase';
+
 export default function LoginClient() {
     const router = useRouter();
     const [email, setEmail] = useState('');
@@ -38,9 +40,26 @@ export default function LoginClient() {
         }
     };
 
+    const handleGoogleLogin = async () => {
+        setIsLoading(true);
+        setError('');
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: `${window.location.origin}/api/auth/callback`,
+                },
+            });
+            if (error) throw error;
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to connect to Google');
+            setIsLoading(false);
+        }
+    };
+
     return (
         <div className="bg-white font-sans antialiased h-screen flex overflow-hidden">
-            {/* LEFT: Visual & Branding (Hidden on Mobile) */}
+            {/* ... (Visual & Branding remains same) ... */}
             <div className="hidden lg:flex w-1/2 bg-slate-900 relative items-center justify-center overflow-hidden">
                 {/* Abstract Background */}
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/50 to-slate-900 z-10"></div>
@@ -165,7 +184,11 @@ export default function LoginClient() {
                     </div>
 
                     {/* Social Login */}
-                    <button className="w-full py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-[600] flex items-center justify-center gap-2 transition-colors">
+                    <button 
+                        onClick={handleGoogleLogin} 
+                        disabled={isLoading}
+                        className="w-full py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-[600] flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                    >
                         <svg className="w-4 h-4" viewBox="0 0 24 24">
                             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
