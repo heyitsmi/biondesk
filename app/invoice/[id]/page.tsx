@@ -86,6 +86,7 @@ export default function PublicInvoicePage({ params }: { params: Promise<{ id: st
     const depositAmount = invoice.deposit || 0;
     const isPaid = invoice.status === 'paid';
     const isOverdue = invoice.status === 'overdue' || (invoice.due_date && new Date(invoice.due_date) < new Date() && !isPaid);
+    const daysOverdue = invoice.due_date && isOverdue ? Math.ceil((new Date().getTime() - new Date(invoice.due_date).getTime()) / (1000 * 3600 * 24)) : 0;
 
     return (
         <div className="font-sans antialiased text-slate-900 min-h-screen flex flex-col bg-slate-100">
@@ -139,18 +140,6 @@ export default function PublicInvoicePage({ params }: { params: Promise<{ id: st
                             </div>
                              <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
                                 <i className="ph-fill ph-check text-xl"></i>
-                            </div>
-                        </div>
-                    )}
-                    
-                    {isOverdue && !isPaid && (
-                        <div className="mb-6 bg-rose-50 border border-rose-100 rounded-xl p-4 shadow-sm flex items-center justify-between border-l-4 border-l-rose-500">
-                            <div>
-                                <p className="text-xs font-bold text-rose-600 uppercase tracking-wide">Overdue</p>
-                                <p className="text-sm font-medium text-slate-900">Payment was due on {invoice.due_date ? new Date(invoice.due_date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) : 'Unknown'}</p>
-                            </div>
-                             <div className="w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center">
-                                <i className="ph-fill ph-warning text-xl"></i>
                             </div>
                         </div>
                     )}
@@ -317,16 +306,27 @@ export default function PublicInvoicePage({ params }: { params: Promise<{ id: st
                 {/* RIGHT: Action Panel */}
                 <div className="lg:w-[360px] flex-shrink-0 space-y-6 lg:sticky lg:top-24 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                     <div className="bg-white border border-slate-200 shadow-floating rounded-2xl p-6 overflow-hidden relative">
+                         {isOverdue && !isPaid && (
+                            <div className="absolute top-0 left-0 right-0 h-1.5 bg-rose-500"></div>
+                         )}
                          {!isPaid ? (
                             <>
                                 <div className="mb-6">
                                     <p className="text-sm text-slate-500 mb-1">Amount Due</p>
                                     <h2 className="text-3xl font-[700] text-slate-900">${(total - (isPaid ? total : 0)).toFixed(2)}</h2>
-                                    {invoice.due_date && (
-                                        <div className={`mt-3 flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold border ${isOverdue ? 'text-rose-700 bg-rose-50 border-rose-100' : 'text-slate-600 bg-slate-50 border-slate-100'}`}>
-                                            <i className="ph-fill ph-calendar-blank"></i>
-                                            Due {new Date(invoice.due_date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}
+                                    
+                                    {isOverdue ? (
+                                        <div className="mt-3 flex items-center gap-2 text-rose-600 bg-rose-50 px-3 py-1.5 rounded-lg text-xs font-bold border border-rose-100">
+                                            <i className="ph-fill ph-warning"></i>
+                                            Overdue by {daysOverdue} days
                                         </div>
+                                    ) : (
+                                        invoice.due_date && (
+                                            <div className="mt-3 flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold border text-slate-600 bg-slate-50 border-slate-100">
+                                                <i className="ph-fill ph-calendar-blank"></i>
+                                                Due {new Date(invoice.due_date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}
+                                            </div>
+                                        )
                                     )}
                                 </div>
                                 
