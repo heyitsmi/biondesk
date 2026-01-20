@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Flova | The Workflow for Modern Creatives",
+  title: {
+    default: "Flova | The Workflow for Modern Creatives",
+    template: "%s | Flova"
+  },
   description: "Flova unifies your client workflow. From the first opportunity to the final payment, run your business without the chaos",
   icons: {
     icon: [

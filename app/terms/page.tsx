@@ -1,10 +1,19 @@
+import type { Metadata } from "next";
 import PublicNavbar from "@/components/PublicNavbar";
 import PublicFooter from "@/components/PublicFooter";
+import { getCurrentUser } from "@/lib/auth";
 
-export default function TermsPage() {
+export const metadata: Metadata = {
+  title: "Terms of Service",
+  description: "Terms of Service for Flova",
+};
+
+export default async function TermsPage() {
+    const user = await getCurrentUser();
+
     return (
         <div className="bg-light-50 min-h-screen flex flex-col">
-            <PublicNavbar />
+            <PublicNavbar isLoggedIn={!!user} />
 
             {/* Content Section */}
             <section className="pt-32 pb-20 px-6 flex-grow">

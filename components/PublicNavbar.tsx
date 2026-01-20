@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-export default function PublicNavbar() {
+export default function PublicNavbar({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const pathname = usePathname();
 
@@ -37,12 +37,20 @@ export default function PublicNavbar() {
                         <Link href="/#pricing" className="px-5 py-2 text-sm font-medium text-slate-600 hover:text-dark-900 hover:bg-white rounded-full transition-all">Pricing</Link>
                     </div>
 
-                    {/* Actions */}
+                    {/* Actions (Desktop) */}
                     <div className="hidden md:flex items-center gap-3 pr-1">
-                        <Link href="/login" className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-dark-900 transition-colors">Log in</Link>
-                        <Link href="/register" className="bg-dark-900 hover:bg-black text-white px-6 py-2.5 rounded-full text-sm font-semibold transition-all hover:shadow-lg active:scale-95 flex items-center gap-2">
-                            Get Started
-                        </Link>
+                        {isLoggedIn ? (
+                            <Link href="/dashboard" className="bg-dark-900 hover:bg-black text-white px-6 py-2.5 rounded-full text-sm font-semibold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2">
+                                Dashboard <i className="ph-bold ph-arrow-right"></i>
+                            </Link>
+                        ) : (
+                            <>
+                                <Link href="/login" className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-dark-900 transition-colors">Log in</Link>
+                                <Link href="/register" className="bg-dark-900 hover:bg-black text-white px-6 py-2.5 rounded-full text-sm font-semibold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2">
+                                    Get Started <i className="ph-bold ph-arrow-right"></i>
+                                </Link>
+                            </>
+                        )}
                     </div>
 
                     {/* Mobile Hamburger */}
@@ -57,8 +65,14 @@ export default function PublicNavbar() {
                 {/* Mobile Menu */}
                 <div className={`md:hidden w-full flex flex-col items-center gap-4 pt-4 pb-2 border-t border-slate-100 mt-2 transition-all duration-300 overflow-hidden ${isMobileMenuOpen ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'}`}>
                     <Link href="/" className="text-sm font-medium text-slate-600 hover:text-dark-900 w-full text-center py-2">Home</Link>
-                    <Link href="/login" className="text-sm font-semibold text-slate-600 hover:text-dark-900 w-full text-center py-2">Log in</Link>
-                    <Link href="/register" className="bg-dark-900 hover:bg-black text-white px-6 py-3 rounded-xl text-sm font-semibold w-full text-center shadow-lg">Get Started</Link>
+                    {isLoggedIn ? (
+                        <Link href="/dashboard" className="bg-dark-900 hover:bg-black text-white px-6 py-3 rounded-xl text-sm font-semibold w-full text-center shadow-lg">Dashboard</Link>
+                    ) : (
+                        <>
+                            <Link href="/login" className="text-sm font-semibold text-slate-600 hover:text-dark-900 w-full text-center py-2">Log in</Link>
+                            <Link href="/register" className="bg-dark-900 hover:bg-black text-white px-6 py-3 rounded-xl text-sm font-semibold w-full text-center shadow-lg">Get Started</Link>
+                        </>
+                    )}
                 </div>
             </div>
         </nav>

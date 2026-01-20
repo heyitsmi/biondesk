@@ -1,10 +1,19 @@
+import type { Metadata } from "next";
 import PublicNavbar from "@/components/PublicNavbar";
 import PublicFooter from "@/components/PublicFooter";
+import { getCurrentUser } from "@/lib/auth";
 
-export default function CookiePolicyPage() {
+export const metadata: Metadata = {
+  title: "Cookie Policy",
+  description: "Cookie Policy for Flova",
+};
+
+export default async function CookiePolicyPage() {
+    const user = await getCurrentUser();
+
     return (
         <div className="bg-light-50 min-h-screen flex flex-col">
-            <PublicNavbar />
+            <PublicNavbar isLoggedIn={!!user} />
 
             {/* Content Section */}
             <section className="pt-32 pb-20 px-6 flex-grow">
