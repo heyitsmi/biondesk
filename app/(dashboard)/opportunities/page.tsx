@@ -11,7 +11,9 @@ const STAGE_CONFIG = [
     { id: 'drafting', name: 'Drafting', color: 'bg-indigo-400' },
     { id: 'sent', name: 'Applied / Sent', color: 'bg-amber-400' },
     { id: 'negotiation', name: 'Interview', color: 'bg-purple-500' },
-    { id: 'won', name: 'Won', color: 'bg-emerald-500' }
+    { id: 'won', name: 'Won', color: 'bg-emerald-500' },
+    { id: 'lost', name: 'Lost', color: 'bg-red-500' },
+    { id: 'archived', name: 'Archived', color: 'bg-slate-500' }
 ];
 
 export default function OpportunitiesPage() {
