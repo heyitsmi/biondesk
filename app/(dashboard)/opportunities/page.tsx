@@ -243,10 +243,8 @@ export default function OpportunitiesPage() {
                                                                                     {opp.value !== null && (
                                                                                         <span className="px-1.5 py-0.5 rounded bg-slate-50 border border-slate-100 font-medium text-slate-700">
                                                                                             {formatCurrency(opp.value)}
+                                                                                            {opp.budget_type === 'hourly' && <span className="text-slate-400 font-normal">/hr</span>}
                                                                                         </span>
-                                                                                    )}
-                                                                                    {opp.budget_type && (
-                                                                                        <span className="px-1.5 py-0.5 rounded bg-slate-50 border border-slate-100 capitalize">{opp.budget_type}</span>
                                                                                     )}
                                                                                 </div>
 

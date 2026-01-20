@@ -62,6 +62,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       value: body.value,
       job_link: body.job_link,
       notes: body.notes,
+      client_name: body.client_name,
+      budget_type: body.budget_type,
     });
 
     return NextResponse.json(opportunity);
