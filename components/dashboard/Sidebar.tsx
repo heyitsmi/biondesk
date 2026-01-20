@@ -72,8 +72,8 @@ export default function Sidebar({ user }: SidebarProps) {
             {/* Brand & Toggle Header */}
             <div className="h-16 flex items-center justify-between px-6 border-b border-slate-100 transition-all duration-300">
                 <Link href="/dashboard" className="flex items-center gap-2 text-slate-900 overflow-hidden whitespace-nowrap">
-                    <div className="w-8 h-8 shrink-0 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-sm shadow-indigo-200">
-                        <i className="ph-bold ph-lightning text-lg"></i>
+                    <div className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-white overflow-hidden">
+                        <img src="/logo.png" alt="Flova" className="w-full h-full rounded-full object-cover" />
                     </div>
                     {!isCollapsed && (
                         <span className="text-lg font-[650] tracking-tight transition-opacity duration-200">Flova.</span>

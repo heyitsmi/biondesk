@@ -47,8 +47,8 @@ export default function HomeClient() {
 
                         {/* Logo */}
                         <a href="#" className="flex items-center gap-2 group shrink-0">
-                            <div className="w-8 h-8 bg-dark-900 rounded-lg flex items-center justify-center text-white shadow-lg group-hover:rotate-12 transition-transform duration-300">
-                                <i className="ph-bold ph-lightning text-lg"></i>
+                            <div className="w-8 h-8 flex items-center justify-center text-white group-hover:rotate-12 transition-transform duration-300 overflow-hidden">
+                                <img src="/logo.png" alt="Flova" className="w-full h-full rounded-full shadow object-cover" />
                             </div>
                             <span className="font-bold text-lg tracking-tight text-dark-900">Flova</span>
                         </a>
@@ -393,7 +393,7 @@ export default function HomeClient() {
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
                     <div className="flex flex-col items-center md:items-start gap-4">
                         <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 bg-dark-900 rounded flex items-center justify-center text-white text-xs"><i className="ph-bold ph-lightning"></i></div>
+                            <div className="w-6 h-6 bg-dark-900 rounded flex items-center justify-center text-white text-xs overflow-hidden"><img src="/logo.png" alt="Flova" className="w-full h-full object-cover" /></div>
                             <span className="font-bold text-lg text-dark-900">Flova.</span>
                         </div>
                         <p className="text-sm text-slate-500">The operating system for independent creatives.</p>

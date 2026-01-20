@@ -50,8 +50,8 @@ export default function RegisterPage() {
                 
                 {/* Content */}
                 <div className="relative z-20 text-center px-12">
-                    <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-8 border border-white/20 shadow-xl">
-                        <i className="ph-bold ph-lightning text-3xl text-white"></i>
+                    <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-8 border border-white/20 shadow-xl overflow-hidden">
+                        <img src="/logo.png" alt="Flova" className="w-full h-full object-cover" />
                     </div>
                     <h2 className="text-4xl font-bold text-white mb-4 tracking-tight">Start closing deals<br/>faster, today.</h2>
                     <p className="text-indigo-200 text-lg leading-relaxed max-w-md mx-auto">
@@ -88,8 +88,8 @@ export default function RegisterPage() {
                     
                     {/* Mobile Logo */}
                     <div className="lg:hidden mb-8 flex items-center gap-2">
-                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
-                            <i className="ph-bold ph-lightning text-lg"></i>
+                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white overflow-hidden">
+                            <img src="/logo.png" alt="Flova" className="w-full h-full object-cover" />
                         </div>
                         <span className="text-xl font-bold text-slate-900">Flova.</span>
                     </div>
