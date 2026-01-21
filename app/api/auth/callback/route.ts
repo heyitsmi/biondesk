@@ -59,16 +59,21 @@ export async function GET(request: NextRequest) {
                 return NextResponse.redirect(`${requestUrl.origin}/login?error=Registration failed`);
             }
             userId = newUser.id;
+        }
 
-            // Create default workspace
-            await supabase.from('workspaces').insert({
+        // Ensure user has a workspace (Fix for "No workspace found")
+        const { data: existingWorkspace } = await supabase
+            .from('workspaces')
+            .select('id')
+            .eq('user_id', userId)
+            .single();
+
+        if (!existingWorkspace) {
+             await supabase.from('workspaces').insert({
                 user_id: userId,
                 name: `${googleUser.given_name || 'My'} Workspace`,
                 slug: (googleUser.name || 'workspace').toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Math.floor(Math.random() * 1000)
             });
-        } else {
-             // (Optional) Update existing user avatar/name to match Google?
-             // Not strictly necessary but polite.
         }
 
         // 4. Create local session

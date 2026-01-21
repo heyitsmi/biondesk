@@ -28,6 +28,16 @@ export const metadata: Metadata = {
     ],
   },
   manifest: '/favicon/site.webmanifest',
+  openGraph: {
+    images: [
+      {
+        url: '/hero.webp',
+        width: 1200,
+        height: 630,
+        alt: 'Flova Dashboard',
+      },
+    ],
+  },
 };
 
 import CookieConsent from "@/components/CookieConsent";

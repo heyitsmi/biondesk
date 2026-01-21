@@ -47,14 +47,34 @@ export default async function DashboardPage() {
     const user = await getCurrentUser();
     if (!user) redirect('/login');
 
-    const workspace = await getUserWorkspace(user.id);
+    let workspace = await getUserWorkspace(user.id);
+    
     if (!workspace) {
-        // Handle onboarding or error state
-        return (
-            <div className="flex-1 flex items-center justify-center">
-                <p>No workspace found. Please contact support.</p>
-            </div>
-        );
+        // Fallback: Create workspace if missing (e.g. legacy users or race condition in auth)
+        const { createServerClient } = await import('@/lib/supabase'); // Dynamic import to avoid cycles if any
+        const supabase = createServerClient();
+        
+        const { data: newWorkspace, error } = await supabase.from('workspaces').insert({
+            user_id: user.id,
+            name: `${user.name || 'My'} Workspace`,
+            slug: (user.name || 'workspace').toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Math.floor(Math.random() * 1000)
+        }).select().single();
+
+        if (newWorkspace) {
+            workspace = newWorkspace;
+        } else {
+            console.error("Failed to auto-create workspace:", error);
+            // Handle onboarding or error state
+            return (
+                <div className="flex-1 flex items-center justify-center">
+                    <div className="text-center">
+                        <p className="text-lg font-semibold mb-2">No workspace found.</p>
+                        <p className="text-sm text-slate-500 mb-4">Please contact support or try refreshing.</p>
+                        <a href="/dashboard" className="text-indigo-600 hover:underline">Refresh Page</a>
+                    </div>
+                </div>
+            );
+        }
     }
 
     // Parallel Data Fetching
