@@ -66,13 +66,15 @@ export async function GET(request: NextRequest) {
             .from('workspaces')
             .select('id')
             .eq('user_id', userId)
-            .single();
+            .limit(1)
+            .maybeSingle();
 
         if (!existingWorkspace) {
              await supabase.from('workspaces').insert({
                 user_id: userId,
                 name: `${googleUser.given_name || 'My'} Workspace`,
-                slug: (googleUser.name || 'workspace').toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Math.floor(Math.random() * 1000)
+                currency: 'USD',
+                locale: 'en-US'
             });
         }
 

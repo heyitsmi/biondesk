@@ -57,7 +57,8 @@ export default async function DashboardPage() {
         const { data: newWorkspace, error } = await supabase.from('workspaces').insert({
             user_id: user.id,
             name: `${user.name || 'My'} Workspace`,
-            slug: (user.name || 'workspace').toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Math.floor(Math.random() * 1000)
+            currency: 'USD',
+            locale: 'en-US'
         }).select().single();
 
         if (newWorkspace) {

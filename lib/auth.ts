@@ -106,7 +106,8 @@ export async function getUserWorkspace(userId: string) {
     .from('workspaces')
     .select('*')
     .eq('user_id', userId)
-    .single();
+    .limit(1)
+    .maybeSingle();
 
   return workspace;
 }
