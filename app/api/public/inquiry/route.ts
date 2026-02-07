@@ -49,7 +49,9 @@ export async function POST(request: NextRequest) {
             job_link: null,
             notes: null,
             client_name: name,
-            budget_type: null
+            budget_type: null,
+            country_code: null,
+            sort_order: 0
         });
 
         return NextResponse.json({ success: true });
