@@ -6,7 +6,7 @@ export default function CookieConsent() {
     const [showConsent, setShowConsent] = useState(false);
 
     useEffect(() => {
-        const consent = localStorage.getItem('flova_cookie_consent');
+        const consent = localStorage.getItem('biondesk_cookie_consent');
         if (!consent) {
             // Show after a small delay
             const timer = setTimeout(() => {
@@ -17,12 +17,12 @@ export default function CookieConsent() {
     }, []);
 
     const handleAccept = () => {
-        localStorage.setItem('flova_cookie_consent', 'true');
+        localStorage.setItem('biondesk_cookie_consent', 'true');
         setShowConsent(false);
     };
 
     const handleDecline = () => {
-        localStorage.setItem('flova_cookie_consent', 'false');
+        localStorage.setItem('biondesk_cookie_consent', 'false');
         setShowConsent(false);
     };
 

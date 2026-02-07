@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 export async function POST() {
     try {
         const cookieStore = await cookies();
-        const token = cookieStore.get('flova_session')?.value;
+        const token = cookieStore.get('biondesk_session')?.value;
 
         if (token) {
             // Delete session from database
@@ -13,7 +13,7 @@ export async function POST() {
         }
 
         // Clear session cookie
-        cookieStore.delete('flova_session');
+        cookieStore.delete('biondesk_session');
 
         return NextResponse.json({ success: true });
     } catch (error) {

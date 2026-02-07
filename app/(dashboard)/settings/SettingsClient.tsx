@@ -198,7 +198,7 @@ export default function SettingsClient({ initialWorkspace, user }: SettingsClien
                                             <label className="text-sm font-[500] text-slate-700">Public Username</label>
                                             <div className="flex rounded-lg shadow-sm">
                                                 <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-200 bg-slate-50 text-slate-500 sm:text-sm">
-                                                    flova.app/p/
+                                                    biondesk.com/p/
                                                 </span>
                                                 <input
                                                     type="text"

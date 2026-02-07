@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookie Policy — Biondesk</title>
+    <meta name="description" content="Cookie Policy for Biondesk. How we use cookies to improve your experience.">
+    
+    <!-- Google Fonts: Google Sans Flex -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom Config & Styles -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Google Sans Flex', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#F8FAFC',
+                            100: '#F1F5F9',
+                            900: '#0F172A',
+                            accent: '#4F46E5', // Indigo
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base Reset & Typography Details */
+        body {
+            font-feature-settings: "cv11", "ss01";
+            -webkit-font-smoothing: antialiased;
+            background-color: #FAFAFA;
+            color: #0F172A;
+            overflow-x: hidden;
+        }
+
+        /* Framer-style Noise Background */
+        .bg-noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+        }
+
+        /* Typography for Legal Text */
+        .prose h2 {
+            font-size: 1.5rem;
+            line-height: 2rem;
+            font-weight: 700;
+            color: #0F172A;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            line-height: 1.75rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .prose p {
+            margin-bottom: 1.25rem;
+            line-height: 1.75;
+            color: #475569;
+        }
+        .prose ul {
+            margin-bottom: 1.25rem;
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            color: #475569;
+        }
+        .prose li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body class="selection:bg-slate-900 selection:text-white flex flex-col min-h-screen">
+
+    <div class="bg-noise"></div>
+
+    <!-- NAVIGATION (Consistent) -->
+    <nav class="fixed top-0 w-full z-50 transition-all duration-300 border-b border-transparent" id="navbar">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <a href="index.html" class="text-xl font-bold tracking-tight flex items-center gap-2">
+                    <div class="w-6 h-6 bg-slate-900 rounded-md flex items-center justify-center text-white">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/></svg>
+                    </div>
+                    Biondesk
+                </a>
+
+                <!-- Desktop Links -->
+                <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+                    <a href="index.html#features" class="hover:text-slate-900 transition-colors">Features</a>
+                    <a href="index.html#pricing" class="hover:text-slate-900 transition-colors">Pricing</a>
+                    <a href="index.html#faq" class="hover:text-slate-900 transition-colors">FAQ</a>
+                </div>
+
+                <!-- CTA -->
+                <div class="flex items-center gap-4">
+                    <a href="#" class="hidden md:block text-sm font-medium text-slate-900 hover:text-slate-600">Log in</a>
+                    <a href="#" class="bg-slate-900 text-white text-sm font-medium px-5 py-2.5 rounded-full hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-slate-900/10">
+                        Start your desk
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow pt-32 pb-24">
+        <div class="max-w-3xl mx-auto px-6 lg:px-8">
+            
+            <!-- Header -->
+            <div class="mb-16">
+                <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6">Cookie Policy</h1>
+                <p class="text-lg text-slate-600">
+                    Transparency about how we use cookies to improve your desk experience.
+                </p>
+                <div class="mt-6 flex items-center gap-2 text-sm text-slate-500 font-medium">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                    <span>Last updated: October 24, 2024</span>
+                </div>
+            </div>
+
+            <hr class="border-slate-200 mb-12">
+
+            <!-- Content Area -->
+            <div class="prose">
+                <p>
+                    This Cookie Policy explains how Biondesk Inc. ("we", "us", or "our") uses cookies and similar technologies to recognize you when you visit our website at biondesk.com. It explains what these technologies are and why we use them, as well as your rights to control our use of them.
+                </p>
+
+                <h2>1. What are cookies?</h2>
+                <p>
+                    Cookies are small data files that are placed on your computer or mobile device when you visit a website. Cookies are widely used by website owners in order to make their websites work, or to work more efficiently, as well as to provide reporting information.
+                </p>
+
+                <h2>2. Why do we use cookies?</h2>
+                <p>
+                    We use first-party and third-party cookies for several reasons. Some cookies are required for technical reasons in order for our Website to operate, and we refer to these as "essential" or "strictly necessary" cookies. Other cookies also enable us to track and target the interests of our users to enhance the experience on our Online Properties.
+                </p>
+
+                <h3>Essential Cookies</h3>
+                <p>
+                    These cookies are strictly necessary to provide you with services available through our Website and to use some of its features, such as access to secure areas (logging in). Because these cookies are strictly necessary to deliver the Website to you, you cannot refuse them without impacting how our website functions.
+                </p>
+
+                <h3>Analytics & Customization Cookies</h3>
+                <p>
+                    These cookies collect information that is used either in aggregate form to help us understand how our Website is being used or how effective our marketing campaigns are, or to help us customize our Website for you.
+                </p>
+
+                <h2>3. How can I control cookies?</h2>
+                <p>
+                    You have the right to decide whether to accept or reject cookies. You can exercise your cookie rights by setting your browser controls to accept or refuse cookies.
+                </p>
+                <ul>
+                    <li><strong>Chrome:</strong> Settings > Privacy and security > Cookies and other site data</li>
+                    <li><strong>Safari:</strong> Preferences > Privacy</li>
+                    <li><strong>Firefox:</strong> Options > Privacy & Security</li>
+                    <li><strong>Edge:</strong> Settings > Privacy & services</li>
+                </ul>
+                <p>
+                    If you choose to reject cookies, you may still use our website though your access to some functionality and areas of our website (like the dashboard) may be restricted.
+                </p>
+
+                <h2>4. Updates to this policy</h2>
+                <p>
+                    We may update this Cookie Policy from time to time in order to reflect, for example, changes to the cookies we use or for other operational, legal or regulatory reasons. Please therefore re-visit this Cookie Policy regularly to stay informed about our use of cookies and related technologies.
+                </p>
+
+                <h2>5. Contact Us</h2>
+                <p>
+                    If you have any questions about our use of cookies or other technologies, please email us at:
+                    <br>
+                    <a href="mailto:privacy@biondesk.com" class="text-indigo-600 font-semibold hover:underline">privacy@biondesk.com</a>
+                </p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FOOTER (Consistent) -->
+    <footer class="border-t border-slate-200 py-12 bg-white mt-auto">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-2">
+                <div class="w-5 h-5 bg-slate-900 rounded-md"></div>
+                <a href="index.html" class="font-bold text-slate-900">Biondesk</a>
+            </div>
+            <div class="flex gap-8 text-sm text-slate-500 font-medium">
+                <a href="#" class="hover:text-slate-900">Twitter</a>
+                <a href="#" class="hover:text-slate-900">Instagram</a>
+                <a href="#" class="hover:text-slate-900">Legal</a>
+            </div>
+            <div class="text-sm text-slate-400">
+                &copy; 2024 Biondesk Inc.
+            </div>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script>
+        // Icons
+        lucide.createIcons();
+
+        // Navbar Blur Effect on Scroll (Consistent logic)
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) {
+                navbar.classList.add('bg-white/80', 'backdrop-blur-md', 'border-slate-200/50');
+                navbar.classList.remove('border-transparent');
+            } else {
+                navbar.classList.remove('bg-white/80', 'backdrop-blur-md', 'border-slate-200/50');
+                navbar.classList.add('border-transparent');
+            }
+        });
+    </script>
+</body>
+</html>

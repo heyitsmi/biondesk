@@ -1,5 +1,5 @@
 // ============================================
-// Flova - TypeScript Types for Database Entities
+// Biondesk - TypeScript Types for Database Entities
 // ============================================
 
 // Base types
@@ -16,7 +16,7 @@ export interface User extends Timestamps {
   email: string;
   name: string;
   avatar_url: string | null;
-  plan: 'free' | 'pro' | 'studio';
+  plan: "free" | "pro" | "studio";
 }
 
 export interface Session {
@@ -46,7 +46,7 @@ export interface Workspace extends Timestamps {
 // ============================================
 // Contacts
 // ============================================
-export type ContactType = 'lead' | 'client';
+export type ContactType = "lead" | "client";
 
 export interface Contact extends Timestamps {
   id: string;
@@ -69,9 +69,21 @@ export interface ContactWithStats extends Contact {
 // ============================================
 // Opportunities
 // ============================================
-export type OpportunitySource = 'upwork' | 'linkedin' | 'direct' | 'referral' | 'email' | 'other';
-export type OpportunityStage = 'inbox' | 'drafting' | 'sent' | 'negotiation' | 'won' | 'lost';
-export type Priority = 'low' | 'medium' | 'high';
+export type OpportunitySource =
+  | "upwork"
+  | "linkedin"
+  | "direct"
+  | "referral"
+  | "email"
+  | "other";
+export type OpportunityStage =
+  | "inbox"
+  | "drafting"
+  | "sent"
+  | "negotiation"
+  | "won"
+  | "lost";
+export type Priority = "low" | "medium" | "high";
 
 export interface Opportunity extends Timestamps {
   id: string;
@@ -86,7 +98,7 @@ export interface Opportunity extends Timestamps {
   job_link: string | null;
   notes: string | null;
   client_name: string | null;
-  budget_type: 'fixed' | 'hourly' | 'tbd' | null;
+  budget_type: "fixed" | "hourly" | "tbd" | null;
   country_code: string | null;
   sort_order: number;
 }
@@ -98,8 +110,14 @@ export interface OpportunityWithContact extends Opportunity {
 // ============================================
 // Documents (Proposals, Quotes, Invoices)
 // ============================================
-export type DocumentType = 'proposal' | 'quote' | 'invoice';
-export type DocumentStatus = 'draft' | 'sent' | 'viewed' | 'accepted' | 'paid' | 'overdue';
+export type DocumentType = "proposal" | "quote" | "invoice";
+export type DocumentStatus =
+  | "draft"
+  | "sent"
+  | "viewed"
+  | "accepted"
+  | "paid"
+  | "overdue";
 
 export interface Document extends Timestamps {
   id: string;
@@ -162,7 +180,11 @@ export interface Template extends Timestamps {
 // ============================================
 // Profile Library Assets
 // ============================================
-export type ProfileAssetType = 'portfolio' | 'testimonial' | 'snippet' | 'profile_info';
+export type ProfileAssetType =
+  | "portfolio"
+  | "testimonial"
+  | "snippet"
+  | "profile_info";
 
 export interface ProfileAsset extends Timestamps {
   id: string;
@@ -177,7 +199,13 @@ export interface ProfileAsset extends Timestamps {
 // ============================================
 // Payments
 // ============================================
-export type PaymentMethod = 'bank_transfer' | 'stripe' | 'paypal' | 'midtrans' | 'cash' | 'other';
+export type PaymentMethod =
+  | "bank_transfer"
+  | "stripe"
+  | "paypal"
+  | "midtrans"
+  | "cash"
+  | "other";
 
 export interface Payment {
   id: string;
@@ -192,7 +220,7 @@ export interface Payment {
 // ============================================
 // Reminder Rules & Jobs
 // ============================================
-export type ReminderType = 'pre_due' | 'overdue' | 'quote_followup';
+export type ReminderType = "pre_due" | "overdue" | "quote_followup";
 
 export interface ReminderRule {
   id: string;
@@ -210,15 +238,22 @@ export interface ReminderJob {
   rule_id: string | null;
   scheduled_at: string;
   sent_at: string | null;
-  status: 'pending' | 'sent' | 'cancelled';
+  status: "pending" | "sent" | "cancelled";
   content: string | null;
 }
 
 // ============================================
 // Events (Activity Log)
 // ============================================
-export type EntityType = 'document' | 'opportunity' | 'contact' | 'payment';
-export type EventAction = 'created' | 'updated' | 'sent' | 'viewed' | 'accepted' | 'paid' | 'reminder_sent';
+export type EntityType = "document" | "opportunity" | "contact" | "payment";
+export type EventAction =
+  | "created"
+  | "updated"
+  | "sent"
+  | "viewed"
+  | "accepted"
+  | "paid"
+  | "reminder_sent";
 
 export interface Event {
   id: string;

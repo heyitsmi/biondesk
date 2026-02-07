@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 
         // Set session cookie
         const cookieStore = await cookies();
-        cookieStore.set('flova_session', token, {
+        cookieStore.set('biondesk_session', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',

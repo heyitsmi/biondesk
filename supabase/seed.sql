@@ -4,12 +4,12 @@
 -- Run this after schema.sql to create initial admin user
 
 -- Admin user
--- Email: admin@flova.app
+-- Email: admin@biondesk.com
 -- Password: admin123 (bcrypt hashed)
 INSERT INTO users (id, email, password_hash, name, plan)
 VALUES (
   'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-  'admin@flova.app',
+  'admin@biondesk.com',
   '$2b$10$abFtiQCFRwGunhkU/.mI8.aFT0DsPyIpJbXzsqa0nvO9g30uQVIvy',
   'Admin User',
   'pro'

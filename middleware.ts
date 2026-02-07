@@ -11,6 +11,12 @@ const publicRoutes = [
     '/reset-password',
     '/quote',
     '/invoice',
+    '/about',
+    '/cookie',
+    '/faq',
+    '/privacy',
+    '/support',
+    '/terms',
 ];
 
 // Check if path starts with any public route
@@ -42,7 +48,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // Check for session cookie
-    const token = request.cookies.get('flova_session')?.value;
+    const token = request.cookies.get('biondesk_session')?.value;
 
     if (!token) {
         const loginUrl = new URL('/login', request.url);
@@ -56,7 +62,7 @@ export async function middleware(request: NextRequest) {
         const loginUrl = new URL('/login', request.url);
         loginUrl.searchParams.set('from', pathname);
         const response = NextResponse.redirect(loginUrl);
-        response.cookies.delete('flova_session');
+        response.cookies.delete('biondesk_session');
         return response;
     }
 
@@ -73,7 +79,7 @@ export async function middleware(request: NextRequest) {
         const loginUrl = new URL('/login', request.url);
         loginUrl.searchParams.set('from', pathname);
         const response = NextResponse.redirect(loginUrl);
-        response.cookies.delete('flova_session');
+        response.cookies.delete('biondesk_session');
         return response;
     }
 

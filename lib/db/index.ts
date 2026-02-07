@@ -1,50 +1,54 @@
 // ============================================
-// Flova - Database Access Layer
+// Biondesk - Database Access Layer
 // ============================================
 
-import { createServerClient } from '../supabase';
-import type { 
-  Contact, 
-  Opportunity, 
-  Document, 
-  DocumentItem, 
-  Template, 
+import { createServerClient } from "../supabase";
+import type {
+  Contact,
+  Opportunity,
+  Document,
+  DocumentItem,
+  Template,
   ProfileAsset,
   Event,
   Workspace,
   PaginatedResponse,
   DocumentWithItems,
   OpportunityWithContact,
-  ContactWithStats
-} from '../types';
+  ContactWithStats,
+} from "../types";
 
 // ============================================
 // Auth Helper - Get current workspace
 // ============================================
-export async function getWorkspaceFromSession(userId: string): Promise<Workspace | null> {
+export async function getWorkspaceFromSession(
+  userId: string,
+): Promise<Workspace | null> {
   const supabase = createServerClient();
-  
+
   const { data } = await supabase
-    .from('workspaces')
-    .select('*')
-    .eq('user_id', userId)
+    .from("workspaces")
+    .select("*")
+    .eq("user_id", userId)
     .single();
-    
+
   return data;
 }
 
 // ============================================
 // Auth Helper - Get workspace by username
 // ============================================
-export async function getWorkspaceByUsername(username: string): Promise<Workspace | null> {
+export async function getWorkspaceByUsername(
+  username: string,
+): Promise<Workspace | null> {
   const supabase = createServerClient();
-  
+
   const { data } = await supabase
-    .from('workspaces')
-    .select('*')
-    .eq('username', username)
+    .from("workspaces")
+    .select("*")
+    .eq("username", username)
     .single();
-    
+
   return data;
 }
 
@@ -57,26 +61,28 @@ export async function getContacts(
     page?: number;
     limit?: number;
     search?: string;
-    type?: 'lead' | 'client';
-  } = {}
+    type?: "lead" | "client";
+  } = {},
 ): Promise<PaginatedResponse<Contact>> {
   const supabase = createServerClient();
   const { page = 1, limit = 20, search, type } = options;
   const offset = (page - 1) * limit;
 
   let query = supabase
-    .from('contacts')
-    .select('*', { count: 'exact' })
-    .eq('workspace_id', workspaceId)
-    .order('created_at', { ascending: false })
+    .from("contacts")
+    .select("*", { count: "exact" })
+    .eq("workspace_id", workspaceId)
+    .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (search) {
-    query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%,company.ilike.%${search}%`);
+    query = query.or(
+      `name.ilike.%${search}%,email.ilike.%${search}%,company.ilike.%${search}%`,
+    );
   }
 
   if (type) {
-    query = query.eq('type', type);
+    query = query.eq("type", type);
   }
 
   const { data, count, error } = await query;
@@ -94,23 +100,29 @@ export async function getContacts(
 
 export async function getContactById(
   workspaceId: string,
-  contactId: string
+  contactId: string,
 ): Promise<ContactWithStats | null> {
   const supabase = createServerClient();
 
   const { data: contact, error } = await supabase
-    .from('contacts')
-    .select('*')
-    .eq('workspace_id', workspaceId)
-    .eq('id', contactId)
+    .from("contacts")
+    .select("*")
+    .eq("workspace_id", workspaceId)
+    .eq("id", contactId)
     .single();
 
   if (error || !contact) return null;
 
   // Get related counts
   const [docsResult, oppsResult] = await Promise.all([
-    supabase.from('documents').select('id', { count: 'exact' }).eq('contact_id', contactId),
-    supabase.from('opportunities').select('id', { count: 'exact' }).eq('contact_id', contactId),
+    supabase
+      .from("documents")
+      .select("id", { count: "exact" })
+      .eq("contact_id", contactId),
+    supabase
+      .from("opportunities")
+      .select("id", { count: "exact" })
+      .eq("contact_id", contactId),
   ]);
 
   return {
@@ -122,12 +134,20 @@ export async function getContactById(
 
 export async function createContact(
   workspaceId: string,
-  data: Omit<Contact, 'id' | 'workspace_id' | 'created_at' | 'updated_at' | 'total_value' | 'avg_time_to_pay'>
+  data: Omit<
+    Contact,
+    | "id"
+    | "workspace_id"
+    | "created_at"
+    | "updated_at"
+    | "total_value"
+    | "avg_time_to_pay"
+  >,
 ): Promise<Contact> {
   const supabase = createServerClient();
 
   const { data: contact, error } = await supabase
-    .from('contacts')
+    .from("contacts")
     .insert({ ...data, workspace_id: workspaceId })
     .select()
     .single();
@@ -139,15 +159,15 @@ export async function createContact(
 export async function updateContact(
   workspaceId: string,
   contactId: string,
-  data: Partial<Contact>
+  data: Partial<Contact>,
 ): Promise<Contact> {
   const supabase = createServerClient();
 
   const { data: contact, error } = await supabase
-    .from('contacts')
+    .from("contacts")
     .update(data)
-    .eq('workspace_id', workspaceId)
-    .eq('id', contactId)
+    .eq("workspace_id", workspaceId)
+    .eq("id", contactId)
     .select()
     .single();
 
@@ -155,14 +175,17 @@ export async function updateContact(
   return contact;
 }
 
-export async function deleteContact(workspaceId: string, contactId: string): Promise<void> {
+export async function deleteContact(
+  workspaceId: string,
+  contactId: string,
+): Promise<void> {
   const supabase = createServerClient();
 
   const { error } = await supabase
-    .from('contacts')
+    .from("contacts")
     .delete()
-    .eq('workspace_id', workspaceId)
-    .eq('id', contactId);
+    .eq("workspace_id", workspaceId)
+    .eq("id", contactId);
 
   if (error) throw error;
 }
@@ -177,26 +200,26 @@ export async function getOpportunities(
     limit?: number;
     stage?: string;
     search?: string;
-  } = {}
+  } = {},
 ): Promise<PaginatedResponse<OpportunityWithContact>> {
   const supabase = createServerClient();
   const { page = 1, limit = 50, stage, search } = options;
   const offset = (page - 1) * limit;
 
   let query = supabase
-    .from('opportunities')
-    .select('*, contact:contacts(*)', { count: 'exact' })
-    .eq('workspace_id', workspaceId)
-    .order('sort_order', { ascending: true })
-    .order('created_at', { ascending: false })
+    .from("opportunities")
+    .select("*, contact:contacts(*)", { count: "exact" })
+    .eq("workspace_id", workspaceId)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
-  if (stage && stage !== 'all') {
-    query = query.eq('stage', stage);
+  if (stage && stage !== "all") {
+    query = query.eq("stage", stage);
   }
 
   if (search) {
-    query = query.ilike('title', `%${search}%`);
+    query = query.ilike("title", `%${search}%`);
   }
 
   const { data, count, error } = await query;
@@ -214,15 +237,15 @@ export async function getOpportunities(
 
 export async function getOpportunityById(
   workspaceId: string,
-  opportunityId: string
+  opportunityId: string,
 ): Promise<OpportunityWithContact | null> {
   const supabase = createServerClient();
 
   const { data, error } = await supabase
-    .from('opportunities')
-    .select('*, contact:contacts(*)')
-    .eq('workspace_id', workspaceId)
-    .eq('id', opportunityId)
+    .from("opportunities")
+    .select("*, contact:contacts(*)")
+    .eq("workspace_id", workspaceId)
+    .eq("id", opportunityId)
     .single();
 
   if (error) return null;
@@ -231,12 +254,12 @@ export async function getOpportunityById(
 
 export async function createOpportunity(
   workspaceId: string,
-  data: Omit<Opportunity, 'id' | 'workspace_id' | 'created_at' | 'updated_at'>
+  data: Omit<Opportunity, "id" | "workspace_id" | "created_at" | "updated_at">,
 ): Promise<Opportunity> {
   const supabase = createServerClient();
 
   const { data: opportunity, error } = await supabase
-    .from('opportunities')
+    .from("opportunities")
     .insert({ ...data, workspace_id: workspaceId })
     .select()
     .single();
@@ -244,7 +267,7 @@ export async function createOpportunity(
   if (error) throw error;
 
   // Log event
-  await logEvent(workspaceId, 'opportunity', opportunity.id, 'created');
+  await logEvent(workspaceId, "opportunity", opportunity.id, "created");
 
   return opportunity;
 }
@@ -252,15 +275,15 @@ export async function createOpportunity(
 export async function updateOpportunity(
   workspaceId: string,
   opportunityId: string,
-  data: Partial<Opportunity>
+  data: Partial<Opportunity>,
 ): Promise<Opportunity> {
   const supabase = createServerClient();
 
   const { data: opportunity, error } = await supabase
-    .from('opportunities')
+    .from("opportunities")
     .update(data)
-    .eq('workspace_id', workspaceId)
-    .eq('id', opportunityId)
+    .eq("workspace_id", workspaceId)
+    .eq("id", opportunityId)
     .select()
     .single();
 
@@ -268,20 +291,25 @@ export async function updateOpportunity(
 
   // Log stage change event
   if (data.stage) {
-    await logEvent(workspaceId, 'opportunity', opportunityId, 'updated', { stage: data.stage });
+    await logEvent(workspaceId, "opportunity", opportunityId, "updated", {
+      stage: data.stage,
+    });
   }
 
   return opportunity;
 }
 
-export async function deleteOpportunity(workspaceId: string, opportunityId: string): Promise<void> {
+export async function deleteOpportunity(
+  workspaceId: string,
+  opportunityId: string,
+): Promise<void> {
   const supabase = createServerClient();
 
   const { error } = await supabase
-    .from('opportunities')
+    .from("opportunities")
     .delete()
-    .eq('workspace_id', workspaceId)
-    .eq('id', opportunityId);
+    .eq("workspace_id", workspaceId)
+    .eq("id", opportunityId);
 
   if (error) throw error;
 }
@@ -294,28 +322,30 @@ export async function getDocuments(
   options: {
     page?: number;
     limit?: number;
-    type?: 'quote' | 'invoice' | 'proposal';
+    type?: "quote" | "invoice" | "proposal";
     status?: string;
     search?: string;
-  } = {}
+  } = {},
 ): Promise<PaginatedResponse<DocumentWithItems>> {
   const supabase = createServerClient();
   const { page = 1, limit = 20, type, status, search } = options;
   const offset = (page - 1) * limit;
 
   let query = supabase
-    .from('documents')
-    .select('*, contact:contacts(*), items:document_items(*)', { count: 'exact' })
-    .eq('workspace_id', workspaceId)
-    .order('created_at', { ascending: false })
+    .from("documents")
+    .select("*, contact:contacts(*), items:document_items(*)", {
+      count: "exact",
+    })
+    .eq("workspace_id", workspaceId)
+    .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (type) {
-    query = query.eq('type', type);
+    query = query.eq("type", type);
   }
 
-  if (status && status !== 'all') {
-    query = query.eq('status', status);
+  if (status && status !== "all") {
+    query = query.eq("status", status);
   }
 
   if (search) {
@@ -337,28 +367,34 @@ export async function getDocuments(
 
 export async function getDocumentById(
   workspaceId: string,
-  documentId: string
+  documentId: string,
 ): Promise<DocumentWithItems | null> {
   const supabase = createServerClient();
 
   const { data, error } = await supabase
-    .from('documents')
-    .select('*, contact:contacts(*), items:document_items(*), workspace:workspaces(*)')
-    .eq('workspace_id', workspaceId)
-    .eq('id', documentId)
+    .from("documents")
+    .select(
+      "*, contact:contacts(*), items:document_items(*), workspace:workspaces(*)",
+    )
+    .eq("workspace_id", workspaceId)
+    .eq("id", documentId)
     .single();
 
   if (error) return null;
   return data;
 }
 
-export async function getDocumentByToken(token: string): Promise<DocumentWithItems | null> {
+export async function getDocumentByToken(
+  token: string,
+): Promise<DocumentWithItems | null> {
   const supabase = createServerClient();
 
   const { data, error } = await supabase
-    .from('documents')
-    .select('*, contact:contacts(*), items:document_items(*), workspace:workspaces(*)')
-    .eq('public_token', token)
+    .from("documents")
+    .select(
+      "*, contact:contacts(*), items:document_items(*), workspace:workspaces(*)",
+    )
+    .eq("public_token", token)
     .single();
 
   if (error) {
@@ -368,36 +404,36 @@ export async function getDocumentByToken(token: string): Promise<DocumentWithIte
 
   // Increment view count
   await supabase
-    .from('documents')
+    .from("documents")
     .update({ view_count: (data.view_count || 0) + 1 })
-    .eq('id', data.id);
+    .eq("id", data.id);
 
   return data;
 }
 
 export async function generateDocumentNumber(
   workspaceId: string,
-  type: 'quote' | 'invoice' | 'proposal'
+  type: "quote" | "invoice" | "proposal",
 ): Promise<string> {
   const supabase = createServerClient();
   const year = new Date().getFullYear();
-  const prefix = type === 'quote' ? 'Q' : type === 'invoice' ? 'INV' : 'P';
+  const prefix = type === "quote" ? "Q" : type === "invoice" ? "INV" : "P";
 
   const { count } = await supabase
-    .from('documents')
-    .select('*', { count: 'exact', head: true })
-    .eq('workspace_id', workspaceId)
-    .eq('type', type)
-    .gte('created_at', `${year}-01-01`);
+    .from("documents")
+    .select("*", { count: "exact", head: true })
+    .eq("workspace_id", workspaceId)
+    .eq("type", type)
+    .gte("created_at", `${year}-01-01`);
 
   const nextNum = (count || 0) + 1;
-  return `${prefix}-${year}-${String(nextNum).padStart(3, '0')}`;
+  return `${prefix}-${year}-${String(nextNum).padStart(3, "0")}`;
 }
 
 export async function createDocument(
   workspaceId: string,
   data: {
-    type: 'quote' | 'invoice' | 'proposal';
+    type: "quote" | "invoice" | "proposal";
     contact_id?: string;
     opportunity_id?: string;
     title?: string;
@@ -411,14 +447,14 @@ export async function createDocument(
     valid_until?: string;
     due_date?: string;
     reference?: string;
-    items: Omit<DocumentItem, 'id' | 'document_id'>[];
-  }
+    items: Omit<DocumentItem, "id" | "document_id">[];
+  },
 ): Promise<DocumentWithItems> {
   const supabase = createServerClient();
 
   // Generate document number
   const number = await generateDocumentNumber(workspaceId, data.type);
-  
+
   // Generate public token
   const publicToken = crypto.randomUUID();
 
@@ -426,13 +462,13 @@ export async function createDocument(
 
   // Create document
   const { data: document, error: docError } = await supabase
-    .from('documents')
+    .from("documents")
     .insert({
       ...documentData,
       workspace_id: workspaceId,
       number,
       public_token: publicToken,
-      status: 'draft',
+      status: "draft",
     })
     .select()
     .single();
@@ -448,16 +484,21 @@ export async function createDocument(
     }));
 
     const { error: itemsError } = await supabase
-      .from('document_items')
+      .from("document_items")
       .insert(itemsWithDocId);
 
     if (itemsError) throw itemsError;
   }
 
   // Log event
-  await logEvent(workspaceId, 'document', document.id, 'created', { type: data.type });
+  await logEvent(workspaceId, "document", document.id, "created", {
+    type: data.type,
+  });
 
-  return getDocumentById(workspaceId, document.id) as Promise<DocumentWithItems>;
+  return getDocumentById(
+    workspaceId,
+    document.id,
+  ) as Promise<DocumentWithItems>;
 }
 
 export async function updateDocument(
@@ -477,8 +518,8 @@ export async function updateDocument(
     due_date?: string;
     status?: string;
     reference?: string;
-    items?: Omit<DocumentItem, 'id' | 'document_id'>[];
-  }
+    items?: Omit<DocumentItem, "id" | "document_id">[];
+  },
 ): Promise<DocumentWithItems> {
   const supabase = createServerClient();
 
@@ -486,17 +527,20 @@ export async function updateDocument(
 
   // Update document
   const { error: docError } = await supabase
-    .from('documents')
+    .from("documents")
     .update(documentData)
-    .eq('workspace_id', workspaceId)
-    .eq('id', documentId);
+    .eq("workspace_id", workspaceId)
+    .eq("id", documentId);
 
   if (docError) throw docError;
 
   // Update line items if provided
   if (items) {
     // Delete existing items
-    await supabase.from('document_items').delete().eq('document_id', documentId);
+    await supabase
+      .from("document_items")
+      .delete()
+      .eq("document_id", documentId);
 
     // Insert new items
     if (items.length > 0) {
@@ -506,7 +550,7 @@ export async function updateDocument(
         sort_order: index,
       }));
 
-      await supabase.from('document_items').insert(itemsWithDocId);
+      await supabase.from("document_items").insert(itemsWithDocId);
     }
   }
 
@@ -515,37 +559,40 @@ export async function updateDocument(
 
 export async function sendDocument(
   workspaceId: string,
-  documentId: string
+  documentId: string,
 ): Promise<Document> {
   const supabase = createServerClient();
 
   const { data: document, error } = await supabase
-    .from('documents')
+    .from("documents")
     .update({
-      status: 'sent',
+      status: "sent",
       sent_at: new Date().toISOString(),
     })
-    .eq('workspace_id', workspaceId)
-    .eq('id', documentId)
+    .eq("workspace_id", workspaceId)
+    .eq("id", documentId)
     .select()
     .single();
 
   if (error) throw error;
 
   // Log event
-  await logEvent(workspaceId, 'document', documentId, 'sent');
+  await logEvent(workspaceId, "document", documentId, "sent");
 
   return document;
 }
 
-export async function deleteDocument(workspaceId: string, documentId: string): Promise<void> {
+export async function deleteDocument(
+  workspaceId: string,
+  documentId: string,
+): Promise<void> {
   const supabase = createServerClient();
 
   const { error } = await supabase
-    .from('documents')
+    .from("documents")
     .delete()
-    .eq('workspace_id', workspaceId)
-    .eq('id', documentId);
+    .eq("workspace_id", workspaceId)
+    .eq("id", documentId);
 
   if (error) throw error;
 }
@@ -555,19 +602,19 @@ export async function deleteDocument(workspaceId: string, documentId: string): P
 // ============================================
 export async function getTemplates(
   workspaceId: string,
-  options: { type?: string } = {}
+  options: { type?: string } = {},
 ): Promise<Template[]> {
   const supabase = createServerClient();
   const { type } = options;
 
   let query = supabase
-    .from('templates')
-    .select('*')
-    .eq('workspace_id', workspaceId)
-    .order('created_at', { ascending: false });
+    .from("templates")
+    .select("*")
+    .eq("workspace_id", workspaceId)
+    .order("created_at", { ascending: false });
 
   if (type) {
-    query = query.eq('type', type);
+    query = query.eq("type", type);
   }
 
   const { data, error } = await query;
@@ -578,15 +625,15 @@ export async function getTemplates(
 
 export async function getTemplateById(
   workspaceId: string,
-  templateId: string
+  templateId: string,
 ): Promise<Template | null> {
   const supabase = createServerClient();
 
   const { data, error } = await supabase
-    .from('templates')
-    .select('*')
-    .eq('workspace_id', workspaceId)
-    .eq('id', templateId)
+    .from("templates")
+    .select("*")
+    .eq("workspace_id", workspaceId)
+    .eq("id", templateId)
     .single();
 
   if (error) return null;
@@ -595,12 +642,15 @@ export async function getTemplateById(
 
 export async function createTemplate(
   workspaceId: string,
-  data: Omit<Template, 'id' | 'workspace_id' | 'created_at' | 'updated_at' | 'used_count'>
+  data: Omit<
+    Template,
+    "id" | "workspace_id" | "created_at" | "updated_at" | "used_count"
+  >,
 ): Promise<Template> {
   const supabase = createServerClient();
 
   const { data: template, error } = await supabase
-    .from('templates')
+    .from("templates")
     .insert({ ...data, workspace_id: workspaceId })
     .select()
     .single();
@@ -612,15 +662,15 @@ export async function createTemplate(
 export async function updateTemplate(
   workspaceId: string,
   templateId: string,
-  data: Partial<Template>
+  data: Partial<Template>,
 ): Promise<Template> {
   const supabase = createServerClient();
 
   const { data: template, error } = await supabase
-    .from('templates')
+    .from("templates")
     .update(data)
-    .eq('workspace_id', workspaceId)
-    .eq('id', templateId)
+    .eq("workspace_id", workspaceId)
+    .eq("id", templateId)
     .select()
     .single();
 
@@ -628,14 +678,17 @@ export async function updateTemplate(
   return template;
 }
 
-export async function deleteTemplate(workspaceId: string, templateId: string): Promise<void> {
+export async function deleteTemplate(
+  workspaceId: string,
+  templateId: string,
+): Promise<void> {
   const supabase = createServerClient();
 
   const { error } = await supabase
-    .from('templates')
+    .from("templates")
     .delete()
-    .eq('workspace_id', workspaceId)
-    .eq('id', templateId);
+    .eq("workspace_id", workspaceId)
+    .eq("id", templateId);
 
   if (error) throw error;
 }
@@ -645,19 +698,19 @@ export async function deleteTemplate(workspaceId: string, templateId: string): P
 // ============================================
 export async function getProfileAssets(
   workspaceId: string,
-  options: { type?: string } = {}
+  options: { type?: string } = {},
 ): Promise<ProfileAsset[]> {
   const supabase = createServerClient();
   const { type } = options;
 
   let query = supabase
-    .from('profile_assets')
-    .select('*')
-    .eq('workspace_id', workspaceId)
-    .order('created_at', { ascending: false });
+    .from("profile_assets")
+    .select("*")
+    .eq("workspace_id", workspaceId)
+    .order("created_at", { ascending: false });
 
   if (type) {
-    query = query.eq('type', type);
+    query = query.eq("type", type);
   }
 
   const { data, error } = await query;
@@ -668,15 +721,15 @@ export async function getProfileAssets(
 
 export async function getProfileAssetById(
   workspaceId: string,
-  assetId: string
+  assetId: string,
 ): Promise<ProfileAsset | null> {
   const supabase = createServerClient();
 
   const { data, error } = await supabase
-    .from('profile_assets')
-    .select('*')
-    .eq('workspace_id', workspaceId)
-    .eq('id', assetId)
+    .from("profile_assets")
+    .select("*")
+    .eq("workspace_id", workspaceId)
+    .eq("id", assetId)
     .single();
 
   if (error) return null;
@@ -685,12 +738,12 @@ export async function getProfileAssetById(
 
 export async function createProfileAsset(
   workspaceId: string,
-  data: Omit<ProfileAsset, 'id' | 'workspace_id' | 'created_at' | 'updated_at'>
+  data: Omit<ProfileAsset, "id" | "workspace_id" | "created_at" | "updated_at">,
 ): Promise<ProfileAsset> {
   const supabase = createServerClient();
 
   const { data: asset, error } = await supabase
-    .from('profile_assets')
+    .from("profile_assets")
     .insert({ ...data, workspace_id: workspaceId })
     .select()
     .single();
@@ -702,15 +755,15 @@ export async function createProfileAsset(
 export async function updateProfileAsset(
   workspaceId: string,
   assetId: string,
-  data: Partial<ProfileAsset>
+  data: Partial<ProfileAsset>,
 ): Promise<ProfileAsset> {
   const supabase = createServerClient();
 
   const { data: asset, error } = await supabase
-    .from('profile_assets')
+    .from("profile_assets")
     .update(data)
-    .eq('workspace_id', workspaceId)
-    .eq('id', assetId)
+    .eq("workspace_id", workspaceId)
+    .eq("id", assetId)
     .select()
     .single();
 
@@ -718,14 +771,17 @@ export async function updateProfileAsset(
   return asset;
 }
 
-export async function deleteProfileAsset(workspaceId: string, assetId: string): Promise<void> {
+export async function deleteProfileAsset(
+  workspaceId: string,
+  assetId: string,
+): Promise<void> {
   const supabase = createServerClient();
 
   const { error } = await supabase
-    .from('profile_assets')
+    .from("profile_assets")
     .delete()
-    .eq('workspace_id', workspaceId)
-    .eq('id', assetId);
+    .eq("workspace_id", workspaceId)
+    .eq("id", assetId);
 
   if (error) throw error;
 }
@@ -735,14 +791,14 @@ export async function deleteProfileAsset(workspaceId: string, assetId: string): 
 // ============================================
 export async function logEvent(
   workspaceId: string,
-  entityType: 'document' | 'opportunity' | 'contact' | 'payment',
+  entityType: "document" | "opportunity" | "contact" | "payment",
   entityId: string,
   action: string,
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>,
 ): Promise<void> {
   const supabase = createServerClient();
 
-  await supabase.from('events').insert({
+  await supabase.from("events").insert({
     workspace_id: workspaceId,
     entity_type: entityType,
     entity_id: entityId,
@@ -753,15 +809,15 @@ export async function logEvent(
 
 export async function getRecentEvents(
   workspaceId: string,
-  limit: number = 10
+  limit: number = 10,
 ): Promise<Event[]> {
   const supabase = createServerClient();
 
   const { data, error } = await supabase
-    .from('events')
-    .select('*')
-    .eq('workspace_id', workspaceId)
-    .order('created_at', { ascending: false })
+    .from("events")
+    .select("*")
+    .eq("workspace_id", workspaceId)
+    .order("created_at", { ascending: false })
     .limit(limit);
 
   if (error) throw error;
@@ -773,7 +829,11 @@ export async function getRecentEvents(
 // ============================================
 export async function getDashboardStats(workspaceId: string) {
   const supabase = createServerClient();
-  const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+  const startOfMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    1,
+  ).toISOString();
 
   const [
     { data: revenueData },
@@ -786,55 +846,67 @@ export async function getDashboardStats(workspaceId: string) {
   ] = await Promise.all([
     // Total paid revenue
     supabase
-      .from('documents')
-      .select('amount')
-      .eq('workspace_id', workspaceId)
-      .eq('status', 'paid'),
+      .from("documents")
+      .select("amount")
+      .eq("workspace_id", workspaceId)
+      .eq("status", "paid"),
     // Paid this month
     supabase
-      .from('documents')
-      .select('amount')
-      .eq('workspace_id', workspaceId)
-      .eq('status', 'paid')
-      .gte('paid_at', startOfMonth),
+      .from("documents")
+      .select("amount")
+      .eq("workspace_id", workspaceId)
+      .eq("status", "paid")
+      .gte("paid_at", startOfMonth),
     // Pending invoices
     supabase
-      .from('documents')
-      .select('amount')
-      .eq('workspace_id', workspaceId)
-      .eq('type', 'invoice')
-      .in('status', ['sent', 'viewed']),
+      .from("documents")
+      .select("amount")
+      .eq("workspace_id", workspaceId)
+      .eq("type", "invoice")
+      .in("status", ["sent", "viewed"]),
     // Overdue invoices
     supabase
-      .from('documents')
-      .select('amount')
-      .eq('workspace_id', workspaceId)
-      .eq('type', 'invoice')
-      .eq('status', 'overdue'),
+      .from("documents")
+      .select("amount")
+      .eq("workspace_id", workspaceId)
+      .eq("type", "invoice")
+      .eq("status", "overdue"),
     // Active opportunities
     supabase
-      .from('opportunities')
-      .select('*', { count: 'exact', head: true })
-      .eq('workspace_id', workspaceId)
-      .not('stage', 'in', '(won,lost)'),
+      .from("opportunities")
+      .select("*", { count: "exact", head: true })
+      .eq("workspace_id", workspaceId)
+      .not("stage", "in", "(won,lost)"),
     // Won deals this month
     supabase
-      .from('opportunities')
-      .select('*', { count: 'exact', head: true })
-      .eq('workspace_id', workspaceId)
-      .eq('stage', 'won')
-      .gte('updated_at', startOfMonth),
+      .from("opportunities")
+      .select("*", { count: "exact", head: true })
+      .eq("workspace_id", workspaceId)
+      .eq("stage", "won")
+      .gte("updated_at", startOfMonth),
     // Total contacts
     supabase
-      .from('contacts')
-      .select('*', { count: 'exact', head: true })
-      .eq('workspace_id', workspaceId),
+      .from("contacts")
+      .select("*", { count: "exact", head: true })
+      .eq("workspace_id", workspaceId),
   ]);
 
-  const totalRevenue = (revenueData || []).reduce((sum, d) => sum + (d.amount || 0), 0);
-  const paidThisMonth = (paidMonthData || []).reduce((sum, d) => sum + (d.amount || 0), 0);
-  const pendingAmount = (pendingData || []).reduce((sum, d) => sum + (d.amount || 0), 0);
-  const overdueAmount = (overdueData || []).reduce((sum, d) => sum + (d.amount || 0), 0);
+  const totalRevenue = (revenueData || []).reduce(
+    (sum, d) => sum + (d.amount || 0),
+    0,
+  );
+  const paidThisMonth = (paidMonthData || []).reduce(
+    (sum, d) => sum + (d.amount || 0),
+    0,
+  );
+  const pendingAmount = (pendingData || []).reduce(
+    (sum, d) => sum + (d.amount || 0),
+    0,
+  );
+  const overdueAmount = (overdueData || []).reduce(
+    (sum, d) => sum + (d.amount || 0),
+    0,
+  );
 
   return {
     totalRevenue,
@@ -851,94 +923,107 @@ export async function getDashboardStats(workspaceId: string) {
 // Reminders & Automation
 // ============================================
 
-import { ReminderRule, ReminderJob } from '../types';
+import { ReminderRule, ReminderJob } from "../types";
 
-export async function getReminderRules(workspaceId: string): Promise<ReminderRule[]> {
+export async function getReminderRules(
+  workspaceId: string,
+): Promise<ReminderRule[]> {
   const supabase = createServerClient();
-  
+
   const { data, error } = await supabase
-    .from('reminder_rules')
-    .select('*')
-    .eq('workspace_id', workspaceId);
+    .from("reminder_rules")
+    .select("*")
+    .eq("workspace_id", workspaceId);
 
   if (error) {
     // Graceful fallback if table doesn't exist yet
-    console.warn('[DB] Error fetching reminder_rules, assuming empty:', error.message);
+    console.warn(
+      "[DB] Error fetching reminder_rules, assuming empty:",
+      error.message,
+    );
     return [];
   }
 
   // Auto-seed if empty
   if (!data || data.length === 0) {
-      console.log('[DB] Seeding default reminder rules for workspace:', workspaceId);
-      const defaultRules = [
-          {
-              workspace_id: workspaceId,
-              type: 'pre_due',
-              title: 'Approaching Due Date',
-              is_active: true
-          },
-          {
-              workspace_id: workspaceId,
-              type: 'overdue',
-              title: 'On Overdue',
-              is_active: true
-          },
-          {
-              workspace_id: workspaceId,
-              type: 'quote_followup',
-              title: 'Quote Follow-up',
-              is_active: false
-          }
-      ];
+    console.log(
+      "[DB] Seeding default reminder rules for workspace:",
+      workspaceId,
+    );
+    const defaultRules = [
+      {
+        workspace_id: workspaceId,
+        type: "pre_due",
+        title: "Approaching Due Date",
+        is_active: true,
+      },
+      {
+        workspace_id: workspaceId,
+        type: "overdue",
+        title: "On Overdue",
+        is_active: true,
+      },
+      {
+        workspace_id: workspaceId,
+        type: "quote_followup",
+        title: "Quote Follow-up",
+        is_active: false,
+      },
+    ];
 
-      const { data: newData, error: insertError } = await supabase
-          .from('reminder_rules')
-          .insert(defaultRules)
-          .select();
-      
-      if (insertError) {
-          console.error('[DB] Failed to seed rules:', insertError.message);
-          return [];
-      }
-      return newData || [];
+    const { data: newData, error: insertError } = await supabase
+      .from("reminder_rules")
+      .insert(defaultRules)
+      .select();
+
+    if (insertError) {
+      console.error("[DB] Failed to seed rules:", insertError.message);
+      return [];
+    }
+    return newData || [];
   }
 
   return data || [];
 }
 
 export async function toggleReminderRule(
-  workspaceId: string, 
-  ruleId: string, 
-  isActive: boolean
+  workspaceId: string,
+  ruleId: string,
+  isActive: boolean,
 ): Promise<void> {
   const supabase = createServerClient();
-  
+
   const { data, error } = await supabase
-    .from('reminder_rules')
+    .from("reminder_rules")
     .update({ is_active: isActive })
-    .eq('workspace_id', workspaceId)
-    .eq('id', ruleId)
+    .eq("workspace_id", workspaceId)
+    .eq("id", ruleId)
     .select(); // Select to verify update occurred
 
   if (error) {
-      console.error('[DB] Toggle Rule Error:', error.message);
-      throw error;
+    console.error("[DB] Toggle Rule Error:", error.message);
+    throw error;
   }
-  
+
   if (!data || data.length === 0) {
-      console.warn(`[DB] Toggle Rule: No rows updated. Workspace: ${workspaceId}, Rule: ${ruleId}`);
-      // Only throw if we are strict, but for now log warning
+    console.warn(
+      `[DB] Toggle Rule: No rows updated. Workspace: ${workspaceId}, Rule: ${ruleId}`,
+    );
+    // Only throw if we are strict, but for now log warning
   } else {
-      console.log(`[DB] Toggle Rule Success. New state: ${data[0].is_active}`);
+    console.log(`[DB] Toggle Rule Success. New state: ${data[0].is_active}`);
   }
 }
 
-export async function getScheduledReminders(workspaceId: string): Promise<any[]> {
+export async function getScheduledReminders(
+  workspaceId: string,
+): Promise<any[]> {
   const supabase = createServerClient();
-  
+
   const { data, error } = await supabase
-    .from('reminder_jobs')
-    .select(`
+    .from("reminder_jobs")
+    .select(
+      `
       *,
       document:documents(
         id, 
@@ -946,18 +1031,19 @@ export async function getScheduledReminders(workspaceId: string): Promise<any[]>
         type, 
         contact:contacts(name, company)
       )
-    `)
-    .eq('status', 'pending')
-    .order('scheduled_at', { ascending: true });
+    `,
+    )
+    .eq("status", "pending")
+    .order("scheduled_at", { ascending: true });
 
   if (error) {
-     console.warn('[DB] Error fetching reminder_jobs:', error.message);
-     return [];
+    console.warn("[DB] Error fetching reminder_jobs:", error.message);
+    return [];
   }
 
   // Filter mainly by associated document's workspace
   // This requires the join to be correct.
-  return (data || []).filter((job: any) => job.document?.type !== undefined); 
+  return (data || []).filter((job: any) => job.document?.type !== undefined);
   // Simple check, real filtering should be RLS or strict query
 }
 
@@ -967,17 +1053,17 @@ export async function createManualReminder(
     document_id: string;
     scheduled_at: string;
     content?: string;
-  }
+  },
 ): Promise<ReminderJob | null> {
   const supabase = createServerClient();
-  
+
   const { data: job, error } = await supabase
-    .from('reminder_jobs')
+    .from("reminder_jobs")
     .insert({
       document_id: data.document_id,
       scheduled_at: data.scheduled_at,
       content: data.content,
-      status: 'pending'
+      status: "pending",
     })
     .select()
     .single();
@@ -988,28 +1074,31 @@ export async function createManualReminder(
 
 export async function deleteReminderJob(jobId: string): Promise<void> {
   const supabase = createServerClient();
-  
+
   const { error } = await supabase
-    .from('reminder_jobs')
+    .from("reminder_jobs")
     .delete()
-    .eq('id', jobId);
+    .eq("id", jobId);
 
   if (error) throw error;
 }
 
-export async function getReminderHistory(workspaceId: string, limit: number = 10): Promise<any[]> {
-    const supabase = createServerClient();
+export async function getReminderHistory(
+  workspaceId: string,
+  limit: number = 10,
+): Promise<any[]> {
+  const supabase = createServerClient();
 
-    const { data, error } = await supabase
-        .from('events')
-        .select('*')
-        .eq('workspace_id', workspaceId)
-        .eq('action', 'reminder_sent')
-        .order('created_at', { ascending: false })
-        .limit(limit);
-    
-    if (error) return [];
-    return data || [];
+  const { data, error } = await supabase
+    .from("events")
+    .select("*")
+    .eq("workspace_id", workspaceId)
+    .eq("action", "reminder_sent")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) return [];
+  return data || [];
 }
 
 // ============================================
@@ -1018,47 +1107,57 @@ export async function getReminderHistory(workspaceId: string, limit: number = 10
 
 export async function getAnalyticsData(workspaceId: string) {
   const supabase = createServerClient();
-  
+
   // 1. Fetch all documents for calculation
   const { data: documents, error } = await supabase
-    .from('documents')
-    .select('id, type, status, amount, sent_at, paid_at, view_count, created_at')
-    .eq('workspace_id', workspaceId);
+    .from("documents")
+    .select(
+      "id, type, status, amount, sent_at, paid_at, view_count, created_at",
+    )
+    .eq("workspace_id", workspaceId);
 
   if (error) {
-    console.error('Error fetching analytics documents:', error);
+    console.error("Error fetching analytics documents:", error);
     return null;
   }
 
   // 2. Fetch all document items for "Top Services"
   // We fetch minimal fields
   const { data: items } = await supabase
-    .from('document_items')
-    .select('description, amount, document_id');
+    .from("document_items")
+    .select("description, amount, document_id");
 
   const docs = documents || [];
   // Filter items that belong to our docs (client-side join to avoid complex query for now)
-  const docIds = new Set(docs.map(d => d.id));
-  const relevantItems = (items || []).filter(item => docIds.has(item.document_id));
-  
+  const docIds = new Set(docs.map((d) => d.id));
+  const relevantItems = (items || []).filter((item) =>
+    docIds.has(item.document_id),
+  );
+
   // --- Quote Win Rate ---
-  const quotes = docs.filter(d => d.type === 'quote');
+  const quotes = docs.filter((d) => d.type === "quote");
   const totalQuotes = quotes.length;
-  const acceptedQuotes = quotes.filter(d => d.status === 'accepted');
-  const quoteWinRate = totalQuotes > 0 ? Math.round((acceptedQuotes.length / totalQuotes) * 100) : 0;
+  const acceptedQuotes = quotes.filter((d) => d.status === "accepted");
+  const quoteWinRate =
+    totalQuotes > 0
+      ? Math.round((acceptedQuotes.length / totalQuotes) * 100)
+      : 0;
 
   // --- Invoice Paid Ratio ---
-  const invoices = docs.filter(d => d.type === 'invoice');
+  const invoices = docs.filter((d) => d.type === "invoice");
   // Exclude drafts from denominator? Usually yes.
-  const activeInvoices = invoices.filter(d => d.status !== 'draft');
-  const paidInvoices = invoices.filter(d => d.status === 'paid');
-  const paidRatio = activeInvoices.length > 0 ? Math.round((paidInvoices.length / activeInvoices.length) * 100) : 0;
+  const activeInvoices = invoices.filter((d) => d.status !== "draft");
+  const paidInvoices = invoices.filter((d) => d.status === "paid");
+  const paidRatio =
+    activeInvoices.length > 0
+      ? Math.round((paidInvoices.length / activeInvoices.length) * 100)
+      : 0;
 
   // --- Avg Time to Pay ---
   // Diff between sent_at (or created_at) and paid_at
   let totalDays = 0;
   let countPaidWithDates = 0;
-  paidInvoices.forEach(inv => {
+  paidInvoices.forEach((inv) => {
     if (inv.paid_at && (inv.sent_at || inv.created_at)) {
       const start = new Date(inv.sent_at || inv.created_at).getTime();
       const end = new Date(inv.paid_at).getTime();
@@ -1069,52 +1168,64 @@ export async function getAnalyticsData(workspaceId: string) {
       }
     }
   });
-  const avgTimeToPay = countPaidWithDates > 0 ? Math.round(totalDays / countPaidWithDates) : 0;
+  const avgTimeToPay =
+    countPaidWithDates > 0 ? Math.round(totalDays / countPaidWithDates) : 0;
 
   // --- Quotes Pipeline ---
   const quoteStats = {
-      sent: { 
-          count: quotes.filter(d => d.status === 'sent').length, 
-          val: quotes.filter(d => d.status === 'sent').reduce((sum, d) => sum + (d.amount || 0), 0) 
-      },
-      viewed: { 
-          count: quotes.filter(d => d.status === 'viewed').length, 
-          val: quotes.filter(d => d.status === 'viewed').reduce((sum, d) => sum + (d.amount || 0), 0) 
-      },
-      accepted: { 
-          count: quotes.filter(d => d.status === 'accepted').length, 
-          val: quotes.filter(d => d.status === 'accepted').reduce((sum, d) => sum + (d.amount || 0), 0) 
-      }
+    sent: {
+      count: quotes.filter((d) => d.status === "sent").length,
+      val: quotes
+        .filter((d) => d.status === "sent")
+        .reduce((sum, d) => sum + (d.amount || 0), 0),
+    },
+    viewed: {
+      count: quotes.filter((d) => d.status === "viewed").length,
+      val: quotes
+        .filter((d) => d.status === "viewed")
+        .reduce((sum, d) => sum + (d.amount || 0), 0),
+    },
+    accepted: {
+      count: quotes.filter((d) => d.status === "accepted").length,
+      val: quotes
+        .filter((d) => d.status === "accepted")
+        .reduce((sum, d) => sum + (d.amount || 0), 0),
+    },
   };
 
   // --- Invoice Status ---
   const invoiceStats = {
-      paid: { 
-          count: paidInvoices.length, 
-          val: paidInvoices.reduce((sum, d) => sum + (d.amount || 0), 0) 
-      },
-      outstanding: { 
-          count: invoices.filter(d => ['sent', 'viewed'].includes(d.status)).length, 
-          val: invoices.filter(d => ['sent', 'viewed'].includes(d.status)).reduce((sum, d) => sum + (d.amount || 0), 0) 
-      },
-      overdue: { 
-          count: invoices.filter(d => d.status === 'overdue').length, 
-          val: invoices.filter(d => d.status === 'overdue').reduce((sum, d) => sum + (d.amount || 0), 0) 
-      }
+    paid: {
+      count: paidInvoices.length,
+      val: paidInvoices.reduce((sum, d) => sum + (d.amount || 0), 0),
+    },
+    outstanding: {
+      count: invoices.filter((d) => ["sent", "viewed"].includes(d.status))
+        .length,
+      val: invoices
+        .filter((d) => ["sent", "viewed"].includes(d.status))
+        .reduce((sum, d) => sum + (d.amount || 0), 0),
+    },
+    overdue: {
+      count: invoices.filter((d) => d.status === "overdue").length,
+      val: invoices
+        .filter((d) => d.status === "overdue")
+        .reduce((sum, d) => sum + (d.amount || 0), 0),
+    },
   };
 
   // --- Top Services ---
   const serviceMap = new Map<string, number>();
-  relevantItems.forEach(item => {
-      const key = (item.description || 'Untitled').trim();
-      const current = serviceMap.get(key) || 0;
-      serviceMap.set(key, current + (item.amount || 0));
+  relevantItems.forEach((item) => {
+    const key = (item.description || "Untitled").trim();
+    const current = serviceMap.get(key) || 0;
+    serviceMap.set(key, current + (item.amount || 0));
   });
 
   const topServices = Array.from(serviceMap.entries())
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 5);
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 5);
 
   return {
     quoteWinRate,
@@ -1126,6 +1237,6 @@ export async function getAnalyticsData(workspaceId: string) {
     avgTimeToPay,
     quoteStats,
     invoiceStats,
-    topServices
+    topServices,
   };
 }

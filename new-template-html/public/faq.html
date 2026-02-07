@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ — Biondesk</title>
+    <meta name="description" content="Frequently asked questions about Biondesk. Pricing, features, and support.">
+    
+    <!-- Google Fonts: Google Sans Flex -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom Config & Styles -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Google Sans Flex', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#F8FAFC',
+                            100: '#F1F5F9',
+                            900: '#0F172A',
+                            accent: '#4F46E5', // Indigo
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base Reset & Typography Details */
+        body {
+            font-feature-settings: "cv11", "ss01";
+            -webkit-font-smoothing: antialiased;
+            background-color: #FAFAFA;
+            color: #0F172A;
+            overflow-x: hidden;
+        }
+
+        /* Framer-style Noise Background */
+        .bg-noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+        }
+
+        /* FAQ Transition */
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .faq-item.active .faq-answer {
+            max-height: 300px; /* Adjust based on content */
+        }
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="selection:bg-slate-900 selection:text-white flex flex-col min-h-screen">
+
+    <div class="bg-noise"></div>
+
+    <!-- NAVIGATION (Consistent) -->
+    <nav class="fixed top-0 w-full z-50 transition-all duration-300 border-b border-transparent" id="navbar">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <a href="index.html" class="text-xl font-bold tracking-tight flex items-center gap-2">
+                    <div class="w-6 h-6 bg-slate-900 rounded-md flex items-center justify-center text-white">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/></svg>
+                    </div>
+                    Biondesk
+                </a>
+
+                <!-- Desktop Links -->
+                <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+                    <a href="index.html#features" class="hover:text-slate-900 transition-colors">Features</a>
+                    <a href="index.html#pricing" class="hover:text-slate-900 transition-colors">Pricing</a>
+                    <a href="faq.html" class="text-slate-900 transition-colors">FAQ</a>
+                </div>
+
+                <!-- CTA -->
+                <div class="flex items-center gap-4">
+                    <a href="#" class="hidden md:block text-sm font-medium text-slate-900 hover:text-slate-600">Log in</a>
+                    <a href="#" class="bg-slate-900 text-white text-sm font-medium px-5 py-2.5 rounded-full hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-slate-900/10">
+                        Start your desk
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow pt-32 pb-24">
+        <div class="max-w-4xl mx-auto px-6 lg:px-8">
+            
+            <!-- Header -->
+            <div class="text-center mb-16">
+                <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6">Common questions.</h1>
+                <p class="text-lg text-slate-600">
+                    Everything you need to know about the product and billing.
+                </p>
+            </div>
+
+            <div class="space-y-16">
+                
+                <!-- Section: General -->
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-indigo-500"></i> General
+                    </h2>
+                    <div class="space-y-4">
+                        <!-- Q1 -->
+                        <div class="faq-item group bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all hover:border-slate-300">
+                            <button class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                                <span class="font-semibold text-slate-900">What exactly is Biondesk?</span>
+                                <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                            </button>
+                            <div class="faq-answer px-6">
+                                <p class="text-slate-600 pb-6 leading-relaxed">Biondesk is an all-in-one workspace designed for freelancers and small studios. It replaces multiple tools (like Trello, Google Docs, and invoicing software) with one clean desk to manage leads, projects, and payments.</p>
+                            </div>
+                        </div>
+                        <!-- Q2 -->
+                        <div class="faq-item group bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all hover:border-slate-300">
+                            <button class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                                <span class="font-semibold text-slate-900">Is there a mobile app?</span>
+                                <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                            </button>
+                            <div class="faq-answer px-6">
+                                <p class="text-slate-600 pb-6 leading-relaxed">Currently, Biondesk is a web application optimized for mobile browsers. You can access your desk from any device, and it looks great on your phone. A dedicated native app is on our roadmap.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Features -->
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                        <i data-lucide="layers" class="w-5 h-5 text-indigo-500"></i> Features & Usage
+                    </h2>
+                    <div class="space-y-4">
+                        <!-- Q3 -->
+                        <div class="faq-item group bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all hover:border-slate-300">
+                            <button class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                                <span class="font-semibold text-slate-900">Can I customize my invoices?</span>
+                                <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                            </button>
+                            <div class="faq-answer px-6">
+                                <p class="text-slate-600 pb-6 leading-relaxed">Yes! You can add your logo, change accent colors, and set default terms. Biondesk invoices are designed to look professional and build trust with your clients out of the box.</p>
+                            </div>
+                        </div>
+                        <!-- Q4 -->
+                        <div class="faq-item group bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all hover:border-slate-300">
+                            <button class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                                <span class="font-semibold text-slate-900">How do automated follow-ups work?</span>
+                                <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                            </button>
+                            <div class="faq-answer px-6">
+                                <p class="text-slate-600 pb-6 leading-relaxed">When an invoice is overdue, Biondesk can send a polite email reminder to your client on your behalf. You can customize the timing (e.g., 3 days after due date) and the message template.</p>
+                            </div>
+                        </div>
+                        <!-- Q5 -->
+                        <div class="faq-item group bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all hover:border-slate-300">
+                            <button class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                                <span class="font-semibold text-slate-900">Can I export my data?</span>
+                                <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                            </button>
+                            <div class="faq-answer px-6">
+                                <p class="text-slate-600 pb-6 leading-relaxed">Absolutely. Your data belongs to you. You can export all your invoices, client lists, and project data as CSV files at any time from the settings menu.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Billing -->
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                        <i data-lucide="credit-card" class="w-5 h-5 text-indigo-500"></i> Billing & Pricing
+                    </h2>
+                    <div class="space-y-4">
+                        <!-- Q6 -->
+                        <div class="faq-item group bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all hover:border-slate-300">
+                            <button class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                                <span class="font-semibold text-slate-900">Do I need a credit card for the trial?</span>
+                                <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                            </button>
+                            <div class="faq-answer px-6">
+                                <p class="text-slate-600 pb-6 leading-relaxed">No. You can sign up and use all features for 14 days without entering any payment information. We only ask for payment when you decide to continue after the trial.</p>
+                            </div>
+                        </div>
+                        <!-- Q7 -->
+                        <div class="faq-item group bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all hover:border-slate-300">
+                            <button class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                                <span class="font-semibold text-slate-900">What happens if I cancel?</span>
+                                <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                            </button>
+                            <div class="faq-answer px-6">
+                                <p class="text-slate-600 pb-6 leading-relaxed">There are no lock-in contracts. If you cancel, your account will remain active until the end of your current billing cycle. After that, your data will be kept safe for 30 days in case you change your mind.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Still have questions? -->
+            <div class="mt-20 text-center p-8 bg-indigo-50 rounded-3xl border border-indigo-100">
+                <h3 class="text-2xl font-bold text-slate-900 mb-4">Still have questions?</h3>
+                <p class="text-slate-600 mb-8 max-w-lg mx-auto">Can’t find the answer you’re looking for? Please chat to our friendly team.</p>
+                <a href="support.html" class="inline-flex items-center justify-center bg-slate-900 text-white font-medium px-6 py-3 rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 gap-2">
+                    Get in touch
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FOOTER (Consistent) -->
+    <footer class="border-t border-slate-200 py-12 bg-white mt-auto">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-2">
+                <div class="w-5 h-5 bg-slate-900 rounded-md"></div>
+                <a href="index.html" class="font-bold text-slate-900">Biondesk</a>
+            </div>
+            <div class="flex gap-8 text-sm text-slate-500 font-medium">
+                <a href="#" class="hover:text-slate-900">Twitter</a>
+                <a href="#" class="hover:text-slate-900">Instagram</a>
+                <a href="privacy.html" class="hover:text-slate-900">Legal</a>
+            </div>
+            <div class="text-sm text-slate-400">
+                &copy; 2024 Biondesk Inc.
+            </div>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script>
+        // Icons
+        lucide.createIcons();
+
+        // Navbar Blur Effect on Scroll (Consistent logic)
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) {
+                navbar.classList.add('bg-white/80', 'backdrop-blur-md', 'border-slate-200/50');
+                navbar.classList.remove('border-transparent');
+            } else {
+                navbar.classList.remove('bg-white/80', 'backdrop-blur-md', 'border-slate-200/50');
+                navbar.classList.add('border-transparent');
+            }
+        });
+
+        // FAQ ACCORDION LOGIC
+        const faqItems = document.querySelectorAll('.faq-item');
+
+        faqItems.forEach(item => {
+            const button = item.querySelector('button');
+            button.addEventListener('click', () => {
+                const isActive = item.classList.contains('active');
+                
+                // Close all others (optional - strictly accordion behavior)
+                faqItems.forEach(otherItem => {
+                    otherItem.classList.remove('active');
+                });
+
+                // Toggle current
+                if (!isActive) {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

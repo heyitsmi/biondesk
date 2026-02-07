@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 import { createServerClient } from './supabase';
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'your-secret-key');
-const SESSION_COOKIE_NAME = 'flova_session';
+const SESSION_COOKIE_NAME = 'biondesk_session';
 
 // Password hashing
 export async function hashPassword(password: string): Promise<string> {

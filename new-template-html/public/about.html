@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Biondesk — Beyond desk, by design.</title>
+    <meta name="description" content="The story behind Biondesk. A calm workspace for running client work end-to-end.">
+    
+    <!-- Google Fonts: Google Sans Flex -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom Config & Styles -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Google Sans Flex', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#F8FAFC',
+                            100: '#F1F5F9',
+                            900: '#0F172A',
+                            accent: '#4F46E5', // Indigo
+                        }
+                    },
+                    animation: {
+                        'fade-up': 'fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                    },
+                    keyframes: {
+                        fadeUp: {
+                            '0%': { opacity: 0, transform: 'translateY(40px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base Reset & Typography Details */
+        body {
+            font-feature-settings: "cv11", "ss01";
+            -webkit-font-smoothing: antialiased;
+            background-color: #FAFAFA;
+            color: #0F172A;
+            overflow-x: hidden;
+        }
+
+        /* Framer-style Noise Background */
+        .bg-noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+        }
+
+        /* Reveal Animation Utility */
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="selection:bg-slate-900 selection:text-white flex flex-col min-h-screen">
+
+    <div class="bg-noise"></div>
+
+    <!-- NAVIGATION (Consistent) -->
+    <nav class="fixed top-0 w-full z-50 transition-all duration-300 border-b border-transparent" id="navbar">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <a href="index.html" class="text-xl font-bold tracking-tight flex items-center gap-2">
+                    <div class="w-6 h-6 bg-slate-900 rounded-md flex items-center justify-center text-white">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/></svg>
+                    </div>
+                    Biondesk
+                </a>
+
+                <!-- Desktop Links -->
+                <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+                    <a href="index.html#features" class="hover:text-slate-900 transition-colors">Features</a>
+                    <a href="index.html#pricing" class="hover:text-slate-900 transition-colors">Pricing</a>
+                    <a href="about.html" class="text-slate-900 transition-colors">About</a>
+                </div>
+
+                <!-- CTA -->
+                <div class="flex items-center gap-4">
+                    <a href="#" class="hidden md:block text-sm font-medium text-slate-900 hover:text-slate-600">Log in</a>
+                    <a href="#" class="bg-slate-900 text-white text-sm font-medium px-5 py-2.5 rounded-full hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-slate-900/10">
+                        Start your desk
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow">
+        
+        <!-- HERO -->
+        <section class="pt-32 pb-24 md:pt-48 md:pb-32 px-6">
+            <div class="max-w-4xl mx-auto text-center">
+                <span class="inline-block text-sm font-bold text-slate-500 tracking-widest uppercase mb-4 reveal-on-scroll">About Biondesk</span>
+                <h1 class="text-5xl md:text-7xl font-bold tracking-tighter text-slate-900 mb-8 reveal-on-scroll delay-100 leading-[1.1]">
+                    Beyond desk,<br> <span class="text-indigo-600">by design.</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-slate-600 leading-relaxed max-w-2xl mx-auto reveal-on-scroll delay-200">
+                    Biondesk is a calm workspace for running client work end-to-end, without the tab fatigue. From the first inquiry to the final invoice, everything stays connected.
+                </p>
+            </div>
+        </section>
+
+        <!-- THE STORY -->
+        <section class="py-24 border-t border-slate-200 bg-white">
+            <div class="max-w-3xl mx-auto px-6">
+                <div class="reveal-on-scroll">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-8">Work doesn’t live on a desk anymore.</h2>
+                    <div class="prose prose-lg text-slate-600 leading-relaxed space-y-6">
+                        <p>
+                            Client work happens everywhere: inboxes, chats, docs, boards, spreadsheets. Over time, the work itself stays the same, but the tools multiply. Context gets lost. Follow-ups get delayed. Delivery feels heavier than it should.
+                        </p>
+                        <p>
+                            Biondesk started from a simple idea: <strong class="text-slate-900">good work deserves a calmer system.</strong>
+                        </p>
+                        <p>
+                            Not more features. Not more notifications. Just a clear place where your work can move—quietly, consistently.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- WHAT "BEYOND DESK" MEANS -->
+        <section class="py-24 bg-slate-50 border-y border-slate-200">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                    <div class="reveal-on-scroll">
+                        <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-6">What “Beyond Desk” means</h2>
+                        <p class="text-lg text-slate-600 mb-8">
+                            It isn’t about working more. It’s about working with less friction. Biondesk helps you keep the business side of client work in order, so your focus stays on the craft.
+                        </p>
+                    </div>
+                    
+                    <div class="space-y-6 reveal-on-scroll delay-100">
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 flex-shrink-0 mt-1">
+                                <i data-lucide="git-merge" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-lg">One flow</h3>
+                                <p class="text-slate-500">Pipeline → Delivery → Invoicing. No context switching.</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 flex-shrink-0 mt-1">
+                                <i data-lucide="clock" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-lg">One timeline</h3>
+                                <p class="text-slate-500">Know exactly what’s next, what’s stuck, and what’s paid.</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0 mt-1">
+                                <i data-lucide="layers" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-lg">One place for context</h3>
+                                <p class="text-slate-500">Fewer tabs, fewer missed details, more clarity.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRINCIPLES -->
+        <section class="py-24 px-6">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-3xl font-bold text-slate-900 mb-16 text-center reveal-on-scroll">Our Principles</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Principle 1 -->
+                    <div class="p-8 rounded-3xl bg-white border border-slate-200 hover:border-slate-300 transition-colors reveal-on-scroll">
+                        <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center mb-6 text-slate-900">
+                            <i data-lucide="coffee" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Calm by design</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                            Only what matters, when it matters. Clean screens. Quiet defaults. No red dots screaming for attention.
+                        </p>
+                    </div>
+
+                    <!-- Principle 2 -->
+                    <div class="p-8 rounded-3xl bg-white border border-slate-200 hover:border-slate-300 transition-colors reveal-on-scroll delay-100">
+                        <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center mb-6 text-slate-900">
+                            <i data-lucide="heart-handshake" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Client-first</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                            Professional docs, clear next steps, and a workflow you can trust. Build confidence with every interaction.
+                        </p>
+                    </div>
+
+                    <!-- Principle 3 -->
+                    <div class="p-8 rounded-3xl bg-white border border-slate-200 hover:border-slate-300 transition-colors reveal-on-scroll delay-200">
+                        <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center mb-6 text-slate-900">
+                            <i data-lucide="zap" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Progress over noise</h3>
+                        <p class="text-slate-600 leading-relaxed">
+                            Less chasing. More momentum. Everything stays visible and accountable so you can keep moving forward.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- WHO IT'S FOR & FOUNDER NOTE -->
+        <section class="py-24 bg-slate-900 text-white relative overflow-hidden">
+            <!-- Decorative gradient -->
+            <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-900/30 rounded-full blur-[100px] pointer-events-none"></div>
+
+            <div class="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
+                    
+                    <!-- Who it's for -->
+                    <div class="reveal-on-scroll">
+                        <h2 class="text-3xl font-bold mb-8">Built for people who deliver.</h2>
+                        <ul class="space-y-6">
+                            <li class="flex items-start gap-4">
+                                <i data-lucide="check" class="w-6 h-6 text-indigo-400 mt-1"></i>
+                                <span class="text-lg text-slate-300">Freelancers and independent makers</span>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <i data-lucide="check" class="w-6 h-6 text-indigo-400 mt-1"></i>
+                                <span class="text-lg text-slate-300">Solo studios and small service businesses</span>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <i data-lucide="check" class="w-6 h-6 text-indigo-400 mt-1"></i>
+                                <span class="text-lg text-slate-300">Operators who value clarity, not chaos</span>
+                            </li>
+                        </ul>
+                        <p class="mt-8 text-slate-400 italic border-l-2 border-slate-700 pl-4">
+                            If your work is client-driven and your tools feel scattered, Biondesk is for you.
+                        </p>
+                    </div>
+
+                    <!-- Founder Note -->
+                    <div class="bg-slate-800/50 p-8 md:p-10 rounded-3xl border border-slate-700 reveal-on-scroll delay-100">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold">H</div>
+                            <div>
+                                <h3 class="font-bold text-white">A note from the maker</h3>
+                                <p class="text-sm text-slate-400">Hilmi, Founder</p>
+                            </div>
+                        </div>
+                        <div class="space-y-4 text-slate-300 leading-relaxed">
+                            <p>
+                                "Biondesk is built for the way I work: delivering projects, managing clients, sending proposals, and making sure invoices don’t slip through."
+                            </p>
+                            <p>
+                                "I wanted a system that feels quiet and reliable—something you can return to every day without rebuilding it. If you try Biondesk and have feedback, I’d love to hear it."
+                            </p>
+                        </div>
+                        <div class="mt-8 pt-6 border-t border-slate-700/50 flex items-center justify-between">
+                            <span class="text-sm text-slate-500">Currently in Public Beta</span>
+                            <a href="mailto:hilmi@biondesk.com" class="text-indigo-400 hover:text-white transition-colors text-sm font-medium">Say hello →</a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- FINAL CTA -->
+        <section class="py-32 text-center px-6">
+            <div class="max-w-3xl mx-auto reveal-on-scroll">
+                <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 mb-8">
+                    Ready to clear your desk?
+                </h2>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <a href="#" class="bg-slate-900 text-white px-10 py-4 rounded-full font-semibold text-lg hover:bg-slate-800 transition-transform hover:-translate-y-1 shadow-xl">
+                        Start your desk
+                    </a>
+                    <a href="index.html#pricing" class="text-slate-600 font-medium px-6 py-4 rounded-full hover:bg-slate-100 transition-colors">
+                        See pricing
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER (Consistent) -->
+    <footer class="border-t border-slate-200 py-12 bg-white mt-auto">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-2">
+                <div class="w-5 h-5 bg-slate-900 rounded-md"></div>
+                <a href="index.html" class="font-bold text-slate-900">Biondesk</a>
+            </div>
+            <div class="flex gap-8 text-sm text-slate-500 font-medium">
+                <a href="#" class="hover:text-slate-900">Twitter</a>
+                <a href="#" class="hover:text-slate-900">Instagram</a>
+                <a href="privacy.html" class="hover:text-slate-900">Legal</a>
+            </div>
+            <div class="text-sm text-slate-400">
+                &copy; 2024 Biondesk Inc.
+            </div>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script>
+        // Icons
+        lucide.createIcons();
+
+        // Navbar Blur Effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) {
+                navbar.classList.add('bg-white/80', 'backdrop-blur-md', 'border-slate-200/50');
+                navbar.classList.remove('border-transparent');
+            } else {
+                navbar.classList.remove('bg-white/80', 'backdrop-blur-md', 'border-slate-200/50');
+                navbar.classList.add('border-transparent');
+            }
+        });
+
+        // Animation Observer
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal-on-scroll').forEach((element) => {
+            observer.observe(element);
+        });
+    </script>
+</body>
+</html>

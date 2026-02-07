@@ -3,46 +3,26 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Flova | The Workflow for Modern Creatives",
-    template: "%s | Flova"
+    template: "%s - Biondesk Workspace",
+    default: "Biondesk Workspace",
   },
-  description: "Flova unifies your client workflow. From the first opportunity to the final payment, run your business without the chaos",
+  description: "From opportunity to paid — in one workflow.",
   icons: {
-    icon: [
-      { url: '/favicon/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/favicon/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/favicon/favicon.ico' },
-    ],
-    apple: [
-      { url: '/favicon/apple-touch-icon.png' },
-    ],
-    other: [
-      {
-        rel: 'android-chrome-192x192',
-        url: '/favicon/android-chrome-192x192.png',
-      },
-      {
-          rel: 'android-chrome-512x512',
-          url: '/favicon/android-chrome-512x512.png',
-      },
-    ],
+    icon: "/favicon/favicon.ico",
+    shortcut: "/favicon/favicon-16x16.png",
+    apple: "/favicon/apple-touch-icon.png",
   },
-  manifest: '/favicon/site.webmanifest',
   openGraph: {
     images: [
       {
-        url: '/hero.webp',
+        url: "/og-image.webp",
         width: 1200,
         height: 630,
-        alt: 'Flova Dashboard',
+        alt: "Biondesk Workspace",
       },
     ],
   },
 };
-
-import CookieConsent from "@/components/CookieConsent";
-
-// ... existing imports
 
 export default function RootLayout({
   children,
@@ -50,20 +30,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en">
       <head>
-        {/* Fonts: Google Sans Flex */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap" rel="stylesheet" />
-        
-        {/* Phosphor Icons */}
-        <script src="https://unpkg.com/@phosphor-icons/web"></script>
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap"
+          rel="stylesheet"
+        />
+        <script src="https://unpkg.com/lucide@latest"></script>
       </head>
-      <body className="overflow-x-hidden antialiased">
-        {children}
-        <CookieConsent />
-      </body>
+      <body className="antialiased font-sans">{children}</body>
     </html>
   );
 }

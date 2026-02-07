@@ -5,15 +5,15 @@ import RegisterClient from "./RegisterClient";
 
 export const metadata: Metadata = {
   title: "Register",
-  description: "Create your Flova account",
+  description: "Create your Biondesk account",
 };
 
 export default async function RegisterPage() {
-    const user = await getCurrentUser();
+  const user = await getCurrentUser();
 
-    if (user) {
-        redirect("/dashboard");
-    }
+  if (user) {
+    redirect("/dashboard");
+  }
 
-    return <RegisterClient />;
+  return <RegisterClient />;
 }

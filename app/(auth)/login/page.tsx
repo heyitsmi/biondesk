@@ -5,15 +5,15 @@ import LoginClient from "./LoginClient";
 
 export const metadata: Metadata = {
   title: "Login",
-  description: "Login to your Flova account",
+  description: "Login to your Biondesk account",
 };
 
 export default async function LoginPage() {
-    const user = await getCurrentUser();
+  const user = await getCurrentUser();
 
-    if (user) {
-        redirect("/dashboard");
-    }
+  if (user) {
+    redirect("/dashboard");
+  }
 
-    return <LoginClient />;
+  return <LoginClient />;
 }
