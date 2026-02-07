@@ -130,6 +130,7 @@ export interface Document extends Timestamps {
   content: string | null;
   status: DocumentStatus;
   amount: number;
+  currency: string;
   tax: number;
   discount: number;
   deposit: number;
