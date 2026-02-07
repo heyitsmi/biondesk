@@ -69,6 +69,7 @@ export async function POST(request: NextRequest) {
       client_name: body.client_name || null,
       budget_type: body.budget_type || null,
       country_code: body.country_code || null,
+      sort_order: 0,
     });
 
     return NextResponse.json(opportunity, { status: 201 });
