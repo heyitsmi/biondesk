@@ -253,6 +253,8 @@ export type EventAction =
   | "viewed"
   | "accepted"
   | "paid"
+  | "won"
+  | "lost"
   | "reminder_sent";
 
 export interface Event {
