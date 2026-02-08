@@ -1101,6 +1101,59 @@ export async function getReminderHistory(
   return data || [];
 }
 
+export async function getDueReminders(limit: number = 20): Promise<any[]> {
+  const supabase = createServerClient();
+  const now = new Date().toISOString();
+
+  // Fetch pending jobs due for execution (scheduled_at <= now)
+  const { data, error } = await supabase
+    .from("reminder_jobs")
+    .select(
+      `
+      *,
+      document:documents(
+        id, 
+        number, 
+        type, 
+        title,
+        workspace:workspaces(
+          id, 
+          name, 
+          user:users(email, name)
+        )
+      )
+    `
+    )
+    .eq("status", "pending")
+    .lte("scheduled_at", now)
+    .limit(limit);
+
+  if (error) {
+    console.error("[DB] Error fetching due reminders:", error);
+    return [];
+  }
+
+  return data || [];
+}
+
+export async function updateReminderJobStatus(
+  jobId: string,
+  status: "sent" | "failed",
+  result?: any
+): Promise<void> {
+  const supabase = createServerClient();
+  
+  await supabase
+    .from("reminder_jobs")
+    .update({ 
+      status, 
+      sent_at: status === 'sent' ? new Date().toISOString() : null,
+      // You might want to add a 'result' or 'error' column to reminder_jobs if you want to store logs
+      // For now we just update status
+    })
+    .eq("id", jobId);
+}
+
 // ============================================
 // Analytics Data
 // ============================================
