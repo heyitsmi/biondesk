@@ -85,7 +85,7 @@ export default function Sidebar({ user }: SidebarProps) {
         >
           <div className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-white overflow-hidden">
             <img
-              src="/logo.png"
+              src="/favicon/favicon-32x32.png"
               alt="Biondesk"
               className="w-full h-full rounded-full object-cover"
             />

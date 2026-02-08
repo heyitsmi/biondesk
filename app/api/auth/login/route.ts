@@ -1,11 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase';
 import { verifyPassword, createSession } from '@/lib/auth';
+import { verifyTurnstileToken } from '@/lib/turnstile';
 import { cookies } from 'next/headers';
 
 export async function POST(request: NextRequest) {
     try {
-        const { email, password } = await request.json();
+        const { email, password, turnstileToken } = await request.json();
+
+        // Verify Turnstile
+        const isTurnstileValid = await verifyTurnstileToken(turnstileToken);
+        if (!isTurnstileValid) {
+             return NextResponse.json(
+                { error: 'Invalid CAPTCHA' },
+                { status: 400 }
+            );
+        }
 
         if (!email || !password) {
             return NextResponse.json(

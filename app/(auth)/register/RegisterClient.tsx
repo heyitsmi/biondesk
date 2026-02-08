@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Turnstile from "@/components/Turnstile";
 
 export default function RegisterClient() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function RegisterClient() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +24,7 @@ export default function RegisterClient() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, turnstileToken }),
       });
 
       const data = await res.json();
@@ -190,6 +192,14 @@ export default function RegisterClient() {
               <p className="text-xs text-slate-400">
                 Must be at least 8 characters
               </p>
+            </div>
+
+            {/* Turnstile */}
+            <div className="flex justify-center">
+              <Turnstile
+                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+                onVerify={(token) => setTurnstileToken(token)}
+              />
             </div>
 
             {/* Submit */}
