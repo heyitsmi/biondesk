@@ -267,7 +267,7 @@ export default function HomeClient() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[minmax(300px,auto)]">
                     
                     {/* Card 1: Lead Desk (Large) */}
-                    <div className="md:col-span-2 rounded-3xl bg-white border border-slate-200 p-8 md:p-10 relative overflow-hidden group hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 reveal-on-scroll">
+                    <div className="md:col-span-2 rounded-3xl bg-white border border-slate-200 p-8 md:p-10 relative overflow-hidden group hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 reveal-on-scroll flex flex-col md:block">
                         <div className="relative z-10 max-w-md">
                             <div className="h-12 w-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-6">
                                 <i data-lucide="users" className="w-6 h-6"></i>
@@ -276,7 +276,7 @@ export default function HomeClient() {
                             <p className="text-slate-600 text-lg">Centralize incoming inquiries. Convert them to active opportunities with one click. Never lose a potential client in your email threads again.</p>
                         </div>
                         {/* Visual Decor */}
-                        <div className="absolute right-[-20px] bottom-[-20px] w-64 h-64 bg-slate-50 rounded-tl-3xl border-t border-l border-slate-100 group-hover:scale-105 transition-transform">
+                        <div className="relative md:absolute right-[-20px] bottom-[-20px] w-64 h-64 bg-slate-50 rounded-tl-3xl border-t border-l border-slate-100 group-hover:scale-105 transition-transform self-end mt-6 md:mt-0">
                             <div className="p-6 space-y-3">
                                 <div className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm">
                                     <div className="w-2 h-2 rounded-full bg-green-500"></div>
@@ -453,9 +453,9 @@ export default function HomeClient() {
         <section className="py-32 bg-slate-900 text-white">
             <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
                 <h2 className="reveal-on-scroll text-3xl md:text-5xl font-medium leading-tight mb-12 opacity-90">
-                    Most tools are too complex.<br />
-                    Spreadsheets are too manual.<br />
-                    <span className="text-indigo-400">Biondesk is just right.</span>
+                    Most tools are too complex.<br className="hidden md:inline"/>
+                    Spreadsheets are too manual.<br className="hidden md:inline"/>
+                    <span className="text-indigo-400 block mt-2 md:inline md:mt-0">Biondesk is just right.</span>
                 </h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left mt-20">
