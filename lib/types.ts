@@ -227,6 +227,7 @@ export interface ReminderRule {
   id: string;
   workspace_id: string;
   type: ReminderType;
+  title: string;
   days_offset: number;
   template_content: string | null;
   is_active: boolean;
