@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Workspace } from "@/lib/types";
+import Turnstile from "@/components/Turnstile";
 
 interface PublicFormClientProps {
   workspace: Workspace;
@@ -10,6 +11,7 @@ interface PublicFormClientProps {
 export default function PublicFormClient({ workspace }: PublicFormClientProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,6 +27,7 @@ export default function PublicFormClient({ workspace }: PublicFormClientProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           workspace_id: workspace.id,
+          turnstileToken,
           ...data,
         }),
       });
@@ -232,7 +235,14 @@ export default function PublicFormClient({ workspace }: PublicFormClientProps) {
                   ></textarea>
                 </div>
 
-                <div className="pt-2">
+                <div className="pt-2 space-y-4">
+                  <div className="flex justify-center">
+                    <Turnstile
+                        siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+                        onVerify={(token) => setTurnstileToken(token)}
+                    />
+                  </div>
+
                   <button
                     type="submit"
                     disabled={isSubmitting}

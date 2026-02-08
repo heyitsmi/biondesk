@@ -1,14 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase';
 import { createContact, createOpportunity } from '@/lib/db';
+import { verifyTurnstileToken } from '@/lib/turnstile';
 
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { workspace_id, name, email, company, service, budget, detailed_needs, message } = body;
+        const { workspace_id, name, email, company, service, budget, detailed_needs, message, turnstileToken } = body;
         
         if (!workspace_id || !name || !email) {
              return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+        }
+
+        // Verify Turnstile
+        const isHuman = await verifyTurnstileToken(turnstileToken);
+        if (!isHuman) {
+            return NextResponse.json({ error: 'Security check failed. Please try again.' }, { status: 400 });
         }
 
         const supabase = createServerClient();
