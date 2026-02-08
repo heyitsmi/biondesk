@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase';
 import { createContact, createOpportunity } from '@/lib/db';
 import { verifyTurnstileToken } from '@/lib/turnstile';
+import { sendEmail } from '@/lib/brevo';
 
 export async function POST(request: NextRequest) {
     try {
@@ -60,6 +61,52 @@ export async function POST(request: NextRequest) {
             country_code: null,
             sort_order: 0
         });
+
+        // 3. Send Email Notification to Workspace Owner
+        const { data: workspace } = await supabase
+            .from('workspaces')
+            .select('user_id, name')
+            .eq('id', workspace_id)
+            .single();
+
+        if (workspace) {
+            const { data: owner } = await supabase
+                .from('users')
+                .select('email, name')
+                .eq('id', workspace.user_id)
+                .single();
+
+            if (owner && owner.email) {
+                const emailContent = `
+                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+                        <h2 style="color: #4f46e5;">New Inquiry from ${name}</h2>
+                        <p><strong>Service:</strong> ${service}</p>
+                        <p><strong>Budget:</strong> ${budget}</p>
+                        <p><strong>Company:</strong> ${company || 'N/A'}</p>
+                        
+                        <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                            <h3 style="margin-top: 0; font-size: 16px;">Message:</h3>
+                            <p style="white-space: pre-wrap;">${detailed_needs || message}</p>
+                        </div>
+
+                        <p><strong>Contact Details:</strong></p>
+                        <ul>
+                            <li>Email: ${email}</li>
+                        </ul>
+                        
+                        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280;">
+                            Sent via Biondesk Public Profile
+                        </div>
+                    </div>
+                `;
+
+                await sendEmail({
+                    to: [{ email: owner.email, name: owner.name }],
+                    subject: `New Inquiry: ${service}`,
+                    htmlContent: emailContent,
+                });
+            }
+        }
 
         return NextResponse.json({ success: true });
 
