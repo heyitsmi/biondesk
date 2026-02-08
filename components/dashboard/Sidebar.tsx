@@ -11,9 +11,11 @@ interface SidebarProps {
     avatar_url?: string;
     plan: string;
   };
+  isMobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
-export default function Sidebar({ user }: SidebarProps) {
+export default function Sidebar({ user, isMobileOpen = false, onMobileClose }: SidebarProps) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -73,15 +75,21 @@ export default function Sidebar({ user }: SidebarProps) {
     window.location.href = "/login";
   };
 
+  // Mobile Drawer Classes
+  const mobileClasses = `fixed inset-y-0 left-0 z-30 w-[260px] transform ${
+    isMobileOpen ? "translate-x-0" : "-translate-x-full"
+  } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:transform-none`;
+
   return (
     <aside
-      className={`${isCollapsed ? "w-[80px]" : "w-[260px]"} bg-white border-r border-slate-200 flex flex-col shrink-0 z-30 transition-all duration-300 relative`}
+      className={`${mobileClasses} ${isCollapsed ? "lg:w-[80px]" : "lg:w-[260px]"} bg-white border-r border-slate-200 flex flex-col shrink-0 z-30 transition-all duration-300 lg:relative shadow-2xl lg:shadow-none`}
     >
       {/* Brand & Toggle Header */}
       <div className="h-16 flex items-center justify-between px-6 border-b border-slate-100 transition-all duration-300">
         <Link
           href="/dashboard"
           className="flex items-center gap-2 text-slate-900 overflow-hidden whitespace-nowrap"
+          onClick={onMobileClose} // Close drawer on link click
         >
           <div className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center text-white overflow-hidden">
             <img
@@ -96,11 +104,19 @@ export default function Sidebar({ user }: SidebarProps) {
             </span>
           )}
         </Link>
+        
+        {/* Mobile Close Button */}
+        <button
+            onClick={onMobileClose}
+            className="lg:hidden text-slate-400 hover:text-slate-600"
+        >
+            <i className="ph ph-x text-xl"></i>
+        </button>
 
-        {/* Sidebar Toggle Button */}
+        {/* Desktop Sidebar Toggle Button */}
         <button
           onClick={toggleSidebar}
-          className="text-slate-400 hover:text-indigo-600 transition-colors p-1 rounded-md hover:bg-slate-50 shrink-0"
+          className="hidden lg:block text-slate-400 hover:text-indigo-600 transition-colors p-1 rounded-md hover:bg-slate-50 shrink-0"
         >
           <i
             className={`ph-bold ${isCollapsed ? "ph-caret-double-right" : "ph-caret-double-left"} text-lg`}
@@ -122,11 +138,12 @@ export default function Sidebar({ user }: SidebarProps) {
                 <Link
                   key={item.path}
                   href={item.path}
+                  onClick={onMobileClose} // Close drawer on link click
                   className={`flex items-center gap-3 px-3 py-2.5 text-sm font-[500] rounded-lg transition-all whitespace-nowrap overflow-hidden group relative ${
                     isActive(item.path)
                       ? "text-indigo-700 bg-indigo-50/80"
                       : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                  } ${isCollapsed ? "justify-center" : ""}`}
+                  } ${isCollapsed ? "lg:justify-center" : ""}`}
                   title={item.name}
                 >
                   <i
@@ -136,14 +153,14 @@ export default function Sidebar({ user }: SidebarProps) {
                         : "text-slate-400 group-hover:text-indigo-600"
                     } transition-colors`}
                   ></i>
-                  {!isCollapsed && (
-                    <span className="transition-opacity duration-200">
+                  {(!isCollapsed || (isMobileOpen && !isCollapsed)) && (
+                    <span className={`transition-opacity duration-200 ${isCollapsed ? 'lg:hidden' : ''}`}>
                       {item.name}
                     </span>
                   )}
-                  {/* Tooltip for collapsed state */}
+                  {/* Tooltip for collapsed state (Desktop only) */}
                   {isCollapsed && (
-                    <div className="absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap">
+                    <div className="hidden lg:block absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap">
                       {item.name}
                     </div>
                   )}
@@ -169,6 +186,7 @@ export default function Sidebar({ user }: SidebarProps) {
             </div>
             <Link
               href="/settings"
+              onClick={onMobileClose}
               className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
             >
               <i className="ph ph-gear"></i> Settings
@@ -186,7 +204,7 @@ export default function Sidebar({ user }: SidebarProps) {
         {/* Profile Trigger Button */}
         <button
           onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-          className={`flex items-center gap-3 w-full p-2 hover:bg-slate-50 rounded-lg transition-all text-left group overflow-hidden ${isCollapsed ? "justify-center" : ""}`}
+          className={`flex items-center gap-3 w-full p-2 hover:bg-slate-50 rounded-lg transition-all text-left group overflow-hidden ${isCollapsed ? "lg:justify-center" : ""}`}
         >
           <div className="w-9 h-9 shrink-0 rounded-full bg-slate-200 border border-slate-300 overflow-hidden relative">
             {user?.avatar_url ? (
@@ -203,9 +221,9 @@ export default function Sidebar({ user }: SidebarProps) {
               />
             )}
           </div>
-          {!isCollapsed && (
+          {(!isCollapsed || isMobileOpen) && (
             <>
-              <div className="flex-1 min-w-0 transition-opacity duration-200">
+              <div className={`flex-1 min-w-0 transition-opacity duration-200 ${isCollapsed ? 'lg:hidden' : ''}`}>
                 <p className="text-sm font-[600] text-slate-900 truncate">
                   {user?.name || "User"}
                 </p>
@@ -213,7 +231,7 @@ export default function Sidebar({ user }: SidebarProps) {
                   {user?.plan || "Free"} Plan
                 </p>
               </div>
-              <i className="ph ph-caret-up text-slate-400"></i>
+              <i className={`ph ph-caret-up text-slate-400 ${isCollapsed ? 'lg:hidden' : ''}`}></i>
             </>
           )}
         </button>

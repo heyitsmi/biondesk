@@ -58,7 +58,7 @@ export default function LoginClient() {
         <div className="relative z-20 text-center px-12">
           <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-8 border border-white/20 shadow-xl overflow-hidden">
             <img
-              src="/logo.png"
+              src="/logo-square.png"
               alt="Biondesk"
               className="w-full h-full object-cover"
             />

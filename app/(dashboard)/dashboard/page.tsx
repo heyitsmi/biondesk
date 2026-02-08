@@ -373,24 +373,26 @@ export default async function DashboardPage() {
                 <Link
                   key={action.id}
                   href={action.href}
-                  className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4 hover:shadow-md transition-all cursor-pointer group"
+                  className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 hover:shadow-md transition-all cursor-pointer group"
                 >
-                  <div
-                    className={`w-10 h-10 rounded-full ${action.iconBg} border flex items-center justify-center shrink-0`}
-                  >
-                    <i className={`${action.icon} ${action.iconColor}`}></i>
+                  <div className="flex items-center gap-4 flex-1 w-full min-w-0">
+                    <div
+                        className={`w-10 h-10 rounded-full ${action.iconBg} border flex items-center justify-center shrink-0`}
+                    >
+                        <i className={`${action.icon} ${action.iconColor}`}></i>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-[600] text-slate-900 group-hover:text-indigo-600 transition-colors truncate">
+                        {action.title}
+                        </h4>
+                        <p className="text-xs text-slate-500 mt-0.5 truncate">
+                        {action.subtitle}
+                        </p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h4 className="text-sm font-[600] text-slate-900 group-hover:text-indigo-600 transition-colors">
-                      {action.title}
-                    </h4>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      {action.subtitle}
-                    </p>
-                  </div>
-                  <button className="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 text-xs font-[600] rounded-lg hover:border-slate-300 hover:text-slate-900 transition-all">
+                  <span className="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 text-xs font-[600] rounded-lg hover:border-slate-300 hover:text-slate-900 transition-all whitespace-nowrap self-start sm:self-auto max-sm:w-full max-sm:text-center">
                     {action.action}
-                  </button>
+                  </span>
                 </Link>
               ))}
             </div>
