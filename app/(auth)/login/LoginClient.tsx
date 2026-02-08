@@ -87,11 +87,15 @@ export default function LoginClient() {
               My clients love the professional proposal links!&quot;
             </p>
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white">
-                JD
+              <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white overflow-hidden">
+                <img
+                  src="/user/clara.webp"
+                  alt="Biondesk"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div>
-                <p className="text-xs font-bold text-white">Jane Doe</p>
+                <p className="text-xs font-bold text-white">Clara Hayes</p>
                 <p className="text-[10px] text-slate-400">Freelance Designer</p>
               </div>
             </div>
@@ -106,7 +110,7 @@ export default function LoginClient() {
           <div className="lg:hidden mb-8 flex items-center gap-2">
             <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white overflow-hidden">
               <img
-                src="/logo.png"
+                src="/logo-square.png"
                 alt="Biondesk"
                 className="w-full h-full object-cover"
               />
