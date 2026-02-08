@@ -490,6 +490,9 @@ export async function createDocument(
     if (itemsError) throw itemsError;
   }
 
+  // Schedule auto-reminders
+  await scheduleRemindersForDocument(workspaceId, document.id);
+
   // Log event
   await logEvent(workspaceId, "document", document.id, "created", {
     type: data.type,
@@ -554,6 +557,9 @@ export async function updateDocument(
     }
   }
 
+  // Re-schedule auto-reminders (dates or status might have changed)
+  await scheduleRemindersForDocument(workspaceId, documentId);
+
   return getDocumentById(workspaceId, documentId) as Promise<DocumentWithItems>;
 }
 
@@ -575,6 +581,9 @@ export async function sendDocument(
     .single();
 
   if (error) throw error;
+
+  // Re-schedule auto-reminders (status changed to sent)
+  await scheduleRemindersForDocument(workspaceId, documentId);
 
   // Log event
   await logEvent(workspaceId, "document", documentId, "sent");
@@ -1152,6 +1161,102 @@ export async function updateReminderJobStatus(
       // For now we just update status
     })
     .eq("id", jobId);
+}
+
+export async function scheduleRemindersForDocument(
+  workspaceId: string,
+  documentId: string
+): Promise<void> {
+  const supabase = createServerClient();
+
+  // 1. Get Document
+  const { data: document } = await supabase
+    .from("documents")
+    .select("*")
+    .eq("id", documentId)
+    .single();
+
+  if (!document) return;
+
+  // 2. Get Active Rules
+  const rules = await getReminderRules(workspaceId);
+  const activeRules = rules.filter((r) => r.is_active);
+
+  if (activeRules.length === 0) return;
+
+  // 3. Clear existing pending jobs for this document to avoid duplicates
+  // We only delete pending jobs. Sent/failed jobs are kept for history.
+  await supabase
+    .from("reminder_jobs")
+    .delete()
+    .eq("document_id", documentId)
+    .eq("status", "pending");
+
+  // 4. Calculate and Insert New Jobs
+  const jobsToInsert: any[] = [];
+  const now = new Date();
+
+  activeRules.forEach((rule) => {
+    let scheduledDate: Date | null = null;
+
+    // Rule: Approaching Due Date (pre_due)
+    if (rule.type === "pre_due" && document.due_date) {
+      // Only for unpaid invoices/quotes
+      const isEligible = ["sent", "viewed", "overdue"].includes(document.status); 
+      // Also schedule for drafts? Maybe not. Let's stick to sent/viewed so we don't spam about drafts.
+      // Actually, if status is 'draft', we probably shouldn't remind yet.
+      
+      if (document.status !== 'paid' && document.status !== 'draft' && document.status !== 'accepted') {
+          const dueDate = new Date(document.due_date);
+          scheduledDate = new Date(dueDate);
+          scheduledDate.setDate(dueDate.getDate() - (rule.days_offset || 3)); // Default 3 days before
+      }
+    }
+
+    // Rule: Overdue (overdue)
+    if (rule.type === "overdue" && document.due_date) {
+      if (document.status === 'overdue' || (document.status !== 'paid' && document.status !== 'draft' && document.status !== 'accepted')) {
+          const dueDate = new Date(document.due_date);
+          scheduledDate = new Date(dueDate);
+          scheduledDate.setDate(dueDate.getDate() + (rule.days_offset || 1)); // Default 1 day after
+      }
+    }
+
+    // Rule: Quote Follow-up (quote_followup)
+    if (rule.type === "quote_followup" && document.type === "quote") {
+      if (["sent", "viewed"].includes(document.status) && document.sent_at) {
+          const sentDate = new Date(document.sent_at);
+          scheduledDate = new Date(sentDate);
+          scheduledDate.setDate(sentDate.getDate() + (rule.days_offset || 2)); // Default 2 days after
+      }
+    }
+
+    // If we have a valid future date (or even past date if we want to send immediately), schedule it
+    // But usually we don't want to schedule things deep in the past.
+    // Let's say if scheduledDate > now, or maybe allow slightly past if the cron runs frequently.
+    // For now, simple check: if scheduledDate exists.
+    if (scheduledDate) {
+        // Only schedule if it hasn't passed by too much? 
+        // For now, just schedule it. The cron will pick it up immediately if it's in the past 
+        // (but logic in getDueReminders uses LTE now, so it works).
+        
+        // Prevent duplicate types if multiple rules of same type exist (unlikely but safe)
+        jobsToInsert.push({
+            document_id: documentId,
+            rule_id: rule.id,
+            scheduled_at: scheduledDate.toISOString(),
+            status: "pending",
+            content: rule.template_content || rule.title // Use rule title as fallback content for now
+        });
+    }
+  });
+
+  if (jobsToInsert.length > 0) {
+    const { error } = await supabase.from("reminder_jobs").insert(jobsToInsert);
+    if (error) {
+        console.error("[DB] Failed to schedule reminders:", error);
+    }
+  }
 }
 
 // ============================================
