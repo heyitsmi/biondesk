@@ -176,7 +176,7 @@ export default function HomeClient() {
                              <div key={i} className="w-[320px] bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4 whitespace-normal flex-shrink-0">
                                 <p className="text-slate-600 leading-relaxed text-sm">"{t.quote}"</p>
                                 <div className="flex items-center gap-3">
-                                    <div className={`w-8 h-8 rounded-full ${t.bg} flex items-center justify-center ${t.text} font-bold text-xs`}>{t.initial}</div>
+                                    {/* <div className={`w-8 h-8 rounded-full ${t.bg} flex items-center justify-center ${t.text} font-bold text-xs`}>{t.initial}</div> */}
                                     <div>
                                         <div className="text-sm font-bold text-slate-900">{t.name}</div>
                                         <div className="text-xs text-slate-500">{t.role}</div>
@@ -196,7 +196,7 @@ export default function HomeClient() {
                              <div key={`dup-${i}`} className="w-[320px] bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4 whitespace-normal flex-shrink-0">
                                 <p className="text-slate-600 leading-relaxed text-sm">"{t.quote}"</p>
                                 <div className="flex items-center gap-3">
-                                    <div className={`w-8 h-8 rounded-full ${t.bg} flex items-center justify-center ${t.text} font-bold text-xs`}>{t.initial}</div>
+                                    {/* <div className={`w-8 h-8 rounded-full ${t.bg} flex items-center justify-center ${t.text} font-bold text-xs`}>{t.initial}</div> */}
                                     <div>
                                         <div className="text-sm font-bold text-slate-900">{t.name}</div>
                                         <div className="text-xs text-slate-500">{t.role}</div>
@@ -222,7 +222,7 @@ export default function HomeClient() {
                             <div key={i} className="w-[320px] bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4 whitespace-normal flex-shrink-0">
                                 <p className="text-slate-600 leading-relaxed text-sm">"{t.quote}"</p>
                                 <div className="flex items-center gap-3">
-                                    <div className={`w-8 h-8 rounded-full ${t.bg} flex items-center justify-center ${t.text} font-bold text-xs`}>{t.initial}</div>
+                                    {/* <div className={`w-8 h-8 rounded-full ${t.bg} flex items-center justify-center ${t.text} font-bold text-xs`}>{t.initial}</div> */}
                                     <div>
                                         <div className="text-sm font-bold text-slate-900">{t.name}</div>
                                         <div className="text-xs text-slate-500">{t.role}</div>
@@ -242,7 +242,7 @@ export default function HomeClient() {
                             <div key={`dup-${i}`} className="w-[320px] bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-4 whitespace-normal flex-shrink-0">
                                 <p className="text-slate-600 leading-relaxed text-sm">"{t.quote}"</p>
                                 <div className="flex items-center gap-3">
-                                    <div className={`w-8 h-8 rounded-full ${t.bg} flex items-center justify-center ${t.text} font-bold text-xs`}>{t.initial}</div>
+                                    {/* <div className={`w-8 h-8 rounded-full ${t.bg} flex items-center justify-center ${t.text} font-bold text-xs`}>{t.initial}</div> */}
                                     <div>
                                         <div className="text-sm font-bold text-slate-900">{t.name}</div>
                                         <div className="text-xs text-slate-500">{t.role}</div>
