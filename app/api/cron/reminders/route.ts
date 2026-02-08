@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDueReminders, updateReminderJobStatus } from '@/lib/db';
 import { sendEmail } from '@/lib/brevo';
+import { generateReminderEmail } from '@/lib/email-templates';
 
 export const dynamic = 'force-dynamic'; // Ensure this route is not cached
 
@@ -36,18 +37,24 @@ export async function GET(request: NextRequest) {
                 }
 
                 // Construct Email Content
-                const emailContent = `
-                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-                        <h2 style="color: #4f46e5;">Reminder: ${job.content || 'Scheduled Reminder'}</h2>
-                        <p>This is a scheduled reminder for document <strong>${document.title || document.number}</strong>.</p>
-                        
-                        <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                            <p>${job.content || 'No content provided.'}</p>
-                        </div>
+                const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://biondesk.com';
+                const actionUrl = document.public_token 
+                    ? `${baseUrl}/p/doc/${document.public_token}` 
+                    : `${baseUrl}/login`;
 
-                        <p style="font-size: 12px; color: #6b7280;">Biondesk Cron System</p>
-                    </div>
-                `;
+                const emailContent = generateReminderEmail(document.type as any, {
+                    recipientName: user.name || 'User',
+                    documentType: document.type,
+                    documentNumber: document.number,
+                    documentTitle: document.title,
+                    amount: document.amount ? new Intl.NumberFormat('en-US', { style: 'currency', currency: document.currency || 'USD' }).format(document.amount) : undefined,
+                    dueDate: document.due_date ? new Date(document.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : undefined,
+                    sentDate: document.sent_at ? new Date(document.sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : undefined,
+                    validUntil: document.valid_until ? new Date(document.valid_until).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : undefined,
+                    actionUrl: actionUrl,
+                    senderName: workspace.name,
+                    senderEmail: user.email // Or a dedicated support email if preferred
+                });
 
                 // Send Email
                 const emailResult = await sendEmail({

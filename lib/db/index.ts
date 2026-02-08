@@ -1125,6 +1125,12 @@ export async function getDueReminders(limit: number = 20): Promise<any[]> {
         number, 
         type, 
         title,
+        amount,
+        due_date,
+        sent_at,
+        valid_until,
+        public_token,
+        currency,
         workspace:workspaces(
           id, 
           name, 
