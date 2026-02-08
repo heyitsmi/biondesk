@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
                     <p style="color: #666; font-size: 12px;">Powered by Biondesk</p>
                 </div>
             `,
-      sender: { email: "noreply@notification.biondesk.com", name: "Biondesk" },
+
     });
 
     return NextResponse.json({

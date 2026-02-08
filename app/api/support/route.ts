@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
         // 3. Send Email to Support Team
         await sendEmail({
-            to: [{ email: 'hello@biondesk.com', name: 'Biondesk Support' }],
+            to: [{ email: process.env.MAIL_ADMIN_ADDRESS || 'admin@biondesk.com', name: 'Biondesk Admin' }],
             subject: `[Support] ${subject}: ${name}`,
             htmlContent: `
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
@@ -38,7 +38,10 @@ export async function POST(request: NextRequest) {
                     <p style="color: #666; font-size: 12px;">Sent from Biondesk Contact Form</p>
                 </div>
             `,
-            sender: { email: 'noreply@notification.biondesk.com', name: 'Biondesk System' }
+            sender: { 
+                email: process.env.MAIL_FROM_ADDRESS || 'noreply@notification.biondesk.com',
+                name: process.env.MAIL_FROM_NAME || 'Biondesk System'
+            }
         });
 
         // 4. Send Confirmation Email to User (Optional but good UX)

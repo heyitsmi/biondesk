@@ -1,9 +1,47 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Turnstile from "@/components/Turnstile";
 import "../../public.css";
+
+// Inline Icons to avoid DOM conflicts
+const Icons = {
+  Mail: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+      <rect width="20" height="16" x="2" y="4" rx="2"/>
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+    </svg>
+  ),
+  MessageSquare: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+  ),
+  ArrowRight: ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className || "w-4 h-4"}>
+      <path d="M5 12h14"/>
+      <path d="m12 5 7 7-7 7"/>
+    </svg>
+  ),
+  CheckCircle: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-emerald-500">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+      <path d="m9 11 3 3L22 4"/>
+    </svg>
+  ),
+  ChevronDown: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none">
+      <path d="m6 9 6 6 6-6"/>
+    </svg>
+  ),
+  Send: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+      <path d="m22 2-7 20-4-9-9-4Z"/>
+      <path d="M22 2 11 13"/>
+    </svg>
+  )
+};
 
 export default function SupportClient() {
   const [isLoading, setIsLoading] = useState(false);
@@ -18,13 +56,6 @@ export default function SupportClient() {
     subject: "general",
     message: ""
   });
-
-  useEffect(() => {
-    // Icons
-    if ((window as any).lucide) {
-      (window as any).lucide.createIcons();
-    }
-  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
@@ -78,7 +109,7 @@ export default function SupportClient() {
                             {/* Contact Item 1 */}
                             <div className="flex items-start gap-4">
                                 <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 flex-shrink-0">
-                                    <i data-lucide="mail" className="w-5 h-5"></i>
+                                    <Icons.Mail />
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-slate-900">Email Support</h3>
@@ -90,7 +121,7 @@ export default function SupportClient() {
                             {/* Contact Item 2 */}
                             <div className="flex items-start gap-4">
                                 <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 flex-shrink-0">
-                                    <i data-lucide="message-square" className="w-5 h-5"></i>
+                                    <Icons.MessageSquare />
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-slate-900">Twitter / X</h3>
@@ -105,120 +136,124 @@ export default function SupportClient() {
                             <h4 className="font-bold text-slate-900 mb-2">Looking for quick answers?</h4>
                             <p className="text-sm text-slate-600 mb-4">Check out our Frequently Asked Questions for info on pricing, trials, and features.</p>
                             <Link href="/#faq" className="text-sm font-semibold text-slate-900 flex items-center gap-1 hover:gap-2 transition-all">
-                                Go to FAQ <i data-lucide="arrow-right" className="w-4 h-4"></i>
+                                Go to FAQ <Icons.ArrowRight />
                             </Link>
                         </div>
                     </div>
 
                     {/* Right Column: Form */}
                     <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xl shadow-slate-200/50">
-                        {isSuccess ? (
-                            <div className="text-center py-12">
-                                <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                    <i data-lucide="check-circle" className="w-8 h-8 text-emerald-500"></i>
-                                </div>
-                                <h3 className="text-2xl font-bold text-slate-900 mb-2">Message Sent!</h3>
-                                <p className="text-slate-600 mb-6">Thanks for reaching out. We&apos;ll get back to you shortly.</p>
-                                <button 
-                                    onClick={() => setIsSuccess(false)}
-                                    className="text-indigo-600 font-medium hover:underline flex items-center justify-center gap-1 mx-auto"
-                                >
-                                    Send another message <i data-lucide="arrow-right" className="w-4 h-4"></i>
-                                </button>
+                        {/* Success Message */}
+                        <div className={`${isSuccess ? 'block' : 'hidden'} text-center py-12`}>
+                            <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <Icons.CheckCircle />
                             </div>
-                        ) : (
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                {error && (
-                                    <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">
-                                        {error}
-                                    </div>
-                                )}
-                                
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {/* Name */}
-                                    <div className="space-y-2">
-                                        <label htmlFor="name" className="text-sm font-medium text-slate-700">Name</label>
-                                        <input 
-                                            type="text" 
-                                            id="name" 
-                                            name="name" 
-                                            value={formData.name}
-                                            onChange={handleChange}
-                                            required 
-                                            placeholder="Jane Doe" 
-                                            className="input-field w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white" 
-                                        />
-                                    </div>
-                                    
-                                    {/* Email */}
-                                    <div className="space-y-2">
-                                        <label htmlFor="email" className="text-sm font-medium text-slate-700">Email</label>
-                                        <input 
-                                            type="email" 
-                                            id="email" 
-                                            name="email" 
-                                            value={formData.email}
-                                            onChange={handleChange}
-                                            required 
-                                            placeholder="jane@example.com" 
-                                            className="input-field w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white" 
-                                        />
-                                    </div>
-                                </div>
+                            <h3 className="text-2xl font-bold text-slate-900 mb-2">Message Sent!</h3>
+                            <p className="text-slate-600 mb-6">Thanks for reaching out. We&apos;ll get back to you shortly.</p>
+                            <button 
+                                onClick={() => setIsSuccess(false)}
+                                className="text-indigo-600 font-medium hover:underline flex items-center justify-center gap-1 mx-auto"
+                            >
+                                Send another message <Icons.ArrowRight />
+                            </button>
+                        </div>
 
-                                {/* Subject */}
-                                <div className="space-y-2">
-                                    <label htmlFor="subject" className="text-sm font-medium text-slate-700">Topic</label>
-                                    <div className="relative">
-                                        <select 
-                                            id="subject" 
-                                            name="subject" 
-                                            value={formData.subject}
-                                            onChange={handleChange}
-                                            className="input-field w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white appearance-none cursor-pointer"
-                                        >
-                                            <option value="general">General Inquiry</option>
-                                            <option value="support">Technical Support</option>
-                                            <option value="billing">Billing Question</option>
-                                            <option value="feedback">Feature Request</option>
-                                        </select>
-                                        <i data-lucide="chevron-down" className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
-                                    </div>
+                        {/* Form */}
+                        <form 
+                            onSubmit={handleSubmit} 
+                            className={`space-y-6 notranslate ${isSuccess ? 'hidden' : 'block'}`} 
+                            translate="no"
+                        >
+                            {error && (
+                                <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">
+                                    {error}
                                 </div>
-
-                                {/* Message */}
+                            )}
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Name */}
                                 <div className="space-y-2">
-                                    <label htmlFor="message" className="text-sm font-medium text-slate-700">Message</label>
-                                    <textarea 
-                                        id="message" 
-                                        name="message" 
-                                        value={formData.message}
+                                    <label htmlFor="name" className="text-sm font-medium text-slate-700">Name</label>
+                                    <input 
+                                        type="text" 
+                                        id="name" 
+                                        name="name" 
+                                        value={formData.name}
                                         onChange={handleChange}
                                         required 
-                                        rows={4} 
-                                        placeholder="How can we help you?" 
-                                        className="input-field w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white resize-none"
-                                    ></textarea>
-                                </div>
-
-                                {/* Turnstile */}
-                                <div className="flex justify-center">
-                                    <Turnstile
-                                        siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
-                                        onVerify={(token) => setTurnstileToken(token)}
+                                        placeholder="Jane Doe" 
+                                        className="input-field w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white" 
                                     />
                                 </div>
+                                
+                                {/* Email */}
+                                <div className="space-y-2">
+                                    <label htmlFor="email" className="text-sm font-medium text-slate-700">Email</label>
+                                    <input 
+                                        type="email" 
+                                        id="email" 
+                                        name="email" 
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        required 
+                                        placeholder="jane@example.com" 
+                                        className="input-field w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white" 
+                                    />
+                                </div>
+                            </div>
 
-                                <button 
-                                    type="submit" 
-                                    disabled={isLoading}
-                                    className="w-full bg-slate-900 text-white font-semibold py-4 rounded-xl hover:bg-slate-800 transition-all hover:scale-[1.02] shadow-lg shadow-slate-900/10 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {isLoading ? "Sending..." : "Send Message"}
-                                    {!isLoading && <i data-lucide="send" className="w-4 h-4"></i>}
-                                </button>
-                            </form>
-                        )}
+                            {/* Subject */}
+                            <div className="space-y-2">
+                                <label htmlFor="subject" className="text-sm font-medium text-slate-700">Topic</label>
+                                <div className="relative">
+                                    <select 
+                                        id="subject" 
+                                        name="subject" 
+                                        value={formData.subject}
+                                        onChange={handleChange}
+                                        className="input-field w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white appearance-none cursor-pointer"
+                                    >
+                                        <option value="general">General Inquiry</option>
+                                        <option value="support">Technical Support</option>
+                                        <option value="billing">Billing Question</option>
+                                        <option value="feedback">Feature Request</option>
+                                    </select>
+                                    <Icons.ChevronDown />
+                                </div>
+                            </div>
+
+                            {/* Message */}
+                            <div className="space-y-2">
+                                <label htmlFor="message" className="text-sm font-medium text-slate-700">Message</label>
+                                <textarea 
+                                    id="message" 
+                                    name="message" 
+                                    value={formData.message}
+                                    onChange={handleChange}
+                                    required 
+                                    rows={4} 
+                                    placeholder="How can we help you?" 
+                                    className="input-field w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white resize-none"
+                                ></textarea>
+                            </div>
+
+                            {/* Turnstile */}
+                            <div className="flex justify-center">
+                                <Turnstile
+                                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ""}
+                                    onVerify={(token) => setTurnstileToken(token)}
+                                />
+                            </div>
+
+                            <button 
+                                type="submit" 
+                                disabled={isLoading}
+                                className="w-full bg-slate-900 text-white font-semibold py-4 rounded-xl hover:bg-slate-800 transition-all hover:scale-[1.02] shadow-lg shadow-slate-900/10 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isLoading ? "Sending..." : "Send Message"}
+                                {!isLoading && <Icons.Send />}
+                            </button>
+                        </form>
                     </div>
 
                 </div>

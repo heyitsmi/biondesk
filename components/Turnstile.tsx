@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 
 interface TurnstileProps {
   siteKey: string;
@@ -16,7 +16,7 @@ declare global {
   }
 }
 
-export default function Turnstile({
+function TurnstileComponent({
   siteKey,
   onVerify,
   onError,
@@ -59,7 +59,11 @@ export default function Turnstile({
     return () => {
       // Cleanup widget on unmount
       if (widgetId && window.turnstile) {
-        window.turnstile.remove(widgetId);
+        try {
+            window.turnstile.remove(widgetId);
+        } catch (error) {
+            console.warn("Turnstile cleanup error:", error);
+        }
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -90,5 +94,13 @@ export default function Turnstile({
     }
   };
 
-  return <div ref={containerRef} className="py-2" />;
+  return (
+    <div className="notranslate" translate="no" style={{ minHeight: '65px' }}>
+         <div ref={containerRef} className="py-2" />
+    </div>
+  );
 }
+
+// Prevent re-renders when parent state changes but props are same
+export const Turnstile = memo(TurnstileComponent);
+export default Turnstile;

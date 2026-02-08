@@ -19,7 +19,10 @@ export const sendEmail = async ({
   to,
   subject,
   htmlContent,
-  sender = { email: "noreply@notification.biondesk.com", name: "Biondesk" },
+  sender = { 
+    email: process.env.MAIL_FROM_ADDRESS || "noreply@notification.biondesk.com", 
+    name: process.env.MAIL_FROM_NAME || "Biondesk" 
+  },
 }: SendEmailParams) => {
   const sendSmtpEmail = new brevo.SendSmtpEmail();
 

@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       to: [{ email: recipientEmail, name: recipientName }],
       subject: subject,
       htmlContent: htmlContent,
-      sender: { email: "noreply@notification.biondesk.com", name: "Biondesk" }, // Update with your verified domain if needed
+
     });
 
     if (!result.success) {
