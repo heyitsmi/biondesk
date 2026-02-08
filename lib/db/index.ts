@@ -800,7 +800,7 @@ export async function deleteProfileAsset(
 // ============================================
 export async function logEvent(
   workspaceId: string,
-  entityType: "document" | "opportunity" | "contact" | "payment",
+  entityType: "document" | "opportunity" | "contact" | "payment" | "reminder",
   entityId: string,
   action: string,
   metadata?: Record<string, unknown>,
