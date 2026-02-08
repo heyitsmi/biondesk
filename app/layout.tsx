@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "@phosphor-icons/web/regular";
+import "@phosphor-icons/web/bold";
 
 export const metadata: Metadata = {
   title: {
