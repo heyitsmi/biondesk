@@ -425,9 +425,6 @@ export default function RemindersPage() {
                 <h3 className="text-sm font-[600] text-slate-900">
                   Sent History
                 </h3>
-                <button className="text-xs text-indigo-600 hover:underline">
-                  View All
-                </button>
               </div>
 
               <div className="relative pl-4 border-l-2 border-slate-100 space-y-8">

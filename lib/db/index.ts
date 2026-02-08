@@ -1157,10 +1157,19 @@ export async function updateReminderJobStatus(
     .update({ 
       status, 
       sent_at: status === 'sent' ? new Date().toISOString() : null,
-      // You might want to add a 'result' or 'error' column to reminder_jobs if you want to store logs
-      // For now we just update status
     })
-    .eq("id", jobId);
+    .eq("id", jobId)
+    .select("*, document:documents(workspace_id, title, number, type)")
+    .single()
+    .then(async ({ data, error }) => {
+        if (!error && data && status === 'sent') {
+            // Log event for history
+            await logEvent(data.document.workspace_id, "reminder", jobId, "reminder_sent", {
+                title: `Sent ${data.content || 'Reminder'}`,
+                subtitle: `For ${data.document.type.toUpperCase()} #${data.document.number}`
+            });
+        }
+    });
 }
 
 export async function scheduleRemindersForDocument(
