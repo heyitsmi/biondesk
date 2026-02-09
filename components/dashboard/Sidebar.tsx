@@ -48,6 +48,7 @@ export default function Sidebar({ user, isMobileOpen = false, onMobileClose }: S
         { name: "Quotations", path: "/quotations", icon: "ph-file-text" },
         { name: "Invoices", path: "/invoices", icon: "ph-receipt" },
         { name: "Reminders", path: "/reminders", icon: "ph-bell-ringing" },
+        { name: "Calculator", path: "/calculator", icon: "ph-calculator" },
       ],
     },
     {

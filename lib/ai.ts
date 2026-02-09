@@ -87,3 +87,50 @@ export async function generateProposal(params: {
         throw error;
     }
 }
+
+export async function generateProjectEstimate(params: {
+    description: string;
+    userContext?: string;
+    hourlyRate?: number;
+}) {
+    if (!openai) {
+        throw new Error('OpenAI API Key is missing');
+    }
+
+    const { description, userContext, hourlyRate } = params;
+
+    const systemPrompt = `You are an expert project manager and estimator. 
+    Analyze the project description and user context to provide a detailed cost and timeline estimate.
+    
+    Context:
+    - User Expertise: ${userContext || 'General Professional'}
+    ${hourlyRate ? `- User Defined Hourly Rate: $${hourlyRate}/hr` : ''}
+    
+    Return a valid JSON object with the following fields:
+    - estimated_hours: number (total estimated hours)
+    - suggested_timeline: string (e.g., "2-3 weeks")
+    - hourly_rate_range: string (e.g., "$40 - $60") ${hourlyRate ? '(Use the provided User Defined Hourly Rate)' : ''}
+    - fixed_price_range: string (e.g., "$3000 - $5000") ${hourlyRate ? '(Calculate based on estimated hours * provided rate)' : ''}
+    - rationale: string (brief explanation of the estimate difficulty and scope)
+    - breakdown: array of objects { phase: string, hours: number } (key phases of the project)
+    
+    Be realistic. Account for planning, development, testing, and revisions.`;
+
+    try {
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o",
+            messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: `Project Description:\n${description}` }
+            ],
+            response_format: { type: "json_object" },
+            temperature: 0.4,
+        });
+
+        const content = completion.choices[0].message.content;
+        return content ? JSON.parse(content) : null;
+    } catch (error) {
+        console.error('OpenAI Estimate Generation Error:', error);
+        throw error;
+    }
+}
