@@ -40,6 +40,19 @@ const Icons = {
       <path d="m22 2-7 20-4-9-9-4Z"/>
       <path d="M22 2 11 13"/>
     </svg>
+  ),
+  Instagram: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  ),
+  Threads: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94" />
+    </svg>
   )
 };
 
@@ -120,13 +133,25 @@ export default function SupportClient() {
 
                             {/* Contact Item 2 */}
                             <div className="flex items-start gap-4">
-                                <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 flex-shrink-0">
-                                    <Icons.MessageSquare />
+                                <div className="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center text-pink-600 flex-shrink-0">
+                                    <Icons.Instagram />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-slate-900">Twitter / X</h3>
-                                    <p className="text-slate-500 text-sm mb-1">Follow us for quick updates.</p>
-                                    <a href="#" className="text-indigo-600 font-medium hover:underline">@biondesk</a>
+                                    <h3 className="font-bold text-slate-900">Instagram</h3>
+                                    <p className="text-slate-500 text-sm mb-1">Follow our visual journey.</p>
+                                    <a href="https://www.instagram.com/biondeskcom" target="_blank" rel="noopener noreferrer" className="text-indigo-600 font-medium hover:underline">@biondeskcom</a>
+                                </div>
+                            </div>
+
+                            {/* Contact Item 3 */}
+                            <div className="flex items-start gap-4">
+                                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-900 flex-shrink-0">
+                                    <Icons.Threads />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-slate-900">Threads</h3>
+                                    <p className="text-slate-500 text-sm mb-1">Join the conversation.</p>
+                                    <a href="https://www.threads.net/@biondeskcom" target="_blank" rel="noopener noreferrer" className="text-indigo-600 font-medium hover:underline">@biondeskcom</a>
                                 </div>
                             </div>
                         </div>

@@ -200,29 +200,30 @@ export default function ProfileLibraryPage() {
       )}
 
       {/* Header */}
-      <header className="h-16 px-8 flex items-center justify-between bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20 shrink-0">
+      <header className="h-16 px-4 md:px-8 flex items-center justify-between bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20 shrink-0">
         <div className="flex items-center gap-4">
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight">Profile Library</h1>
-          <div className="h-6 w-px bg-slate-200"></div>
-          <p className="text-sm text-slate-500">Manage assets for AI-generated proposals.</p>
+          <div className="hidden md:block h-6 w-px bg-slate-200"></div>
+          <p className="hidden md:block text-sm text-slate-500">Manage assets for AI-generated proposals.</p>
         </div>
 
         <button 
            onClick={() => setShowAddModal(true)}
-           className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm flex items-center gap-2 transition-all"
+           className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 md:px-4 py-2 rounded-lg text-sm font-semibold shadow-sm flex items-center gap-2 transition-all"
         >
           <i className="ph-bold ph-plus"></i>
-          <span>Add Asset</span>
+          <span className="hidden md:inline">Add Asset</span>
+          <span className="inline md:hidden">Add</span>
         </button>
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto p-8 bg-slate-50/50">
+      <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-50/50">
         <div className="max-w-5xl mx-auto space-y-8">
             
             {/* Identity Card */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex flex-col md:flex-row gap-6 items-start">
-                <div className="w-20 h-20 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden relative group cursor-pointer">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 md:p-6 flex flex-col md:flex-row gap-6 items-start">
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden relative group cursor-pointer self-center md:self-start">
                     {/* Placeholder Avatar */}
                      <img 
                         src={`https://ui-avatars.com/api/?name=${profile.title || 'User'}&background=0f172a&color=fff&size=128`} 
@@ -235,8 +236,8 @@ export default function ProfileLibraryPage() {
                 </div>
                 
                 <div className="flex-1 w-full">
-                    <div className="flex justify-between items-start mb-4">
-                        <div>
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-start mb-4 gap-4 md:gap-0 text-center md:text-left">
+                        <div className="w-full md:w-auto">
                             <h2 className="text-lg font-semibold text-slate-900">{profile.title || 'Your Name'}</h2>
                             <p className="text-sm text-slate-500">{profile.image_url || 'Job Title'}</p>
                         </div>
@@ -245,7 +246,7 @@ export default function ProfileLibraryPage() {
                                 setEditingItem(profile);
                                 setModalType('profile');
                             }}
-                            className="text-sm font-medium text-indigo-600 hover:text-indigo-700 border border-slate-200 bg-white hover:bg-slate-50 px-3 py-1.5 rounded-lg transition-colors"
+                            className="text-sm font-medium text-indigo-600 hover:text-indigo-700 border border-slate-200 bg-white hover:bg-slate-50 px-3 py-1.5 rounded-lg transition-colors w-full md:w-auto"
                         >
                             Edit Profile
                         </button>
@@ -309,11 +310,11 @@ export default function ProfileLibraryPage() {
 
             {/* Tabs */}
             <div>
-                <div className="border-b border-slate-200 mb-6">
-                    <nav className="-mb-px flex gap-6" aria-label="Tabs">
+                <div className="border-b border-slate-200 mb-6 overflow-x-auto">
+                    <nav className="-mb-px flex gap-6 min-w-max" aria-label="Tabs">
                         <button 
                             onClick={() => setActiveTab('portfolio')}
-                            className={`border-b-2 py-4 px-1 text-sm font-semibold transition-colors ${
+                            className={`border-b-2 py-4 px-1 text-sm font-semibold transition-colors whitespace-nowrap ${
                                 activeTab === 'portfolio' 
                                     ? 'text-indigo-600 border-indigo-600 bg-indigo-50/50' 
                                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
@@ -323,7 +324,7 @@ export default function ProfileLibraryPage() {
                         </button>
                         <button 
                             onClick={() => setActiveTab('testimonials')}
-                            className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
+                            className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors whitespace-nowrap ${
                                 activeTab === 'testimonials' 
                                     ? 'text-indigo-600 border-indigo-600 bg-indigo-50/50' 
                                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
@@ -333,7 +334,7 @@ export default function ProfileLibraryPage() {
                         </button>
                         <button 
                             onClick={() => setActiveTab('snippets')}
-                            className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors ${
+                            className={`border-b-2 py-4 px-1 text-sm font-medium transition-colors whitespace-nowrap ${
                                 activeTab === 'snippets' 
                                     ? 'text-indigo-600 border-indigo-600 bg-indigo-50/50' 
                                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
