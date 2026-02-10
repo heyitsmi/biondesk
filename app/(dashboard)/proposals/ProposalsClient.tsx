@@ -105,10 +105,36 @@ export default function ProposalsClient() {
         }
     }
 
-    const handleConvert = (id: string) => {
-        // Future implementation
-        alert('This feature will allow converting a proposal to a quote instantly. Coming soon!');
-        setActiveActionId(null);
+    const handleConvert = async (id: string) => {
+        try {
+            const proposal = await documentsApi.get(id);
+            if (!proposal) throw new Error('Proposal not found');
+
+            // Create new quote from proposal data
+            const newQuote = await documentsApi.create({
+                type: 'quote',
+                title: `Quote from ${proposal.title}`,
+                content: proposal.content || '',
+                status: 'draft',
+                currency: proposal.currency || 'USD',
+                opportunity_id: proposal.opportunity_id || undefined,
+                contact_id: proposal.contact_id || undefined,
+                amount: proposal.amount,
+                items: proposal.items.map(item => ({
+                    description: item.description,
+                    quantity: item.quantity,
+                    unit_price: item.unit_price,
+                    notes: item.notes
+                })),
+                valid_until: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // +14 days default
+            } as any);
+
+            setActiveActionId(null);
+            router.push(`/quotations/${newQuote.id}`);
+        } catch (error) {
+            console.error('Failed to convert to quote', error);
+            alert('Failed to convert to quote');
+        }
     }
 
     const getStatusBadge = (proposal: DocumentWithItems) => {
