@@ -39,16 +39,16 @@ export default function ProposalsClient() {
 
     const handleActionClick = (e: React.MouseEvent, id: string) => {
         e.stopPropagation();
+        e.nativeEvent.stopImmediatePropagation();
         e.preventDefault();
         
         if (activeActionId === id) {
             setActiveActionId(null);
         } else {
             const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-            const scrollY = window.scrollY || document.documentElement.scrollTop;
-            
+
             setActionMenuPosition({
-                top: rect.bottom + scrollY + 5, 
+                top: rect.bottom + 5, 
                 left: rect.right - 192 // Align right edge (w-48 is 12rem = 192px)
             });
             setActiveActionId(id);
@@ -172,17 +172,20 @@ export default function ProposalsClient() {
         <main className="flex-1 flex flex-col h-full relative overflow-hidden bg-white transition-all duration-300 ease-in-out">
             
             {/* Header with Search & Filters */}
-            <header className="h-16 px-8 flex items-center justify-between bg-white border-b border-slate-200 sticky top-0 z-20 shrink-0">
-                <div className="flex items-center gap-4">
-                    <h1 className="text-xl font-[600] text-slate-900 tracking-tight">Proposals</h1>
-                    <div className="h-6 w-px bg-slate-200"></div>
-                    {/* Filters */}
-                    <div className="flex items-center gap-1 text-sm font-[500] text-slate-500">
+            <header className="h-auto md:h-16 px-4 md:px-8 py-4 md:py-0 flex flex-col md:flex-row items-start md:items-center justify-between bg-white border-b border-slate-200 sticky top-0 z-20 shrink-0 gap-4">
+                <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
+                    <div className="flex items-center gap-4">
+                         <h1 className="text-xl font-[600] text-slate-900 tracking-tight">Proposals</h1>
+                         <div className="hidden md:block h-6 w-px bg-slate-200"></div>
+                    </div>
+                    
+                    {/* Filters - Scrollable on mobile */}
+                    <div className="flex items-center gap-1 text-sm font-[500] text-slate-500 overflow-x-auto pb-1 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 no-scrollbar">
                         {['all', 'draft', 'sent', 'accepted'].map(f => (
                             <button 
                                 key={f}
                                 onClick={() => setFilter(f)}
-                                className={`px-3 py-1.5 rounded-lg transition-colors capitalize ${filter === f ? 'active bg-slate-100 text-slate-900' : 'hover:bg-slate-50'}`} 
+                                className={`px-3 py-1.5 rounded-lg transition-colors capitalize whitespace-nowrap ${filter === f ? 'active bg-slate-100 text-slate-900' : 'hover:bg-slate-50'}`} 
                             >
                                 {f}
                             </button>
@@ -190,23 +193,26 @@ export default function ProposalsClient() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <div className="relative hidden md:block">
+                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <div className="relative flex-1 md:flex-none">
                         <i className="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" placeholder="Search proposals..." className="pl-9 pr-4 py-2 w-64 bg-slate-50 border border-slate-200 rounded-lg text-sm font-[450] focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"/>
+                        <input type="text" placeholder="Search..." className="pl-9 pr-4 py-2 w-full md:w-64 bg-slate-50 border border-slate-200 rounded-lg text-sm font-[450] focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"/>
                     </div>
                     {/* New Proposal Button */}
-                    <Link href="/proposals/generate" className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-smooth">
+                    <Link href="/proposals/generate" className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-smooth whitespace-nowrap">
                         <i className="ph-bold ph-plus"></i>
-                        <span>New Proposal</span>
+                        <span className="hidden md:inline">New Proposal</span>
+                        <span className="md:hidden">New</span>
                     </Link>
                 </div>
             </header>
 
-            {/* Table Container */}
-            <div className="flex-1 overflow-y-auto p-8">
+            {/* List Container */}
+            <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm bg-white h-full flex flex-col">
-                    <div className="flex-1 overflow-auto">
+                    
+                    {/* DESKTOP TABLE */}
+                    <div className="hidden md:block flex-1 overflow-auto">
                         <table className="w-full text-left border-collapse">
                             <thead className="sticky top-0 z-10">
                                 <tr className="bg-slate-50 border-b border-slate-200 text-xs font-[600] text-slate-500 uppercase tracking-wide">
@@ -259,6 +265,47 @@ export default function ProposalsClient() {
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+
+                    {/* MOBILE LIST (CARDS) */}
+                    <div className="md:hidden flex-1 overflow-y-auto bg-slate-50 p-4 space-y-3">
+                         {isLoading ? (
+                            <div className="text-center py-12 text-slate-500 text-sm">Loading proposals...</div>
+                         ) : filteredProposals.length === 0 ? (
+                            <div className="text-center py-12 text-slate-500 text-sm">No proposals found.</div>
+                         ) : filteredProposals.map((proposal) => (
+                             <div key={proposal.id} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="text-xs font-mono text-slate-400">#{proposal.number}</span>
+                                            {getStatusBadge(proposal)}
+                                        </div>
+                                        <h3 className="text-sm font-[600] text-slate-900 truncate">{proposal.title}</h3>
+                                    </div>
+                                    <button 
+                                        onClick={(e) => handleActionClick(e, proposal.id)}
+                                        className="p-2 -mr-2 -mt-2 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-slate-50 transition-colors"
+                                    >
+                                        <i className="ph-bold ph-dots-three text-lg"></i>
+                                    </button>
+                                </div>
+                                
+                                <div className="h-px bg-slate-50"></div>
+                                
+                                <div className="flex items-center justify-between">
+                                    {getClientAvatar(proposal)}
+                                    <div className="text-right">
+                                        <div className="text-sm font-[600] text-slate-900">
+                                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(proposal.amount)}
+                                        </div>
+                                        <div className="text-[10px] text-slate-400">
+                                            {new Date(proposal.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                        </div>
+                                    </div>
+                                </div>
+                             </div>
+                         ))}
                     </div>
                 
                     {/* Pagination */}

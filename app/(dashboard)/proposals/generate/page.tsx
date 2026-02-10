@@ -110,30 +110,30 @@ function ProposalGeneratorReact() {
     <div className="flex flex-col h-full bg-slate-50 relative overflow-hidden">
         
         {/* Top Toolbar */}
-        <header className="h-16 px-6 flex items-center justify-between bg-white border-b border-slate-200 sticky top-0 z-20 shrink-0">
-            <div className="flex items-center gap-4">
+        <header className="h-auto md:h-16 px-4 md:px-6 py-4 md:py-0 flex flex-col md:flex-row items-center justify-between bg-white border-b border-slate-200 sticky top-0 z-20 shrink-0 gap-4">
+            <div className="flex items-center gap-4 w-full md:w-auto">
                 <button onClick={() => router.back()} className="text-slate-400 hover:text-slate-600 transition-colors">
                     <i className="ph-bold ph-arrow-left text-lg"></i>
                 </button>
                 <div className="h-6 w-px bg-slate-200"></div>
-                <div className="flex flex-col">
-                    <div className="flex items-center gap-2 text-xs font-[500] text-slate-500">
+                <div className="flex flex-col overflow-hidden">
+                    <div className="flex items-center gap-2 text-xs font-[500] text-slate-500 whitespace-nowrap">
                         <span>Growth</span>
                         <i className="ph-bold ph-caret-right text-[10px] text-slate-300"></i>
-                        <span>{opportunity ? opportunity.title.substring(0, 30) + '...' : 'New Proposal'}</span>
+                        <span className="truncate">{opportunity ? opportunity.title.substring(0, 30) + '...' : 'New Proposal'}</span>
                     </div>
-                    <h1 className="text-lg font-[600] text-slate-900 tracking-tight leading-none">Proposal Generator</h1>
+                    <h1 className="text-lg font-[600] text-slate-900 tracking-tight leading-none truncate">Proposal Generator</h1>
                 </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 w-full md:w-auto">
                 {/* <span className="text-xs font-[500] text-slate-400 mr-2">Auto-saved 2m ago</span> */}
-                <button onClick={copyToClipboard} className="px-4 py-2 text-sm font-[550] text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all flex items-center gap-2 active:scale-95">
+                <button onClick={copyToClipboard} className="flex-1 md:flex-none justify-center px-4 py-2 text-sm font-[550] text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-all flex items-center gap-2 active:scale-95">
                     <i className="ph-bold ph-copy"></i> Copy
                 </button>
                 <button 
                     onClick={() => handleSave('draft')}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-smooth"
+                    className="flex-1 md:flex-none justify-center bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-smooth"
                 >
                     <i className="ph-bold ph-paper-plane-tilt"></i>
                     <span>Save / Create</span>
@@ -142,10 +142,10 @@ function ProposalGeneratorReact() {
         </header>
 
         {/* Split Content */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
             
             {/* LEFT PANEL: Context & Settings */}
-            <div className="w-[380px] bg-slate-50 border-r border-slate-200 flex flex-col shrink-0 overflow-y-auto custom-scrollbar">
+            <div className="w-full md:w-[380px] bg-slate-50 border-b md:border-b-0 md:border-r border-slate-200 flex flex-col shrink-0 overflow-y-auto custom-scrollbar h-auto max-h-[40vh] md:max-h-none md:h-full">
                 <div className="p-6 space-y-8">
                     
                     {/* Context Card */}
