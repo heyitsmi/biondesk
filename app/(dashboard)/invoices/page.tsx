@@ -145,19 +145,44 @@ export default function InvoicesPage() {
     return (
         <div className="flex-1 flex flex-col h-full relative overflow-hidden bg-white transition-all duration-300 ease-in-out">
             {/* Header with Search & Filters */}
-            <header className="h-16 px-8 flex items-center justify-between bg-white border-b border-slate-200 sticky top-0 z-20 shrink-0">
-                <div className="flex items-center gap-4">
-                    <h1 className="text-xl font-[600] text-slate-900 tracking-tight">Invoices</h1>
-                    <div className="h-6 w-px bg-slate-200"></div>
-                    {/* Filters */}
-                    <div className="flex items-center gap-1 text-sm font-[500] text-slate-500">
+            <header className="h-auto md:h-16 px-4 md:px-8 py-4 md:py-0 flex flex-col md:flex-row items-start md:items-center justify-between bg-white border-b border-slate-200 sticky top-0 z-20 shrink-0 gap-4">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
+                    <div className="flex items-center justify-between w-full md:w-auto">
+                        <h1 className="text-xl font-[600] text-slate-900 tracking-tight">Invoices</h1>
+                         {/* Mobile Create Button (optional, but plan said Top Row: Title + Create Button, let's keep Create Button in separate div or move it here for mobile? 
+                            Actually, plan said: Top Row (Mobile): Title + Create Button.
+                            But currently Create Button is in the right section. 
+                            Let's keep structure simple: 
+                            Mobile:
+                            Row 1: Title + Create Button (moved from right?) OR Title + Actions.
+                            
+                            Let's stick to existing structure but flex-col.
+                            Div 1 (Left): Title + Filters. 
+                            Div 2 (Right): Search + Create.
+                            
+                            Refined Plan Implementation:
+                            Div 1 (Title + Divider + Filters) -> 
+                            Mobile: 
+                            Row 1: Title.
+                            Row 2: Filters (overflow-x-auto).
+                            
+                            Div 2 (Search + Create) ->
+                            Mobile:
+                            Row 3: Search (full width) + Create (or Create on Row 1?).
+                            
+                            Let's try to group Title and Create button on top for mobile as per UX best practices.
+                         */}
+                    </div>
+
+                    {/* Filters - Scrollable on mobile */}
+                    <div className="flex items-center gap-1 text-sm font-[500] text-slate-500 overflow-x-auto max-w-full pb-2 md:pb-0 no-scrollbar">
                         {(['all', 'unpaid', 'paid', 'draft'] as const).map((status) => (
-                            <button 
+                             <button
                                 key={status}
                                 onClick={() => { setFilterStatus(status); setPage(1); }}
-                                className={`px-3 py-1.5 rounded-lg transition-colors capitalize ${
-                                    filterStatus === status 
-                                    ? 'bg-slate-100 text-slate-900 active' 
+                                className={`px-3 py-1.5 rounded-lg transition-colors capitalize whitespace-nowrap ${
+                                    filterStatus === status
+                                    ? 'bg-slate-100 text-slate-900 active'
                                     : 'hover:bg-slate-50'
                                 }`}
                             >
@@ -167,20 +192,20 @@ export default function InvoicesPage() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <div className="relative hidden md:block">
+                <div className="flex flex-col-reverse md:flex-row items-stretch md:items-center gap-3 w-full md:w-auto">
+                    <div className="relative block">
                         <i className="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                         <input 
                             type="text" 
                             placeholder="Search invoices..." 
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9 pr-4 py-2 w-64 bg-slate-50 border border-slate-200 rounded-lg text-sm font-[450] focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
+                            className="pl-9 pr-4 py-2 w-full md:w-64 bg-slate-50 border border-slate-200 rounded-lg text-sm font-[450] focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
                         />
                     </div>
                     <Link 
                         href="/invoices/create"
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-smooth"
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center justify-center gap-2 transition-smooth whitespace-nowrap"
                     >
                         <i className="ph-bold ph-plus"></i>
                         <span>Create Invoice</span>
@@ -189,16 +214,16 @@ export default function InvoicesPage() {
             </header>
 
             {/* Table Container */}
-            <div className="flex-1 overflow-y-auto p-8">
+            <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm h-full flex flex-col">
                     <div className="flex-1 overflow-auto">
                         <table className="w-full text-left border-collapse">
                             <thead className="sticky top-0 z-10">
                                 <tr className="bg-slate-50 border-b border-slate-200 text-xs font-[600] text-slate-500 uppercase tracking-wide">
-                                    <th className="px-6 py-4">Invoice No</th>
+                                    <th className="hidden md:table-cell px-6 py-4">Invoice No</th>
                                     <th className="px-6 py-4">Client</th>
                                     <th className="px-6 py-4">Status</th>
-                                    <th className="px-6 py-4">Due Date</th>
+                                    <th className="hidden md:table-cell px-6 py-4">Due Date</th>
                                     <th className="px-6 py-4 text-right">Amount</th>
                                     <th className="px-6 py-4 w-12"></th>
                                 </tr>
@@ -207,10 +232,10 @@ export default function InvoicesPage() {
                                 {isLoading ? (
                                     Array.from({ length: 5 }).map((_, index) => (
                                         <tr key={index} className="animate-pulse">
-                                            <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-24"></div></td>
+                                            <td className="hidden md:table-cell px-6 py-4"><div className="h-4 bg-slate-200 rounded w-24"></div></td>
                                             <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-32"></div></td>
                                             <td className="px-6 py-4"><div className="h-6 bg-slate-200 rounded-full w-20"></div></td>
-                                            <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-24"></div></td>
+                                            <td className="hidden md:table-cell px-6 py-4"><div className="h-4 bg-slate-200 rounded w-24"></div></td>
                                             <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-20 ml-auto"></div></td>
                                             <td className="px-6 py-4"><div className="h-8 bg-slate-200 rounded w-8 ml-auto"></div></td>
                                         </tr>
@@ -224,7 +249,7 @@ export default function InvoicesPage() {
                                 ) : (
                                     invoices.map((invoice) => (
                                         <tr key={invoice.id} className="invoice-row group hover:bg-slate-50/80 transition-colors">
-                                            <td className="px-6 py-4 font-mono text-slate-600 text-xs">
+                                            <td className="hidden md:table-cell px-6 py-4 font-mono text-slate-600 text-xs">
                                                 {invoice.number}
                                             </td>
                                             <td className="px-6 py-4">
@@ -235,6 +260,7 @@ export default function InvoicesPage() {
                                                     <div>
                                                         <p className="font-[600] text-slate-900">{invoice.contact?.name || 'Unknown Client'}</p>
                                                         <p className="text-slate-500 text-xs">{invoice.title || 'Untitled Invoice'}</p>
+                                                        <p className="md:hidden text-xs text-slate-400 mt-1">{invoice.number}</p>
                                                     </div>
                                                 </div>
                                             </td>
@@ -243,7 +269,7 @@ export default function InvoicesPage() {
                                                     {invoice.status}
                                                 </span>
                                             </td>
-                                            <td className={`px-6 py-4 ${invoice.status === 'overdue' ? 'text-rose-600 font-medium' : 'text-slate-500'}`}>
+                                            <td className={`hidden md:table-cell px-6 py-4 ${invoice.status === 'overdue' ? 'text-rose-600 font-medium' : 'text-slate-500'}`}>
                                                 {invoice.status === 'paid' && invoice.paid_at 
                                                     ? <span className="text-emerald-600">Paid {new Date(invoice.paid_at).toLocaleDateString()}</span>
                                                     : invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : '-'
