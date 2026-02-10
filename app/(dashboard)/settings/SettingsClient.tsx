@@ -138,38 +138,38 @@ export default function SettingsClient({ initialWorkspace, user }: SettingsClien
             </header>
 
             {/* Content Area with Internal Sidebar */}
-            <div className="flex-1 flex overflow-hidden">
+            <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
                 
                 {/* Settings Navigation */}
-                <aside className="w-64 bg-slate-50/50 border-r border-slate-200 p-6 flex flex-col gap-1 overflow-y-auto">
+                <aside className="w-full md:w-64 bg-slate-50/50 border-b md:border-b-0 md:border-r border-slate-200 p-4 md:p-6 flex flex-row md:flex-col gap-2 md:gap-1 overflow-x-auto md:overflow-y-auto shrink-0 no-scrollbar">
                     <button 
                         onClick={() => setActiveTab('general')}
-                        className={`flex items-center gap-3 px-3 py-2 text-sm font-[500] rounded-lg transition-all text-left border border-transparent ${activeTab === 'general' ? 'bg-indigo-50 text-indigo-700 border-indigo-600' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}
+                        className={`flex items-center gap-2 md:gap-3 px-3 py-2 text-sm font-[500] rounded-lg transition-all text-left border whitespace-nowrap ${activeTab === 'general' ? 'bg-indigo-50 text-indigo-700 border-indigo-600' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 border-transparent'}`}
                     >
-                        <i className="ph ph-sliders"></i> General
+                        <i className="ph ph-sliders text-lg md:text-base"></i> <span className="hidden md:inline">General</span><span className="md:hidden">General</span>
                     </button>
                     <button 
                         onClick={() => setActiveTab('profile')}
-                        className={`flex items-center gap-3 px-3 py-2 text-sm font-[500] rounded-lg transition-all text-left border border-transparent ${activeTab === 'profile' ? 'bg-indigo-50 text-indigo-700 border-indigo-600' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}
+                        className={`flex items-center gap-2 md:gap-3 px-3 py-2 text-sm font-[500] rounded-lg transition-all text-left border whitespace-nowrap ${activeTab === 'profile' ? 'bg-indigo-50 text-indigo-700 border-indigo-600' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 border-transparent'}`}
                     >
-                        <i className="ph ph-user"></i> My Profile
+                        <i className="ph ph-user text-lg md:text-base"></i> <span className="hidden md:inline">My Profile</span><span className="md:hidden">Profile</span>
                     </button>
                     <button 
                         onClick={() => setActiveTab('billing')}
-                        className={`flex items-center gap-3 px-3 py-2 text-sm font-[500] rounded-lg transition-all text-left border border-transparent ${activeTab === 'billing' ? 'bg-indigo-50 text-indigo-700 border-indigo-600' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}
+                        className={`flex items-center gap-2 md:gap-3 px-3 py-2 text-sm font-[500] rounded-lg transition-all text-left border whitespace-nowrap ${activeTab === 'billing' ? 'bg-indigo-50 text-indigo-700 border-indigo-600' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 border-transparent'}`}
                     >
-                        <i className="ph ph-credit-card"></i> Billing & Plan
+                        <i className="ph ph-credit-card text-lg md:text-base"></i> <span className="hidden md:inline">Billing & Plan</span><span className="md:hidden">Billing</span>
                     </button>
                     <button 
                         onClick={() => setActiveTab('notifications')}
-                        className={`flex items-center gap-3 px-3 py-2 text-sm font-[500] rounded-lg transition-all text-left border border-transparent ${activeTab === 'notifications' ? 'bg-indigo-50 text-indigo-700 border-indigo-600' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}
+                        className={`flex items-center gap-2 md:gap-3 px-3 py-2 text-sm font-[500] rounded-lg transition-all text-left border whitespace-nowrap ${activeTab === 'notifications' ? 'bg-indigo-50 text-indigo-700 border-indigo-600' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 border-transparent'}`}
                     >
-                        <i className="ph ph-bell"></i> Notifications
+                        <i className="ph ph-bell text-lg md:text-base"></i> <span className="hidden md:inline">Notifications</span><span className="md:hidden">Notify</span>
                     </button>
                 </aside>
 
                 {/* Settings Content */}
-                <div className="flex-1 overflow-y-auto p-8 lg:p-10 scroller-thin bg-white relative">
+                <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 scroller-thin bg-white relative">
                     
                     {/* Section: GENERAL */}
                     {activeTab === 'general' && (
