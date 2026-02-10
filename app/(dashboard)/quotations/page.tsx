@@ -88,12 +88,23 @@ export default function QuotationsPage() {
         <div className="flex-1 flex flex-col h-full relative overflow-hidden bg-white transition-all duration-300 ease-in-out">
             
             {/* Header */}
-            <header className="h-16 px-8 flex items-center justify-between bg-white border-b border-slate-200 sticky top-0 z-20 shrink-0">
-                <div className="flex items-center gap-4">
+            <header className="h-auto md:h-16 px-4 md:px-8 py-4 md:py-0 flex flex-col md:flex-row items-start md:items-center justify-between bg-white border-b border-slate-200 sticky top-0 z-20 shrink-0 gap-4">
+                <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
                     <h1 className="text-xl font-[600] text-slate-900 tracking-tight">Quotations</h1>
-                    <div className="h-6 w-px bg-slate-200"></div>
-                    {/* Filters */}
-                    <div className="flex items-center gap-1 text-sm font-[500] text-slate-500">
+                    <div className="h-6 w-px bg-slate-200 hidden md:block"></div>
+                    
+                    {/* Mobile Create Button (Visible only on small screens) */}
+                    <Link 
+                        href="/quotations/create"
+                        className="md:hidden bg-indigo-600 active:bg-indigo-700 text-white w-8 h-8 rounded-lg flex items-center justify-center shadow-subtle transition-colors"
+                    >
+                        <i className="ph-bold ph-plus"></i>
+                    </Link>
+                </div>
+
+                {/* Filters - Scrollable on mobile */}
+                <div className="w-full md:w-auto overflow-x-auto pb-1 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0">
+                    <div className="flex items-center gap-1 text-sm font-[500] text-slate-500 whitespace-nowrap">
                         <button 
                             onClick={() => { setFilterStatus('all'); setPage(1); }}
                             className={`px-3 py-1.5 rounded-lg transition-colors ${filterStatus === 'all' ? 'bg-slate-100 text-slate-900 active' : 'hover:bg-slate-50'}`}
@@ -121,20 +132,20 @@ export default function QuotationsPage() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <div className="relative hidden md:block">
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                    <div className="relative flex-1 md:flex-none">
                         <i className="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                         <input 
                             type="text" 
                             placeholder="Search quotes..." 
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9 pr-4 py-2 w-64 bg-slate-50 border border-slate-200 rounded-lg text-sm font-[450] focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
+                            className="pl-9 pr-4 py-2 w-full md:w-64 bg-slate-50 border border-slate-200 rounded-lg text-sm font-[450] focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
                         />
                     </div>
                     <Link 
                         href="/quotations/create"
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-smooth"
+                        className="hidden md:flex bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-[550] shadow-subtle items-center gap-2 transition-smooth"
                     >
                         <i className="ph-bold ph-plus"></i>
                         <span>Create Quote</span>
@@ -143,17 +154,17 @@ export default function QuotationsPage() {
             </header>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-8">
+            <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm bg-white h-full flex flex-col">
                     <div className="flex-1 overflow-auto">
-                        <table className="w-full text-left border-collapse">
+                        <table className="w-full text-left border-collapse min-w-[800px] md:min-w-0">
                             <thead className="sticky top-0 z-10">
                                 <tr className="bg-slate-50 border-b border-slate-200 text-xs font-[600] text-slate-500 uppercase tracking-wide">
                                     <th className="px-6 py-4">Quote Number</th>
                                     <th className="px-6 py-4">Client / Project</th>
                                     <th className="px-6 py-4">Status</th>
-                                    <th className="px-6 py-4">Date</th>
-                                    <th className="px-6 py-4 text-right">Amount</th>
+                                    <th className="px-6 py-4 hidden md:table-cell">Date</th>
+                                    <th className="px-6 py-4 text-right hidden md:table-cell">Amount</th>
                                     <th className="px-6 py-4 w-12"></th>
                                 </tr>
                             </thead>
@@ -177,10 +188,10 @@ export default function QuotationsPage() {
                                             <td className="px-6 py-4">
                                                 <div className="h-6 bg-slate-200 rounded-full w-20"></div>
                                             </td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-6 py-4 hidden md:table-cell">
                                                 <div className="h-4 bg-slate-200 rounded w-24"></div>
                                             </td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-6 py-4 hidden md:table-cell">
                                                 <div className="h-4 bg-slate-200 rounded w-20 ml-auto"></div>
                                             </td>
                                             <td className="px-6 py-4">
@@ -197,31 +208,37 @@ export default function QuotationsPage() {
                                 ) : (
                                     quotations.map((quote) => (
                                         <tr key={quote.id} className="group hover:bg-slate-50/80 transition-colors">
-                                            <td className="px-6 py-4 font-mono text-slate-600 text-xs">
-                                                {quote.number}
+                                            <td className="px-6 py-4 font-mono text-slate-600 text-xs align-top">
+                                                <div className="flex flex-col gap-1">
+                                                    <span>{quote.number}</span>
+                                                    <span className="md:hidden text-slate-400 font-sans">{new Date(quote.created_at).toLocaleDateString()}</span>
+                                                </div>
                                             </td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-6 py-4 align-top">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold ring-2 ring-white">
+                                                    <div className="w-8 h-8 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold ring-2 ring-white shrink-0">
                                                         {(quote.contact?.name || '??').substring(0, 2).toUpperCase()}
                                                     </div>
                                                     <div>
                                                         <p className="font-[600] text-slate-900">{quote.contact?.name || 'Unknown Client'}</p>
-                                                        <p className="text-slate-500 text-xs">{quote.title || 'Untitled Quote'}</p>
+                                                        <p className="text-slate-500 text-xs line-clamp-1">{quote.title || 'Untitled Quote'}</p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border capitalize ${getStatusBadge(quote.status)}`}>
+                                            <td className="px-6 py-4 align-top">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border capitalize w-fit ${getStatusBadge(quote.status)}`}>
                                                         {quote.status}
+                                                    </span>
+                                                    <span className="md:hidden text-xs font-[500] text-slate-900 mt-1">
+                                                        ${(quote.amount || 0).toLocaleString()}
                                                     </span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 text-slate-500">
+                                            <td className="px-6 py-4 text-slate-500 hidden md:table-cell">
                                                 {new Date(quote.created_at).toLocaleDateString()}
                                             </td>
-                                            <td className="px-6 py-4 text-right font-[500] text-slate-900">
+                                            <td className="px-6 py-4 text-right font-[500] text-slate-900 hidden md:table-cell">
                                                 ${(quote.amount || 0).toLocaleString()}
                                             </td>
                                             <td className="px-6 py-4 text-right relative">
