@@ -243,12 +243,23 @@ export default function ContactsPage() {
         <div className="flex-1 flex flex-col h-full relative overflow-hidden bg-white transition-all duration-300 ease-in-out">
             
             {/* Header with Search & Add (Sticky) */}
-            <header className="h-16 px-8 flex items-center justify-between bg-white border-b border-slate-200 sticky top-0 z-20 shrink-0">
-                <div className="flex items-center gap-4">
+            <header className="h-auto md:h-16 px-4 md:px-8 py-4 md:py-0 flex flex-col md:flex-row items-start md:items-center justify-between bg-white border-b border-slate-200 sticky top-0 z-20 shrink-0 gap-4">
+                <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
                     <h1 className="text-xl font-[600] text-slate-900 tracking-tight">Contacts</h1>
-                    <div className="h-6 w-px bg-slate-200"></div>
-                    {/* Filters */}
-                    <div className="flex items-center gap-1 text-sm font-[500] text-slate-500">
+                    <div className="h-6 w-px bg-slate-200 hidden md:block"></div>
+                    
+                    {/* Mobile Add Button */}
+                    <button 
+                        onClick={handleOpenCreate}
+                        className="md:hidden bg-indigo-600 active:bg-indigo-700 text-white w-8 h-8 rounded-lg flex items-center justify-center shadow-subtle transition-colors"
+                    >
+                        <i className="ph-bold ph-plus"></i>
+                    </button>
+                </div>
+
+                {/* Filters - Scrollable on mobile */}
+                <div className="w-full md:w-auto overflow-x-auto pb-1 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0">
+                    <div className="flex items-center gap-1 text-sm font-[500] text-slate-500 whitespace-nowrap">
                         <button 
                             onClick={() => { setFilterType('all'); setPage(1); }}
                             className={`px-3 py-1.5 rounded-lg transition-colors ${filterType === 'all' ? 'bg-slate-100 text-slate-900 active' : 'hover:bg-slate-50'}`}
@@ -270,20 +281,20 @@ export default function ContactsPage() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <div className="relative hidden md:block">
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                    <div className="relative flex-1 md:flex-none">
                         <i className="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                         <input 
                             type="text" 
                             placeholder="Search contacts..." 
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9 pr-4 py-2 w-64 bg-slate-50 border border-slate-200 rounded-lg text-sm font-[450] focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
+                            className="pl-9 pr-4 py-2 w-full md:w-64 bg-slate-50 border border-slate-200 rounded-lg text-sm font-[450] focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
                         />
                     </div>
                     <button 
                         onClick={handleOpenCreate}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-[550] shadow-subtle flex items-center gap-2 transition-smooth"
+                        className="hidden md:flex bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-[550] shadow-subtle items-center gap-2 transition-smooth"
                     >
                         <i className="ph-bold ph-plus"></i>
                         <span>Add Contact</span>
@@ -291,10 +302,11 @@ export default function ContactsPage() {
                 </div>
             </header>
 
-            <div className="flex-1 overflow-y-auto p-8">
+            <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm bg-white h-full flex flex-col">
                     <div className="flex-1 overflow-auto">
-                        <table className="w-full text-left border-collapse">
+                        {/* Desktop Table */}
+                        <table className="w-full text-left border-collapse hidden md:table">
                             <thead className="sticky top-0 z-10">
                                 <tr className="bg-slate-50 border-b border-slate-200 text-xs font-[600] text-slate-500 uppercase tracking-wide">
                                     <th className="px-6 py-4">Name / Company</th>
@@ -365,6 +377,76 @@ export default function ContactsPage() {
                                 ))}
                             </tbody>
                         </table>
+
+                        {/* Mobile Card View */}
+                        <div className="md:hidden divide-y divide-slate-100">
+                            {contacts.map((contact) => (
+                                <div key={contact.id} className="p-4 space-y-3 bg-white hover:bg-slate-50 transition-colors">
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-sm font-bold ring-2 ring-white">
+                                                {contact.name.substring(0, 2).toUpperCase()}
+                                            </div>
+                                            <div>
+                                                <h3 className="font-[600] text-slate-900">{contact.name}</h3>
+                                                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wide font-bold ${
+                                                    contact.type === 'client' 
+                                                        ? 'bg-emerald-50 text-emerald-700' 
+                                                        : 'bg-amber-50 text-amber-700'
+                                                }`}>
+                                                    {contact.type === 'client' ? 'Client' : 'Lead'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="relative">
+                                            <button 
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setActiveActionMenuId(activeActionMenuId === contact.id ? null : contact.id);
+                                                }}
+                                                className="p-1 text-slate-400 hover:text-slate-600"
+                                            >
+                                                <i className="ph-bold ph-dots-three-vertical text-lg"></i>
+                                            </button>
+                                            
+                                            {activeActionMenuId === contact.id && (
+                                                <div ref={actionMenuRef} className="absolute right-0 top-8 bg-white border border-slate-200 rounded-lg shadow-dropdown z-50 w-40 overflow-hidden py-1 animate-fade-in-up origin-top-right">
+                                                    <button onClick={() => handleOpenEdit(contact)} className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-indigo-600">
+                                                        <i className="ph ph-pencil-simple"></i> Edit
+                                                    </button>
+                                                    <button onClick={() => handleDelete(contact.id)} className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-rose-600 hover:bg-rose-50">
+                                                        <i className="ph ph-trash"></i> Delete
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                            <p className="text-xs text-slate-400 font-medium mb-0.5">Company</p>
+                                            <p className="text-slate-700 font-medium truncate">{contact.company || '-'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-slate-400 font-medium mb-0.5">Value</p>
+                                            <p className="text-slate-900 font-bold">${(contact.total_value || 0).toLocaleString()}</p>
+                                        </div>
+                                    </div>
+
+                                    {(contact.email || contact.phone) && (
+                                        <div className="pt-2 border-t border-slate-50 flex gap-3 text-xs text-slate-500">
+                                            {contact.email && (
+                                                <div className="flex items-center gap-1.5 truncate">
+                                                    <i className="ph-bold ph-envelope-simple text-slate-400"></i>
+                                                    <span className="truncate">{contact.email}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
                     </div>
                     
                     {/* Modern Pagination (Stick to bottom) */}
