@@ -109,8 +109,8 @@ export default function CalculatorPage() {
             </div>
 
             {activeTab === 'manual' && (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-                    <div className="col-span-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-7">
+                    <div className="col-span-1 md:col-span-2 lg:col-span-4 bg-white rounded-xl border border-slate-200 shadow-sm">
                         <div className="p-6 border-b border-slate-100">
                             <h3 className="text-lg font-semibold text-slate-900">Configuration</h3>
                             <p className="text-sm text-slate-500">Set your rates and project parameters.</p>
@@ -221,7 +221,7 @@ export default function CalculatorPage() {
                         </div>
                     </div>
 
-                    <div className="col-span-3 bg-white rounded-xl border border-slate-200 shadow-sm h-fit">
+                    <div className="col-span-1 md:col-span-2 lg:col-span-3 bg-white rounded-xl border border-slate-200 shadow-sm h-fit">
                         <div className="p-6 border-b border-slate-100">
                             <h3 className="text-lg font-semibold text-slate-900">Estimate Result</h3>
                         </div>
@@ -275,8 +275,8 @@ export default function CalculatorPage() {
             )}
 
             {activeTab === 'ai' && (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-                    <div className="col-span-3 bg-white rounded-xl border border-slate-200 shadow-sm h-fit">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-7">
+                    <div className="col-span-1 md:col-span-2 lg:col-span-3 bg-white rounded-xl border border-slate-200 shadow-sm h-fit">
                         <div className="p-6 border-b border-slate-100">
                             <h3 className="text-lg font-semibold text-slate-900">AI Estimator</h3>
                             <p className="text-sm text-slate-500">Describe your project and let AI suggest cost and timeline.</p>
@@ -332,7 +332,7 @@ export default function CalculatorPage() {
                         </div>
                     </div>
 
-                    <div className="col-span-4 bg-slate-50/50 rounded-xl border border-slate-200 border-dashed p-6 min-h-[400px]">
+                    <div className="col-span-1 md:col-span-2 lg:col-span-4 bg-slate-50/50 rounded-xl border border-slate-200 border-dashed p-6 min-h-[400px]">
                         <div className="mb-4">
                             <h3 className="text-lg font-semibold text-slate-900">AI Suggestion</h3>
                         </div>
