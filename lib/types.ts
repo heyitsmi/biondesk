@@ -155,6 +155,7 @@ export interface DocumentItem {
   unit_price: number;
   amount: number;
   sort_order: number;
+  notes: string | null;
 }
 
 export interface DocumentWithItems extends Document {

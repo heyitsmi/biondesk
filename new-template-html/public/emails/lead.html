@@ -1,83 +1,3 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase';
-import { createContact, createOpportunity } from '@/lib/db';
-import { verifyTurnstileToken } from '@/lib/turnstile';
-import { sendEmail } from '@/lib/brevo';
-
-export async function POST(request: NextRequest) {
-    try {
-        const body = await request.json();
-        const { workspace_id, name, email, company, service, budget, detailed_needs, message, turnstileToken } = body;
-        
-        if (!workspace_id || !name || !email) {
-             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-        }
-
-        // Verify Turnstile
-        const isHuman = await verifyTurnstileToken(turnstileToken);
-        if (!isHuman) {
-            return NextResponse.json({ error: 'Security check failed. Please try again.' }, { status: 400 });
-        }
-
-        const supabase = createServerClient();
-
-        // 1. Find or create Contact
-        let contactId: string;
-        
-        const { data: existingContact } = await supabase
-            .from('contacts')
-            .select('id')
-            .eq('workspace_id', workspace_id)
-            .eq('email', email)
-            .single();
-
-        if (existingContact) {
-            contactId = existingContact.id;
-        } else {
-            const newContact = await createContact(workspace_id, {
-                name,
-                email,
-                company: company || null,
-                phone: null,
-                type: 'lead',
-                notes: 'Created via Public Inquiry Form',
-            });
-            contactId = newContact.id;
-        }
-
-        // 2. Create Opportunity
-        await createOpportunity(workspace_id, {
-            contact_id: contactId,
-            title: `${service} for ${company || name}`,
-            description: `Budget: ${budget}\n\nNeeds:\n${detailed_needs || '-'}\n\nContext:\n${message}`,
-            source: 'other', // or 'web_form' if added to enum
-            stage: 'inbox',
-            priority: 'medium',
-            value: 0, // Estimating based on budget range is hard, leave 0
-            job_link: null,
-            notes: null,
-            client_name: name,
-            budget_type: null,
-            country_code: null,
-            sort_order: 0
-        });
-
-        // 3. Send Email Notification to Workspace Owner
-        const { data: workspace } = await supabase
-            .from('workspaces')
-            .select('user_id, name')
-            .eq('id', workspace_id)
-            .single();
-
-        if (workspace) {
-            const { data: owner } = await supabase
-                .from('users')
-                .select('email, name')
-                .eq('id', workspace.user_id)
-                .single();
-
-            if (owner && owner.email) {
-                const emailContent = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -147,8 +67,9 @@ export async function POST(request: NextRequest) {
                         <!-- HEADER -->
                         <tr>
                             <td class="header">
-                                <div style="display: inline-flex; align-items: center; justify-content: center;">
-                                    <img src="${process.env.NEXT_PUBLIC_APP_URL}/logo.png" alt="Biondesk" style="height: 32px; width: auto;" />
+                                <div style="font-family: 'Google Sans Flex', sans-serif; font-weight: 800; font-size: 20px; color: #0F172A; display: inline-flex; align-items: center; gap: 8px;">
+                                    <span style="display:inline-block; width:20px; height:20px; background-color:#0F172A; border-radius:4px; vertical-align:middle; margin-right:8px;"></span>
+                                    Biondesk
                                 </div>
                             </td>
                         </tr>
@@ -156,41 +77,48 @@ export async function POST(request: NextRequest) {
                         <!-- BODY -->
                         <tr>
                             <td class="body">
-                                <h1>New Lead: ${name} ✨</h1>
-                                <p>Hi ${owner.name.split(' ')[0]},</p>
+                                <h1>New Lead: John Doe ✨</h1>
+                                <p>Hi Hilmi,</p>
                                 <p>Good news! Someone just filled out the inquiry form on your public page. Here are the project details they submitted:</p>
                                 
-                                <!-- DATA TABLE -->
+                                <!-- DATA TABLE (Matches Form Fields) -->
                                 <table class="data-table" cellspacing="0" cellpadding="0">
+                                    <!-- Name -->
                                     <tr class="data-row">
                                         <td class="data-label">Client Name</td>
-                                        <td class="data-value">${name}</td>
+                                        <td class="data-value">John Doe</td>
                                     </tr>
+                                    <!-- Email -->
                                     <tr class="data-row">
                                         <td class="data-label">Email</td>
                                         <td class="data-value">
-                                            <a href="mailto:${email}" style="color: #4F46E5; text-decoration: none;">${email}</a>
+                                            <a href="mailto:john@company.com" style="color: #4F46E5; text-decoration: none;">john@company.com</a>
                                         </td>
                                     </tr>
+                                    <!-- Website (Optional) -->
                                     <tr class="data-row">
                                         <td class="data-label">Company / Web</td>
-                                        <td class="data-value">${company || '-'}</td>
+                                        <td class="data-value">https://acme.com</td>
                                     </tr>
+                                    <!-- Looking For -->
                                     <tr class="data-row">
                                         <td class="data-label">Service</td>
-                                        <td class="data-value"><strong>${service}</strong></td>
+                                        <td class="data-value"><strong>Web Design</strong></td>
                                     </tr>
+                                    <!-- Budget -->
                                     <tr class="data-row">
                                         <td class="data-label">Budget Range</td>
-                                        <td class="data-value highlight-text">${budget}</td>
+                                        <td class="data-value highlight-text">&lt; $1,000</td>
                                     </tr>
+                                    <!-- Timeline -->
+                                    <tr class="data-row">
+                                        <td class="data-label">Timeline</td>
+                                        <td class="data-value">Within 1 month</td>
+                                    </tr>
+                                    <!-- Requirements -->
                                     <tr class="data-row">
                                         <td class="data-label">Requirements</td>
-                                        <td class="data-value" style="white-space: pre-wrap;">${detailed_needs || '-'}</td>
-                                    </tr>
-                                    <tr class="data-row">
-                                        <td class="data-label">Timeline/Context</td>
-                                        <td class="data-value" style="white-space: pre-wrap;">${message || '-'}</td>
+                                        <td class="data-value" style="white-space: pre-wrap;">We need a redesign of our landing page to increase conversion. The style should be minimal and clean.</td>
                                     </tr>
                                 </table>
 
@@ -200,13 +128,14 @@ export async function POST(request: NextRequest) {
                                 <table width="100%" role="presentation">
                                     <tr>
                                         <td align="center" style="padding-bottom: 24px;">
-                                            <a href="${process.env.NEXT_PUBLIC_APP_URL}/opportunities" class="btn" target="_blank">View in Biondesk</a>
+                                            <!-- Link ke Dashboard/Inbox Biondesk -->
+                                            <a href="#" class="btn" target="_blank">View in Biondesk</a>
                                         </td>
                                     </tr>
                                 </table>
                                 
                                 <div class="text-center">
-                                    <a href="mailto:${email}" style="color: #64748B; font-size: 14px; text-decoration: underline;">or reply directly via email</a>
+                                    <a href="mailto:john@company.com" style="color: #64748B; font-size: 14px; text-decoration: underline;">or reply directly via email</a>
                                 </div>
                             </td>
                         </tr>
@@ -216,7 +145,7 @@ export async function POST(request: NextRequest) {
                             <td style="padding: 0 40px 40px 40px;">
                                 <div class="divider"></div>
                                 <p style="margin: 0; font-size: 14px; color: #94A3B8; text-align: center;">
-                                    This message was sent because the inquiry form at <strong>biondesk.com</strong> was filled out.
+                                    This message was sent because the inquiry form at <strong>biondesk.com/hilmi</strong> was filled out.
                                 </p>
                             </td>
                         </tr>
@@ -227,7 +156,7 @@ export async function POST(request: NextRequest) {
                     <table role="presentation" align="center" width="100%" style="max-width: 600px;">
                         <tr>
                             <td class="footer">
-                                <p style="margin: 0;">&copy; ${new Date().getFullYear()} Biondesk Inc.</p>
+                                <p style="margin: 0;">&copy; 2024 Biondesk Inc.</p>
                             </td>
                         </tr>
                     </table>
@@ -239,23 +168,3 @@ export async function POST(request: NextRequest) {
 
 </body>
 </html>
-                `;
-
-                await sendEmail({
-                    to: [{ email: owner.email, name: owner.name }],
-                    subject: `New Inquiry: ${service}`,
-                    htmlContent: emailContent,
-                });
-            }
-        }
-
-        return NextResponse.json({ success: true });
-
-    } catch (error) {
-        console.error('Inquiry submission error:', error);
-        return NextResponse.json(
-            { error: 'Failed to process inquiry' },
-            { status: 500 }
-        );
-    }
-}
