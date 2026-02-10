@@ -146,7 +146,7 @@ export default function CreateTemplatePage() {
       )}
 
       {/* Header */}
-      <header className="h-16 px-8 flex items-center justify-between bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20 shrink-0">
+      <header className="h-16 px-4 md:px-8 flex items-center justify-between bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20 shrink-0">
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.back()}
@@ -154,9 +154,9 @@ export default function CreateTemplatePage() {
           >
             <i className="ph-bold ph-arrow-left text-lg" />
           </button>
-          <div className="h-6 w-px bg-slate-200" />
+          <div className="hidden md:block h-6 w-px bg-slate-200" />
           <div>
-            <div className="flex items-center gap-2 text-xs font-medium text-slate-500 mb-0.5">
+            <div className="hidden md:flex items-center gap-2 text-xs font-medium text-slate-500 mb-0.5">
               <span>Assets</span>
               <i className="ph-bold ph-caret-right text-[10px] text-slate-300" />
               <span>Templates</span>
@@ -172,7 +172,7 @@ export default function CreateTemplatePage() {
         <div className="flex items-center gap-4">
           {/* Preview Toggle */}
           <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-lg border border-slate-200">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide hidden md:inline">
               Preview
             </span>
             <label className="relative inline-flex items-center cursor-pointer">
@@ -201,12 +201,13 @@ export default function CreateTemplatePage() {
             {isSubmitting ? (
               <>
                 <i className="ph-bold ph-spinner animate-spin" />
-                <span>Saving...</span>
+                <span className="hidden md:inline">Saving...</span>
               </>
             ) : (
               <>
                 <i className="ph-bold ph-floppy-disk" />
-                <span>Save Template</span>
+                <span className="hidden md:inline">Save Template</span>
+                <span className="md:hidden">Save</span>
               </>
             )}
           </button>
@@ -214,10 +215,10 @@ export default function CreateTemplatePage() {
       </header>
 
       {/* Split Layout Content */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* LEFT: Template Editor */}
         <div
-          className={`flex-1 flex flex-col bg-slate-50/50 p-8 relative ${showPreview ? "overflow-hidden" : "overflow-y-auto"}`}
+          className={`flex-1 flex flex-col bg-slate-50/50 p-4 md:p-8 relative ${showPreview ? "overflow-hidden" : "overflow-y-auto"}`}
         >
           {/* Editor Container */}
           <div
@@ -347,8 +348,8 @@ export default function CreateTemplatePage() {
 
           {/* PREVIEW OVERLAY */}
           {showPreview && (
-            <div className="absolute inset-0 bg-slate-100 p-8 overflow-y-auto z-10">
-              <div className="max-w-3xl mx-auto bg-white shadow-lg min-h-[800px] p-12 border border-slate-200 relative">
+            <div className="absolute inset-0 bg-slate-100 p-4 md:p-8 overflow-y-auto z-10">
+              <div className="max-w-3xl mx-auto bg-white shadow-lg min-h-[800px] p-6 md:p-12 border border-slate-200 relative">
                 {/* Watermark */}
                 <div className="absolute top-4 right-4 px-2 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold uppercase rounded tracking-wide opacity-50">
                   Preview Mode
@@ -435,7 +436,7 @@ export default function CreateTemplatePage() {
         </div>
 
         {/* RIGHT: Variables Sidebar */}
-        <div className="w-[300px] bg-white border-l border-slate-200 flex flex-col shrink-0 z-20">
+        <div className="w-full lg:w-[300px] bg-white border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col shrink-0 z-20 h-64 lg:h-auto">
           <div className="h-16 flex items-center px-6 border-b border-slate-100 shrink-0">
             <h3 className="text-sm font-semibold text-slate-900">
               Dynamic Variables
