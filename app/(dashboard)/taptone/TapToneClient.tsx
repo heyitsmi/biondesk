@@ -130,13 +130,17 @@ export default function TapToneClient() {
                                 {/* Goal */}
                                 <div className="space-y-2">
                                     <label className="text-xs font-[700] text-slate-400 uppercase tracking-wide">Goal</label>
-                                    <select 
-                                        value={goal}
-                                        onChange={(e) => setGoal(e.target.value)}
-                                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500"
-                                    >
-                                        {goals.map(g => <option key={g} value={g}>{g}</option>)}
-                                    </select>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {goals.map(g => (
+                                            <button
+                                                key={g}
+                                                onClick={() => setGoal(g)}
+                                                className={`px-2.5 py-1 text-[10px] font-medium rounded-full border transition-all ${goal === g ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
+                                            >
+                                                {g}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
 
                                 {/* Risk Level (Strategize only) */}
