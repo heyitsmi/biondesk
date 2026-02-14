@@ -2,6 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { quotesApi, contactsApi } from '@/lib/api';
 import { Contact } from '@/lib/types';
 
@@ -306,6 +307,7 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
                         <i className="ph-bold ph-floppy-disk"></i>
                         <span>{isSaving ? 'Updating...' : 'Update Quote'}</span>
                     </button>
+                    </div>
                 </div>
             </header>
             
