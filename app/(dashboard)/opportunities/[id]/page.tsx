@@ -194,11 +194,19 @@ export default function EditOpportunityPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-          <Link
+            <Link
             href={`/proposals/generate?opportunityId=${id}`}
             className="flex-1 md:flex-none justify-center px-4 py-2 text-sm font-[550] text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 hover:border-indigo-200 rounded-lg transition-all flex items-center gap-2 whitespace-nowrap"
           >
             <i className="ph-bold ph-magic-wand"></i> Generate Proposal
+          </Link>
+          <Link
+            href={`/taptone?context=${encodeURIComponent(
+              `Project: ${formData.title}\nClient: ${formData.client_name}\nBudget: ${formData.value}\nDescription: ${formData.description}`,
+            )}`}
+            className="flex-1 md:flex-none justify-center px-4 py-2 text-sm font-[550] text-slate-600 hover:text-indigo-600 bg-white border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50/50 rounded-lg transition-all flex items-center gap-2 whitespace-nowrap"
+          >
+            <i className="ph-bold ph-chat-circle-text"></i> TapTone
           </Link>
           <Link
             href="/opportunities"

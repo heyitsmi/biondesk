@@ -288,6 +288,16 @@ export default function EditQuotePage({ params }: { params: Promise<{ id: string
                         </span>
                     </div>
 
+                    <div className="flex items-center gap-2">
+                        <Link
+                            href={`/taptone?context=${encodeURIComponent(
+                                `Quote: ${formData.title}\nClient: ${clients.find(c => c.id === formData.client_id)?.name || 'Unknown'}\nTotal: $${total.toFixed(2)}\nItems: ${formData.items.map(i => i.description).join(', ')}`
+                            )}`}
+                            className="hidden md:flex items-center gap-2 px-3 py-2 text-sm font-[550] text-slate-600 hover:text-indigo-600 bg-white border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50/50 rounded-lg transition-all"
+                        >
+                            <i className="ph-bold ph-chat-circle-text"></i> TapTone
+                        </Link>
+
                     <button 
                         onClick={() => handleSubmit()}
                         disabled={isSaving}
