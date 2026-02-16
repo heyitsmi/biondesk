@@ -254,9 +254,6 @@ export default function InvoicesPage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold ring-2 ring-white">
-                                                        {(invoice.contact?.name || '??').substring(0, 2).toUpperCase()}
-                                                    </div>
                                                     <div>
                                                         <p className="font-[600] text-slate-900">{invoice.contact?.name || 'Unknown Client'}</p>
                                                         <p className="text-slate-500 text-xs">{invoice.title || 'Untitled Invoice'}</p>

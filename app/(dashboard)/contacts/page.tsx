@@ -321,9 +321,6 @@ export default function ContactsPage() {
                                     <tr key={contact.id} className="group hover:bg-slate-50/80 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-xs font-bold ring-2 ring-white">
-                                                    {contact.name.substring(0, 2).toUpperCase()}
-                                                </div>
                                                 <div>
                                                     <p className="font-[600] text-slate-900">{contact.name}</p>
                                                     <p className="text-slate-500 text-xs">{contact.company || 'No Company'} • {contact.email || 'No Email'}</p>
