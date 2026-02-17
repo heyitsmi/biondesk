@@ -1,7 +1,8 @@
 // lib/midtrans.ts (Using Fetch API directly)
 
 const SERVER_KEY = process.env.MIDTRANS_SERVER_KEY || '';
-const BASE_URL = process.env.NODE_ENV === 'production' 
+const isProduction = process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === 'true';
+const BASE_URL = isProduction
     ? 'https://app.midtrans.com/snap/v1/transactions' 
     : 'https://app.sandbox.midtrans.com/snap/v1/transactions';
 
