@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { updateUserRole } from "./actions";
+import { updateUserRole, impersonateUser } from "./actions";
+import { useRouter } from "next/navigation";
 
 interface User {
   id: string;
@@ -10,6 +11,34 @@ interface User {
   avatar_url?: string;
   role: string;
   created_at: string;
+}
+
+function ImpersonateButton({ userId }: { userId: string }) {
+    const router = useRouter();
+    const handleImpersonate = async () => {
+        if(!confirm("Impersonate this user?")) return;
+        
+        try {
+            const res = await impersonateUser(userId);
+            if(res.success) {
+                window.location.href = '/dashboard'; // Hard reload to pick up new cookie state
+            } else {
+                alert("Failed: " + res.error);
+            }
+        } catch(e) {
+            alert("Error impersonating");
+        }
+    };
+
+    return (
+        <button 
+            onClick={handleImpersonate}
+            className="text-slate-500 hover:text-indigo-600 text-sm"
+            title="Impersonate User"
+        >
+            <i className="ph-bold ph-mask-happy text-lg"></i>
+        </button>
+    )
 }
 
 export default function UserTable({ users }: { users: User[] }) {
@@ -102,10 +131,14 @@ export default function UserTable({ users }: { users: User[] }) {
                     ) : (
                         <button 
                             onClick={() => setEditingId(user.id)}
-                            className="text-indigo-600 hover:text-indigo-700 text-sm font-medium hover:underline"
+                            className="text-indigo-600 hover:text-indigo-700 text-sm font-medium hover:underline mr-3"
                         >
                             Edit
                         </button>
+                    )}
+                    
+                    {user.role !== 'admin' && (
+                        <ImpersonateButton userId={user.id} />
                     )}
                 </td>
               </tr>

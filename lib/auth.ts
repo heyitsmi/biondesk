@@ -64,6 +64,7 @@ export async function deleteSession(token: string): Promise<void> {
 export async function getCurrentUser() {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  const impersonateId = cookieStore.get('impersonate_id')?.value;
   
   if (!token) {
     return null;
@@ -88,7 +89,30 @@ export async function getCurrentUser() {
     return null;
   }
 
-  // Get user data
+  // Check Impersonation
+  if (impersonateId) {
+      // 1. Verify REAL user is admin
+      const { data: realUser } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', payload.userId)
+        .single();
+      
+      if (realUser?.role === 'admin') {
+          // 2. Fetch Target User
+          const { data: targetUser } = await supabase
+            .from('users')
+            .select('id, email, name, avatar_url, plan, role')
+            .eq('id', impersonateId)
+            .single();
+          
+          if (targetUser) {
+              return { ...targetUser, isImpersonating: true };
+          }
+      }
+  }
+
+  // Get user data (Normal Flow)
   const { data: user } = await supabase
     .from('users')
     .select('id, email, name, avatar_url, plan, role')

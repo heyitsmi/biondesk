@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { stopImpersonating } from "@/app/admin/users/actions";
 
 interface SidebarProps {
   user?: {
@@ -82,10 +83,24 @@ export default function Sidebar({ user, isMobileOpen = false, onMobileClose }: S
     isMobileOpen ? "translate-x-0" : "-translate-x-full"
   } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:transform-none`;
 
+
   return (
     <aside
       className={`${mobileClasses} ${isCollapsed ? "lg:w-[80px]" : "lg:w-[260px]"} bg-white border-r border-slate-200 flex flex-col shrink-0 z-30 transition-all duration-300 lg:relative shadow-2xl lg:shadow-none`}
     >
+      {/* Impersonation Banner */}
+      {/* @ts-ignore - isImpersonating might not be on type yet */}
+      {user?.isImpersonating && (
+          <div className="bg-amber-100 p-2 text-center border-b border-amber-200">
+              <p className="text-[10px] font-bold text-amber-800 uppercase mb-1">Impersonating</p>
+              <button 
+                onClick={() => stopImpersonating()}
+                className="text-xs bg-amber-800 text-white px-2 py-1 rounded hover:bg-amber-900 transition-colors w-full"
+              >
+                  Return to Admin
+              </button>
+          </div>
+      )}
       {/* Brand & Toggle Header */}
       <div className="h-16 flex items-center justify-between px-6 border-b border-slate-100 transition-all duration-300">
         <Link
