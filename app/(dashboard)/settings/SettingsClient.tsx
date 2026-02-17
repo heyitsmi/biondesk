@@ -28,7 +28,7 @@ export default function SettingsClient({ initialWorkspace, user, plans, subscrip
     
     // Billing State
     const [isUpgradeMode, setIsUpgradeMode] = useState(false);
-    const [billingLoading, setBillingLoading] = useState(false);
+    const [billingLoading, setBillingLoading] = useState<string | null>(null);
 
     // Form States
     const [formData, setFormData] = useState<Partial<Workspace>>(initialWorkspace || {});
@@ -57,7 +57,7 @@ export default function SettingsClient({ initialWorkspace, user, plans, subscrip
 
     const handleSubscribe = async (plan: any) => {
         if(confirm(`Proceed to payment for ${plan.name}?`)) {
-            setBillingLoading(true);
+            setBillingLoading(plan.id);
             try {
                 // 1. Create Transaction
                 const res = await fetch('/api/payment/create-transaction', {
@@ -97,7 +97,7 @@ export default function SettingsClient({ initialWorkspace, user, plans, subscrip
                 console.error(err);
                 alert("An error occurred. Please try again.");
             } finally {
-                setBillingLoading(false);
+                setBillingLoading(null);
             }
         }
     };
@@ -581,10 +581,10 @@ export default function SettingsClient({ initialWorkspace, user, plans, subscrip
                                                 </div>
                                                 <button 
                                                     onClick={() => handleSubscribe(plan)}
-                                                    disabled={billingLoading}
+                                                    disabled={billingLoading === plan.id}
                                                     className="w-full py-2.5 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50"
                                                 >
-                                                    {billingLoading ? 'Processing...' : 'Subscribe Now'}
+                                                    {billingLoading === plan.id ? 'Processing...' : 'Subscribe Now'}
                                                 </button>
                                             </div>
                                         ))}
