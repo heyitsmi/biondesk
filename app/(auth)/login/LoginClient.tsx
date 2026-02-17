@@ -27,12 +27,25 @@ export default function LoginClient() {
       });
 
       const data = await res.json();
-
+      
       if (!res.ok) {
         throw new Error(data.error || "Login failed");
       }
-
-      router.push("/dashboard");
+      
+      // The API should ideally return the user role or destination. 
+      // If not, we might default to dashboard and let the middleware/server page handle standard redirects.
+      // However, for better UX, let's see if we can get the role from the response or just standard redirect.
+      // Since `handleSubmit` is client-side, we might not know the role unless the API returns it.
+      // Let's rely on the API to return the role or let the next page load handle it?
+      // Actually, standard `router.push('/dashboard')` might be intercepted by Middleware if we try to go to admin?
+      // No, we want to go to the right place immediately.
+      // Let's assume the API returns `user` object with `role`.
+      
+      if (data.user?.role === 'admin') {
+         router.push("/admin/dashboard");
+      } else {
+         router.push("/dashboard");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {

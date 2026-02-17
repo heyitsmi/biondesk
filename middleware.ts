@@ -83,6 +83,24 @@ export async function middleware(request: NextRequest) {
         return response;
     }
 
+    // Check Admin Routes
+    if (pathname.startsWith('/admin')) {
+        // We need to fetch the user role. 
+        // session query above only fetched session id. 
+        // We can join or fetch user separately.
+        
+        const { data: user } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', payload.userId)
+            .single();
+            
+        if (!user || user.role !== 'admin') {
+            // Redirect unauthorized users to user dashboard
+            return NextResponse.redirect(new URL('/dashboard', request.url));
+        }
+    }
+
     return NextResponse.next();
 }
 

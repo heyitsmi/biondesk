@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
         // Find user by email
         const { data: user, error: userError } = await supabase
             .from('users')
-            .select('id, email, password_hash, name')
+            .select('id, email, password_hash, name, role')
             .eq('email', email.toLowerCase())
             .single();
 
@@ -68,6 +68,7 @@ export async function POST(request: NextRequest) {
                 id: user.id,
                 email: user.email,
                 name: user.name,
+                role: user.role,
             },
         });
     } catch (error) {

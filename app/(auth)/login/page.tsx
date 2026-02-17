@@ -12,7 +12,11 @@ export default async function LoginPage() {
   const user = await getCurrentUser();
 
   if (user) {
-    redirect("/dashboard");
+    if (user.role === 'admin') {
+        redirect("/admin/dashboard");
+    } else {
+        redirect("/dashboard");
+    }
   }
 
   return <LoginClient />;
