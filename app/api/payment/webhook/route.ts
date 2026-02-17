@@ -45,11 +45,16 @@ export async function POST(request: Request) {
             })
             .eq('midtrans_order_id', orderId)
             .select('*')
-            .single();
+            .maybeSingle();
 
-        if (txError || !transaction) {
-            console.error("Transaction update failed:", txError);
-            return new NextResponse("Transaction not found", { status: 404 });
+        if (txError) {
+            console.error("Transaction update error:", txError);
+            return new NextResponse("Internal Server Error", { status: 500 });
+        }
+
+        if (!transaction) {
+            console.log(`Transaction with orderId ${orderId} not found. Skipping update.`);
+            return new NextResponse("Transaction not found", { status: 200 });
         }
 
         // 4. Update Subscription if Paid
