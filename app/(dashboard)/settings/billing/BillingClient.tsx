@@ -1,10 +1,81 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+
+// Add Snap type to window
+declare global {
+    interface Window {
+        snap: any;
+    }
+}
 
 export default function BillingClient({ plans, subscription }: { plans: any[], subscription: any }) {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const error = searchParams.get('error');
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Load Snap Script
+    useEffect(() => {
+        const snapScript = "https://app.sandbox.midtrans.com/snap/snap.js";
+        const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || ""; 
+        
+        const script = document.createElement("script");
+        script.src = snapScript;
+        script.setAttribute("data-client-key", clientKey);
+        script.async = true;
+        document.body.appendChild(script);
+
+        return () => {
+            document.body.removeChild(script);
+        };
+    }, []);
+
+    const handleSubscribe = async (plan: any) => {
+        setIsLoading(true);
+        try {
+            // 1. Create Transaction
+            const res = await fetch('/api/payment/create-transaction', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ planId: plan.id })
+            });
+
+            if (!res.ok) throw new Error("Failed to create transaction");
+
+            const { token, amount_idr, rate } = await res.json();
+
+            // 2. Open Snap
+            if (window.snap) {
+                window.snap.pay(token, {
+                    onSuccess: function(result: any) {
+                        alert("Payment successful!");
+                        router.refresh();
+                        // Ideally redirect to a success page or refetch subscription
+                    },
+                    onPending: function(result: any) {
+                        alert("Waiting for payment...");
+                        router.refresh();
+                    },
+                    onError: function(result: any) {
+                        alert("Payment failed!");
+                    },
+                    onClose: function() {
+                        alert('You closed the popup without finishing the payment');
+                    }
+                });
+            } else {
+                alert("Payment gateway not loaded yet. Please refresh.");
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert("An error occurred. Please try again.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className="max-w-4xl mx-auto space-y-8">
@@ -59,15 +130,19 @@ export default function BillingClient({ plans, subscription }: { plans: any[], s
                                 </div>
                             ))}
                         </div>
-                        <button className="w-full py-2.5 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-800 transition-colors">
-                            Subscribe Now
+                        <button 
+                            onClick={() => handleSubscribe(plan)}
+                            disabled={isLoading}
+                            className="w-full py-2.5 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50"
+                        >
+                            {isLoading ? 'Processing...' : 'Subscribe Now'}
                         </button>
                     </div>
                  ))}
             </div>
             
             <p className="text-center text-sm text-slate-500">
-                Payment gateway integration coming soon.
+                Secure payment processed by Midtrans.
             </p>
         </div>
     );

@@ -5,6 +5,11 @@ VALUES
     'trial_settings', 
     '{"days": 7}', 
     'Configuration for new user trial period'
+),
+(
+    'exchange_rate',
+    '{"rate": 16000}',
+    'USD to IDR conversion rate for payments'
 )
 ON CONFLICT (key) DO NOTHING;
 

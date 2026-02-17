@@ -64,3 +64,20 @@ export async function updateTrialSettings(days: number) {
     revalidatePath('/admin/settings');
     return { success: true };
 }
+
+export async function updateExchangeRate(rate: number) {
+    const user = await getCurrentUser();
+    if (user?.role !== 'admin') throw new Error("Unauthorized");
+
+    const supabase = createServerClient();
+    const { error } = await supabase.from('app_settings').upsert({
+        key: 'exchange_rate',
+        value: { rate },
+        updated_by: user.id,
+        updated_at: new Date().toISOString()
+    });
+
+    if (error) throw new Error(error.message);
+    revalidatePath('/admin/settings');
+    return { success: true };
+}
