@@ -40,14 +40,24 @@ export default function SettingsClient({ initialWorkspace, user, plans, subscrip
     // Load Snap Script
     useEffect(() => {
         const isProduction = process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === 'true';
+        console.log("Midtrans Environment:", isProduction ? "PRODUCTION" : "SANDBOX");
+        
         const snapScript = isProduction 
             ? "https://app.midtrans.com/snap/snap.js"
             : "https://app.sandbox.midtrans.com/snap/snap.js";
 
         const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || ""; 
+        console.log("Midtrans Client Key:", clientKey);
         
+        // Remove existing script if any to prevent duplicates/mismatch
+        const existingScript = document.getElementById('midtrans-script');
+        if (existingScript) {
+            existingScript.remove();
+        }
+
         const script = document.createElement("script");
         script.src = snapScript;
+        script.id = 'midtrans-script';
         script.setAttribute("data-client-key", clientKey);
         script.async = true;
         document.body.appendChild(script);
