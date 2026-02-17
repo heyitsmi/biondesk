@@ -1,25 +1,106 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Workspace } from '@/lib/types';
+import { useRouter } from 'next/navigation';
 
 interface SettingsClientProps {
     initialWorkspace: Workspace | null;
     user: any;
+    plans: any[];
+    subscription: any;
+    transactions: any[];
 }
 
-export default function SettingsClient({ initialWorkspace, user }: SettingsClientProps) {
+// Add Snap type to window
+declare global {
+    interface Window {
+        snap: any;
+    }
+}
+
+export default function SettingsClient({ initialWorkspace, user, plans, subscription, transactions }: SettingsClientProps) {
     const [activeTab, setActiveTab] = useState<'general' | 'profile' | 'billing' | 'notifications'>('general');
     const [isSaving, setIsSaving] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [workspace, setWorkspace] = useState<Workspace | null>(initialWorkspace);
+    const router = useRouter();
     
+    // Billing State
+    const [isUpgradeMode, setIsUpgradeMode] = useState(false);
+    const [billingLoading, setBillingLoading] = useState(false);
+
     // Form States
     const [formData, setFormData] = useState<Partial<Workspace>>(initialWorkspace || {});
     const [userData, setUserData] = useState({
         name: user?.name || '',
         email: user?.email || '',
     });
+
+    // Load Snap Script
+    useEffect(() => {
+        const snapScript = "https://app.sandbox.midtrans.com/snap/snap.js";
+        const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || ""; 
+        
+        const script = document.createElement("script");
+        script.src = snapScript;
+        script.setAttribute("data-client-key", clientKey);
+        script.async = true;
+        document.body.appendChild(script);
+
+        return () => {
+            if(document.body.contains(script)){
+               document.body.removeChild(script);
+            }
+        };
+    }, []);
+
+    const handleSubscribe = async (plan: any) => {
+        if(confirm(`Proceed to payment for ${plan.name}?`)) {
+            setBillingLoading(true);
+            try {
+                // 1. Create Transaction
+                const res = await fetch('/api/payment/create-transaction', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ planId: plan.id })
+                });
+    
+                if (!res.ok) throw new Error("Failed to create transaction");
+    
+                const { token } = await res.json();
+    
+                // 2. Open Snap
+                if (window.snap) {
+                    window.snap.pay(token, {
+                        onSuccess: function(result: any) {
+                            alert("Payment successful!");
+                            router.refresh();
+                            setIsUpgradeMode(false);
+                        },
+                        onPending: function(result: any) {
+                            alert("Waiting for payment...");
+                            router.refresh();
+                        },
+                        onError: function(result: any) {
+                            alert("Payment failed!");
+                        },
+                        onClose: function() {
+                            // alert('You closed the popup without finishing the payment');
+                        }
+                    });
+                } else {
+                    alert("Payment gateway not loaded yet. Please refresh.");
+                }
+    
+            } catch (err) {
+                console.error(err);
+                alert("An error occurred. Please try again.");
+            } finally {
+                setBillingLoading(false);
+            }
+        }
+    };
 
     const handleInputChange = (field: keyof Workspace, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -210,16 +291,6 @@ export default function SettingsClient({ initialWorkspace, user }: SettingsClien
                                             </div>
                                             <p className="text-xs text-slate-500">Leave blank to auto-generate from your name.</p>
                                         </div>
-                                        {/* <div className="space-y-1.5">
-                                            <label className="text-sm font-[500] text-slate-700">Default Payment Link</label>
-                                            <input 
-                                                type="url" 
-                                                value={formData.default_payment_link || ''} 
-                                                onChange={(e) => handleInputChange('default_payment_link', e.target.value)}
-                                                placeholder="https://..."
-                                                className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" 
-                                            />
-                                        </div> */}
                                     </div>
                                     
                                     <div className="space-y-1.5">
@@ -391,56 +462,135 @@ export default function SettingsClient({ initialWorkspace, user }: SettingsClien
                                 <p className="text-sm text-slate-500">Manage your subscription and payment methods.</p>
                             </div>
 
-                            <div className="bg-indigo-50 rounded-xl p-6 border border-indigo-100 flex flex-col md:flex-row justify-between items-center gap-4">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <h3 className="text-base font-[700] text-indigo-900">Dealis Pro Plan</h3>
-                                        <span className="px-2 py-0.5 rounded-full bg-indigo-200 text-indigo-700 text-[10px] font-bold uppercase">Active</span>
-                                    </div>
-                                    <p className="text-sm text-indigo-700/80">You are on the annual plan. Renews on Jan 14, 2027.</p>
-                                </div>
-                                <div className="flex gap-3">
-                                    <button className="px-4 py-2 bg-white text-indigo-600 text-sm font-[600] rounded-lg shadow-sm hover:bg-indigo-50 transition-colors border border-indigo-200">Change Plan</button>
-                                </div>
-                            </div>
-
-                            <div className="pt-4">
-                                <h3 className="text-sm font-[600] text-slate-900 mb-4">Payment Method</h3>
-                                <div className="flex items-center justify-between p-4 border border-slate-200 rounded-xl bg-white">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-6 bg-slate-100 rounded border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-500">VISA</div>
+                            {!isUpgradeMode ? (
+                                <>
+                                    <div className="bg-indigo-50 rounded-xl p-6 border border-indigo-100 flex flex-col md:flex-row justify-between items-center gap-4">
                                         <div>
-                                            <p className="text-sm font-[500] text-slate-900">Visa ending in 4242</p>
-                                            <p className="text-xs text-slate-500">Expires 12/2028</p>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <h3 className="text-base font-[700] text-indigo-900">
+                                                    {subscription?.plans?.name || (subscription?.status === 'trialing' ? 'Free Trial' : 'Free Plan')}
+                                                </h3>
+                                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${subscription?.status === 'active' ? 'bg-emerald-200 text-emerald-700' : 'bg-indigo-200 text-indigo-700'}`}>
+                                                    {subscription?.status || 'Active'}
+                                                </span>
+                                            </div>
+                                            <p className="text-sm text-indigo-700/80">
+                                                {subscription?.current_period_end 
+                                                    ? `Renews/Expires on ${new Date(subscription.current_period_end).toLocaleDateString()}`
+                                                    : 'No active subscription'
+                                                }
+                                            </p>
+                                        </div>
+                                        <div className="flex gap-3">
+                                            <button 
+                                                onClick={() => setIsUpgradeMode(true)}
+                                                className="px-4 py-2 bg-white text-indigo-600 text-sm font-[600] rounded-lg shadow-sm hover:bg-indigo-50 transition-colors border border-indigo-200"
+                                            >
+                                                Change Plan
+                                            </button>
                                         </div>
                                     </div>
-                                    <button className="text-xs font-[600] text-slate-500 hover:text-slate-900">Edit</button>
-                                </div>
-                            </div>
 
-                            <div className="pt-4">
-                                <h3 className="text-sm font-[600] text-slate-900 mb-4">Invoice History</h3>
-                                <div className="border border-slate-200 rounded-xl overflow-hidden">
-                                    <table className="w-full text-left text-sm">
-                                        <thead className="bg-slate-50 border-b border-slate-200 text-xs font-[600] text-slate-500 uppercase">
-                                            <tr>
-                                                <th className="px-4 py-3">Date</th>
-                                                <th className="px-4 py-3">Amount</th>
-                                                <th className="px-4 py-3">Status</th>
-                                                <th className="px-4 py-3 text-right">Receipt</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-100">
-                                            <tr>
-                                                <td className="px-4 py-3 text-slate-600">Jan 14, 2026</td>
-                                                <td className="px-4 py-3 text-slate-900 font-medium">$120.00</td>
-                                                <td className="px-4 py-3"><span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-100 font-medium">Paid</span></td>
-                                                <td className="px-4 py-3 text-right"><button className="text-indigo-600 hover:underline">Download</button></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    <div className="pt-4">
+                                        <h3 className="text-sm font-[600] text-slate-900 mb-4">Payment Method</h3>
+                                        <div className="flex items-center justify-between p-4 border border-slate-200 rounded-xl bg-white">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-6 bg-slate-100 rounded border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-500">
+                                                    <i className="ph-fill ph-check-circle text-emerald-500"></i>
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-[500] text-slate-900">Midtrans Secure & Global Payment</p>
+                                                    <p className="text-xs text-slate-500">Credit Card, QRIS, Virtual Account supported</p>
+                                                </div>
+                                            </div>
+                                            {/* <button className="text-xs font-[600] text-slate-500 hover:text-slate-900">Edit</button> */}
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-4">
+                                        <h3 className="text-sm font-[600] text-slate-900 mb-4">Invoice History</h3>
+                                        <div className="border border-slate-200 rounded-xl overflow-hidden">
+                                            <table className="w-full text-left text-sm">
+                                                <thead className="bg-slate-50 border-b border-slate-200 text-xs font-[600] text-slate-500 uppercase">
+                                                    <tr>
+                                                        <th className="px-4 py-3">Date</th>
+                                                        <th className="px-4 py-3">Plan</th>
+                                                        <th className="px-4 py-3">Amount</th>
+                                                        <th className="px-4 py-3">Status</th>
+                                                        {/* <th className="px-4 py-3 text-right">Receipt</th> */}
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-slate-100">
+                                                    {transactions.map(tx => (
+                                                        <tr key={tx.id}>
+                                                            <td className="px-4 py-3 text-slate-600">{new Date(tx.created_at).toLocaleDateString()}</td>
+                                                            <td className="px-4 py-3 text-slate-900 font-medium">{tx.plans?.name || 'Subscription'}</td>
+                                                            <td className="px-4 py-3 text-slate-900 font-medium">
+                                                                {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(tx.amount_usd)}
+                                                            </td>
+                                                            <td className="px-4 py-3">
+                                                                <span className={`text-xs px-2 py-0.5 rounded border font-medium ${
+                                                                    tx.status === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 
+                                                                    tx.status === 'pending' ? 'bg-amber-50 text-amber-700 border-amber-100' : 
+                                                                    'bg-slate-50 text-slate-700 border-slate-100'
+                                                                }`}>
+                                                                    {tx.status}
+                                                                </span>
+                                                            </td>
+                                                            {/* <td className="px-4 py-3 text-right"><button className="text-indigo-600 hover:underline">Download</button></td> */}
+                                                        </tr>
+                                                    ))}
+                                                    {transactions.length === 0 && (
+                                                        <tr>
+                                                            <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
+                                                                No invoice history found.
+                                                            </td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="space-y-6 animate-fade-in-up">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-lg font-bold text-slate-900">Select a Plan</h3>
+                                        <button 
+                                            onClick={() => setIsUpgradeMode(false)}
+                                            className="text-sm text-slate-500 hover:text-slate-900"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {plans.map((plan) => (
+                                            <div key={plan.id} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:border-indigo-300 transition-colors">
+                                                <h3 className="font-bold text-lg text-slate-900">{plan.name}</h3>
+                                                <p className="text-3xl font-bold text-slate-900 mt-2">
+                                                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(plan.price)}
+                                                    <span className="text-sm text-slate-500 font-normal">/{plan.interval}</span>
+                                                </p>
+                                                <div className="space-y-2 my-6">
+                                                    {plan.features?.map((feat: string, i: number) => (
+                                                        <div key={i} className="flex items-center gap-2 text-sm text-slate-600">
+                                                            <i className="ph-fill ph-check-circle text-indigo-500"></i>
+                                                            {feat}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <button 
+                                                    onClick={() => handleSubscribe(plan)}
+                                                    disabled={billingLoading}
+                                                    className="w-full py-2.5 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50"
+                                                >
+                                                    {billingLoading ? 'Processing...' : 'Subscribe Now'}
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     )}
 
