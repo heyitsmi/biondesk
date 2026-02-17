@@ -4,9 +4,31 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import "../public.css"; // Keep for now if needed, or rely on layout
 
-export default function HomeClient() {
+interface HomeClientProps {
+    plans: any[];
+    trialDays: number;
+}
+
+export default function HomeClient({ plans, trialDays }: HomeClientProps) {
   const [isYearly, setIsYearly] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+
+  // Find Plans
+  const monthlyPlan = plans.find(p => p.interval === 'month');
+  const yearlyPlan = plans.find(p => p.interval === 'year');
+  const activePlan = isYearly ? yearlyPlan : monthlyPlan;
+
+  const discount = monthlyPlan && yearlyPlan 
+    ? Math.round((1 - (yearlyPlan.price / (monthlyPlan.price * 12))) * 100)
+    : 20;
+
+  const displayPrice = activePlan 
+    ? (activePlan.interval === 'year' ? activePlan.price / 12 : activePlan.price)
+    : 0;
+  
+  const billingText = activePlan?.interval === 'year'
+    ? `Billed ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(activePlan.price)} yearly`
+    : 'Billed monthly';
 
   useEffect(() => {
     // Icons
@@ -354,7 +376,7 @@ export default function HomeClient() {
                     </button>
                     <span className={`text-sm font-medium flex items-center gap-2 ${isYearly ? 'text-indigo-900' : 'text-slate-900'}`} id="yearly-label">
                         Yearly 
-                        <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">Save 20%</span>
+                        {discount > 0 && <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">Save {discount}%</span>}
                     </span>
                 </div>
 
@@ -364,55 +386,42 @@ export default function HomeClient() {
                         <div className="p-8 md:p-10">
                             <div className="flex justify-between items-start mb-6">
                                 <div>
-                                    <h3 className="text-xl font-bold text-slate-900">Pro Desk</h3>
+                                    <h3 className="text-xl font-bold text-slate-900">{activePlan?.name || 'Pro Desk'}</h3>
                                     <p className="text-slate-500 text-sm mt-1">For freelancers & solo founders.</p>
                                 </div>
                                 <div className="text-right">
                                     <div className="flex items-baseline justify-end gap-1">
-                                        <span className="text-4xl font-bold tracking-tight text-slate-900" id="price-display">{isYearly ? '$15' : '$19'}</span>
+                                        <span className="text-4xl font-bold tracking-tight text-slate-900" id="price-display">
+                                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(displayPrice)}
+                                        </span>
                                         <span className="text-slate-500 font-medium text-sm">/mo</span>
                                     </div>
-                                    <div className="text-xs text-slate-400 mt-1" id="billing-text">{isYearly ? 'Billed $180 yearly' : 'Billed monthly'}</div>
+                                    <div className="text-xs text-slate-400 mt-1" id="billing-text">
+                                        {billingText}
+                                    </div>
                                 </div>
                             </div>
 
                             <hr className="border-slate-100 mb-8" />
 
                             <ul className="space-y-4 mb-8">
-                                <li className="flex items-start gap-3 text-slate-600">
-                                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mt-0.5">
-                                        <i data-lucide="check" className="w-3 h-3"></i>
-                                    </div>
-                                    <span>Unlimited Leads & Opportunities</span>
-                                </li>
-                                <li className="flex items-start gap-3 text-slate-600">
-                                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mt-0.5">
-                                        <i data-lucide="check" className="w-3 h-3"></i>
-                                    </div>
-                                    <span>Smart Proposals & Contracts</span>
-                                </li>
-                                <li className="flex items-start gap-3 text-slate-600">
-                                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mt-0.5">
-                                        <i data-lucide="check" className="w-3 h-3"></i>
-                                    </div>
-                                    <span>Invoicing & Payment Tracking</span>
-                                </li>
-                                <li className="flex items-start gap-3 text-slate-600">
-                                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mt-0.5">
-                                        <i data-lucide="check" className="w-3 h-3"></i>
-                                    </div>
-                                    <span>Automated Follow-ups</span>
-                                </li>
-                                <li className="flex items-start gap-3 text-slate-600">
-                                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mt-0.5">
-                                        <i data-lucide="check" className="w-3 h-3"></i>
-                                    </div>
-                                    <span>Basic Task Management</span>
-                                </li>
+                                {activePlan?.features?.map((feature: string, i: number) => (
+                                    <li key={i} className="flex items-start gap-3 text-slate-600">
+                                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mt-0.5">
+                                            <i data-lucide="check" className="w-3 h-3"></i>
+                                        </div>
+                                        <span>{feature}</span>
+                                    </li>
+                                )) || (
+                                    // Fallback if no plan loaded
+                                    <li className="flex items-center gap-3 text-slate-600">
+                                        <span>Loading plan details...</span>
+                                    </li>
+                                )}
                             </ul>
 
                             <Link href="/register" className="block w-full text-center bg-slate-900 text-white rounded-xl py-4 font-semibold hover:bg-slate-800 transition-all hover:scale-[1.02] shadow-lg shadow-slate-900/10">
-                                Start 14-day free trial
+                                Start {trialDays}-day free trial
                             </Link>
                             <p className="text-center text-xs text-slate-400 mt-4">No credit card required for trial.</p>
                         </div>
@@ -430,7 +439,7 @@ export default function HomeClient() {
                 <div className="space-y-4 reveal-on-scroll delay-100">
                     {/* FAQ Items */}
                     {[
-                        { q: "Is there a free trial?", a: "Yes, absolutely. You can try Biondesk fully featured for 14 days. We don't require a credit card to start the trial, so you can explore the desk without any pressure." },
+                        { q: "Is there a free trial?", a: `Yes, absolutely. You can try Biondesk fully featured for ${trialDays} days. We don't require a credit card to start the trial, so you can explore the desk without any pressure.` },
                         { q: "Can I cancel anytime?", a: "Yes. Biondesk is a pay-as-you-go service. There are no long-term contracts for the monthly plan. You can cancel your subscription at any time from your account settings." },
                         { q: "Do you have a plan for teams or agencies?", a: "Currently, Biondesk is optimized for solo workers, freelancers, and very small studios (1-2 people). We are focusing on making the experience perfect for individuals first before adding complex team management features." },
                         { q: "How do I get paid?", a: "Biondesk helps you generate professional invoices that you can send to clients. You can include your own bank details or payment links (like Stripe or PayPal) directly on the invoice. We don't process payments or take a cut of your earnings." }
