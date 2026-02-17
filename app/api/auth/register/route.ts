@@ -78,6 +78,16 @@ export async function POST(request: NextRequest) {
             locale: 'en-US',
         });
 
+        // Initialize Trial Subscription
+        try {
+            const { SubscriptionService } = await import('@/lib/subscription');
+            await SubscriptionService.createTrialSubscription(newUser.id);
+        } catch (subError) {
+             console.error('Failed to create trial subscription:', subError);
+             // We don't block registration, but log error. 
+             // In production, might want to retry or handle more gracefully.
+        }
+
         // Create session
         const token = await createSession(newUser.id);
 

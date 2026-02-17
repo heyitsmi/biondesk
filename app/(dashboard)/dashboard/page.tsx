@@ -10,6 +10,7 @@ import {
 } from "@/lib/db";
 import { Opportunity, OpportunityStage } from "@/lib/types";
 import type { Metadata } from "next";
+import SubscriptionBanner from "@/components/dashboard/SubscriptionBanner";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -279,8 +280,13 @@ export default async function DashboardPage() {
         }
       />
 
+      {/* Subscription Banner */}
+      <div className="px-8 mt-6">
+          <SubscriptionBanner userId={user.id} />
+      </div>
+
       {/* Dashboard Content */}
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="flex-1 overflow-y-auto p-8 pt-2">
         <div className="w-full space-y-8">
           {/* 1. KPI Cards (Metrics) */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

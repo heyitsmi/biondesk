@@ -85,10 +85,6 @@ export async function middleware(request: NextRequest) {
 
     // Check Admin Routes
     if (pathname.startsWith('/admin')) {
-        // We need to fetch the user role. 
-        // session query above only fetched session id. 
-        // We can join or fetch user separately.
-        
         const { data: user } = await supabase
             .from('users')
             .select('role')
@@ -96,8 +92,57 @@ export async function middleware(request: NextRequest) {
             .single();
             
         if (!user || user.role !== 'admin') {
-            // Redirect unauthorized users to user dashboard
             return NextResponse.redirect(new URL('/dashboard', request.url));
+        }
+    }
+
+    // Check Subscription Status for Protected Features
+    // List of features that require active subscription
+    const lockedPaths = [
+        '/invoices',
+        '/quotations',
+        '/opportunities',
+        '/contacts',
+        '/templates',
+        '/ai-usage', // although this is admin now, good to keep in mind
+        '/calculator',
+        '/reminders',
+        '/profile-library',
+        '/analytics'
+    ];
+
+    const isLockedPath = lockedPaths.some(path => pathname.startsWith(path));
+
+    if (isLockedPath) {
+        // Fetch User Subscription
+        const { data: subscription } = await supabase
+            .from('subscriptions')
+            .select('*')
+            .eq('user_id', payload.userId)
+            .maybeSingle();
+
+        const now = new Date();
+        let hasAccess = false;
+
+        if (subscription) {
+            if (['trialing', 'active'].includes(subscription.status)) {
+                 hasAccess = true;
+                 
+                 // Double check dates
+                 if (subscription.status === 'trialing' && subscription.trial_end && new Date(subscription.trial_end) < now) {
+                     hasAccess = false;
+                 }
+                 if (subscription.status === 'active' && subscription.current_period_end && new Date(subscription.current_period_end) < now) {
+                     hasAccess = false;
+                 }
+            }
+        }
+
+        if (!hasAccess) {
+             // Redirect to billing or dashboard with error param
+             const billingUrl = new URL('/settings/billing', request.url);
+             billingUrl.searchParams.set('error', 'subscription_expired');
+             return NextResponse.redirect(billingUrl);
         }
     }
 
