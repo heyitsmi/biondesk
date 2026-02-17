@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { openai } from '@/lib/ai';
+import { getCurrentUser } from '@/lib/auth';
+import { recordUsage } from '@/lib/usage';
 
 export async function POST(request: NextRequest) {
     if (!openai) {
@@ -146,6 +148,14 @@ Return a JSON object:
             response_format: { type: "json_object" },
             temperature: 0.7,
         });
+
+        const usage = completion.usage;
+        const currentUser = await getCurrentUser();
+        if (currentUser && usage) {
+            // Fire and forget usage recording
+            recordUsage(currentUser.id, 'taptone', "gpt-4o", usage.prompt_tokens, usage.completion_tokens)
+                .catch(err => console.error('Failed to log usage:', err));
+        }
 
         const content = completion.choices[0].message.content;
         return NextResponse.json(JSON.parse(content || '{}'));

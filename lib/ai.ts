@@ -4,14 +4,15 @@ const apiKey = process.env.OPENAI_API_KEY;
 
 export const openai = apiKey ? new OpenAI({ apiKey }) : null;
 
-export async function extractJobDetails(description: string) {
+export async function extractJobDetails(description: string, userId?: string) {
     if (!openai) {
         throw new Error('OpenAI API Key is missing. Please add OPENAI_API_KEY to your .env.local file.');
     }
 
     try {
+        const model = "gpt-4o";
         const completion = await openai.chat.completions.create({
-            model: "gpt-4o", // or gpt-3.5-turbo
+            model: model, // or gpt-3.5-turbo
             messages: [
                 {
                     role: "system",
@@ -35,6 +36,13 @@ export async function extractJobDetails(description: string) {
             temperature: 0.3,
         });
 
+        const usage = completion.usage;
+        if (userId && usage) {
+             const { recordUsage } = await import('@/lib/usage');
+             // Fire and forget
+             recordUsage(userId, 'job-extractor', model, usage.prompt_tokens, usage.completion_tokens).catch(err => console.error(err));
+        }
+
         const content = completion.choices[0].message.content;
         return content ? JSON.parse(content) : null;
     } catch (error) {
@@ -49,12 +57,13 @@ export async function generateProposal(params: {
     format: string;
     clientName?: string;
     userProfile?: string; // Optional context about the user/agency
+    userId?: string;
 }) {
     if (!openai) {
         throw new Error('OpenAI API Key is missing');
     }
 
-    const { description, tone, format, clientName, userProfile } = params;
+    const { description, tone, format, clientName, userProfile, userId } = params;
 
     const systemPrompt = `You are an expert proposal writer. Your task is to write a ${format} for a freelance/agency project.
     
@@ -72,14 +81,21 @@ export async function generateProposal(params: {
     `;
 
     try {
+        const model = "gpt-4o";
         const completion = await openai.chat.completions.create({
-            model: "gpt-4o",
+            model: model,
             messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: `Job Description:\n${description}` }
             ],
             temperature: 0.7,
         });
+
+        const usage = completion.usage;
+        if (userId && usage) {
+             const { recordUsage } = await import('@/lib/usage');
+             recordUsage(userId, 'proposal-generator', model, usage.prompt_tokens, usage.completion_tokens).catch(err => console.error(err));
+        }
 
         return completion.choices[0].message.content;
     } catch (error) {
@@ -92,12 +108,13 @@ export async function generateProjectEstimate(params: {
     description: string;
     userContext?: string;
     hourlyRate?: number;
+    userId?: string;
 }) {
     if (!openai) {
         throw new Error('OpenAI API Key is missing');
     }
 
-    const { description, userContext, hourlyRate } = params;
+    const { description, userContext, hourlyRate, userId } = params;
 
     const systemPrompt = `You are an expert project manager and estimator. 
     Analyze the project description and user context to provide a detailed cost and timeline estimate.
@@ -117,8 +134,9 @@ export async function generateProjectEstimate(params: {
     Be realistic. Account for planning, development, testing, and revisions.`;
 
     try {
+        const model = "gpt-4o";
         const completion = await openai.chat.completions.create({
-            model: "gpt-4o",
+            model: model,
             messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: `Project Description:\n${description}` }
@@ -126,6 +144,12 @@ export async function generateProjectEstimate(params: {
             response_format: { type: "json_object" },
             temperature: 0.4,
         });
+
+        const usage = completion.usage;
+        if (userId && usage) {
+             const { recordUsage } = await import('@/lib/usage');
+             recordUsage(userId, 'project-estimator', model, usage.prompt_tokens, usage.completion_tokens).catch(err => console.error(err));
+        }
 
         const content = completion.choices[0].message.content;
         return content ? JSON.parse(content) : null;

@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
              return NextResponse.json({ error: 'Description is required' }, { status: 400 });
         }
         
-        const data = await extractJobDetails(description);
+        const data = await extractJobDetails(description, user.id);
         return NextResponse.json(data);
     } catch (error: any) {
         console.error('AI API Error:', error);

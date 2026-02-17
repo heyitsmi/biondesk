@@ -22,7 +22,8 @@ export async function POST(request: Request) {
         tone: tone || 'professional',
         format: format || 'proposal',
         clientName,
-        userProfile: 'A specialized agency focusing on high-quality design and development.' // Hardcoded for now, or fetch from user/workspace profile
+        userProfile: 'A specialized agency focusing on high-quality design and development.', // Hardcoded for now, or fetch from user/workspace profile
+        userId: user.id
     });
 
     return NextResponse.json({ content: generatedContent });

@@ -50,6 +50,7 @@ export default function Sidebar({ user, isMobileOpen = false, onMobileClose }: S
         { name: "Invoices", path: "/invoices", icon: "ph-receipt" },
         { name: "Reminders", path: "/reminders", icon: "ph-bell-ringing" },
         { name: "Calculator", path: "/calculator", icon: "ph-calculator" },
+        { name: "AI Usage", path: "/ai-usage", icon: "ph-robot" },
       ],
     },
     {

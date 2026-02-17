@@ -20,7 +20,8 @@ export async function POST(request: Request) {
     const estimate = await generateProjectEstimate({
         description,
         userContext,
-        hourlyRate
+        hourlyRate,
+        userId: user.id
     });
 
     return NextResponse.json({ estimate });
