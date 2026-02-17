@@ -18,7 +18,12 @@ export default function BillingClient({ plans, subscription }: { plans: any[], s
 
     // Load Snap Script
     useEffect(() => {
-        const snapScript = "https://app.sandbox.midtrans.com/snap/snap.js";
+        const isProduction = process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === 'true';
+
+        const snapScript = isProduction 
+            ? "https://app.midtrans.com/snap/snap.js"
+            : "https://app.sandbox.midtrans.com/snap/snap.js";
+            
         const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || ""; 
         
         const script = document.createElement("script");

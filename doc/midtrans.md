@@ -27,6 +27,22 @@ NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION=false
 - If `NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION=true`, you **MUST** use Production keys or transactions will fail.
 - You must **redeploy** your application after changing any `NEXT_PUBLIC_` variable.
 
+### Frontend Integration (Snap.js)
+
+The Snap.js script is loaded in two main components:
+
+1.  `app/(dashboard)/settings/SettingsClient.tsx`
+2.  `app/(dashboard)/settings/billing/BillingClient.tsx`
+
+**Important:** Both components must use `NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION` to determine whether to load the Production or Sandbox script.
+
+```javascript
+const isProduction = process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === "true";
+const snapScript = isProduction
+  ? "https://app.midtrans.com/snap/snap.js"
+  : "https://app.sandbox.midtrans.com/snap/snap.js";
+```
+
 ## 3. Project Structure
 
 ### Backend (`lib/midtrans.ts`)
