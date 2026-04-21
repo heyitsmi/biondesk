@@ -40,7 +40,6 @@ export default function Sidebar({ user, isMobileOpen = false, onMobileClose }: S
           icon: "ph-rocket-launch",
         },
         { name: "Proposals", path: "/proposals", icon: "ph-scroll" },
-        { name: "TapTone", path: "/taptone", icon: "ph-magic-wand" },
       ],
     },
     {
