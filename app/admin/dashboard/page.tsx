@@ -1,4 +1,5 @@
 import { getCurrentUser } from '@/lib/auth';
+import { createServerClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 
 export const metadata = {
@@ -7,15 +8,30 @@ export const metadata = {
 };
 
 export default async function AdminDashboardPage() {
-    // Auth check is handled by layout/middleware, but double check doesn't hurt
+    // Auth check
     const user = await getCurrentUser();
     if (!user || user.role !== 'admin') {
         redirect('/dashboard');
     }
 
+    const supabase = createServerClient();
+
+    // Get today's UTC start time
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
+    // Fetch dynamic stats
+    const [
+        { count: totalUsers },
+        { count: aiActivityToday }
+    ] = await Promise.all([
+        supabase.from('users').select('*', { count: 'exact', head: true }),
+        supabase.from('ai_usage').select('*', { count: 'exact', head: true }).gte('created_at', today.toISOString())
+    ]);
+
     return (
         <div className="space-y-8 max-w-7xl mx-auto">
-            {/* Valid Greeting */}
+            {/* Greeting */}
             <div>
                 <h1 className="text-2xl font-bold text-slate-900">
                     Welcome back, {user.name}
@@ -34,7 +50,7 @@ export default async function AdminDashboardPage() {
                         </div>
                         <h3 className="font-semibold text-slate-900">Total Users</h3>
                     </div>
-                    <div className="text-3xl font-bold text-slate-900">--</div>
+                    <div className="text-3xl font-bold text-slate-900">{totalUsers || 0}</div>
                     <p className="text-xs text-slate-500 mt-2">Active accounts</p>
                 </div>
                 
@@ -45,7 +61,7 @@ export default async function AdminDashboardPage() {
                         </div>
                         <h3 className="font-semibold text-slate-900">AI Activity</h3>
                     </div>
-                    <div className="text-3xl font-bold text-slate-900">--</div>
+                    <div className="text-3xl font-bold text-slate-900">{aiActivityToday || 0}</div>
                     <p className="text-xs text-slate-500 mt-2">Requests today</p>
                 </div>
 
@@ -56,7 +72,7 @@ export default async function AdminDashboardPage() {
                         </div>
                         <h3 className="font-semibold text-slate-900">System Status</h3>
                     </div>
-                    <div className="text-3xl font-bold text-slate-900">Operational</div>
+                    <div className="text-3xl font-bold text-slate-900 text-emerald-600">Operational</div>
                     <p className="text-xs text-slate-500 mt-2">All systems normal</p>
                 </div>
             </div>
