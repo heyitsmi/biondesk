@@ -59,6 +59,7 @@ export async function PUT(request: NextRequest) {
                 default_payment_link: data.default_payment_link,
                 bank_details: data.bank_details,
                 username: usernameToSave,
+                services: data.services,
             })
             .eq('user_id', user.id)
             .select()

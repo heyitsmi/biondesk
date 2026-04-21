@@ -36,6 +36,7 @@ export default function SettingsClient({ initialWorkspace, user, plans, subscrip
         name: user?.name || '',
         email: user?.email || '',
     });
+    const [newService, setNewService] = useState('');
 
     // Load Snap Script
     useEffect(() => {
@@ -165,6 +166,7 @@ export default function SettingsClient({ initialWorkspace, user, plans, subscrip
                     default_payment_link: formData.default_payment_link,
                     bank_details: formData.bank_details,
                     username: formData.username,
+                    services: formData.services,
                 }),
             });
 
@@ -407,6 +409,67 @@ export default function SettingsClient({ initialWorkspace, user, plans, subscrip
                                                 <option value="GBP">GBP (£)</option>
                                             </select>
                                         </div>
+                                    </div>
+                                </div>
+
+                                {/* Services */}
+                                <div className="space-y-4 pt-6 border-t border-slate-100">
+                                    <h3 className="text-sm font-[600] text-slate-900">Services</h3>
+                                    <p className="text-xs text-slate-500">Manage the list of services you offer. These will appear on your public contact page.</p>
+                                    
+                                    <div className="flex gap-2">
+                                        <input 
+                                            type="text" 
+                                            value={newService}
+                                            onChange={(e) => setNewService(e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if(e.key === 'Enter') {
+                                                    e.preventDefault();
+                                                    if(newService.trim()) {
+                                                        const current = formData.services || ['Web Design', 'Mobile App Design', 'Branding', 'Development', 'Other'];
+                                                        if(!current.includes(newService.trim())) {
+                                                            handleInputChange('services', [...current, newService.trim()]);
+                                                        }
+                                                        setNewService('');
+                                                    }
+                                                }
+                                            }}
+                                            placeholder="Add a new service..."
+                                            className="flex-1 px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500" 
+                                        />
+                                        <button 
+                                            onClick={() => {
+                                                if(newService.trim()) {
+                                                    const current = formData.services || ['Web Design', 'Mobile App Design', 'Branding', 'Development', 'Other'];
+                                                    if(!current.includes(newService.trim())) {
+                                                        handleInputChange('services', [...current, newService.trim()]);
+                                                    }
+                                                    setNewService('');
+                                                }
+                                            }}
+                                            className="px-4 py-2.5 bg-indigo-50 text-indigo-700 font-medium text-sm rounded-lg hover:bg-indigo-100 transition-colors"
+                                            type="button"
+                                        >
+                                            Add
+                                        </button>
+                                    </div>
+                                    
+                                    <div className="flex flex-wrap gap-2 mt-3">
+                                        {(formData.services || ['Web Design', 'Mobile App Design', 'Branding', 'Development', 'Other']).map((svc, idx) => (
+                                            <span key={idx} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 text-sm font-medium border border-slate-200">
+                                                {svc}
+                                                <button 
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const current = formData.services || ['Web Design', 'Mobile App Design', 'Branding', 'Development', 'Other'];
+                                                        handleInputChange('services', current.filter(s => s !== svc));
+                                                    }}
+                                                    className="text-slate-400 hover:text-rose-500 transition-colors"
+                                                >
+                                                    <i className="ph-bold ph-x text-xs"></i>
+                                                </button>
+                                            </span>
+                                        ))}
                                     </div>
                                 </div>
                             </div>

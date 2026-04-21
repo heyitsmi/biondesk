@@ -162,11 +162,9 @@ export default function PublicFormClient({ workspace }: PublicFormClientProps) {
                         name="service"
                         className="appearance-none block w-full px-3 py-2.5 border border-slate-200 rounded-xl shadow-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 sm:text-sm cursor-pointer transition-all bg-white"
                       >
-                        <option>Web Design</option>
-                        <option>Mobile App Design</option>
-                        <option>Branding</option>
-                        <option>Development</option>
-                        <option>Other</option>
+                        {(workspace.services || ['Web Design', 'Mobile App Design', 'Branding', 'Development', 'Other']).map((service, index) => (
+                          <option key={index}>{service}</option>
+                        ))}
                       </select>
                       <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-400">
                         <i className="ph-bold ph-caret-down"></i>

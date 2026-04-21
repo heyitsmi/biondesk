@@ -41,6 +41,7 @@ export interface Workspace extends Timestamps {
   default_payment_link: string | null;
   bank_details: Record<string, unknown> | null;
   username: string | null;
+  services?: string[];
 }
 
 // ============================================
