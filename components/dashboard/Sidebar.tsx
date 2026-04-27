@@ -101,7 +101,7 @@ export default function Sidebar({ user, isMobileOpen = false, onMobileClose }: S
           </div>
       )}
       {/* Brand & Toggle Header */}
-      <div className="h-16 flex items-center justify-between px-6 border-b border-slate-100 transition-all duration-300">
+      <div className="relative h-16 flex items-center justify-between px-6 border-b border-slate-100 transition-all duration-300">
         <Link
           href="/dashboard"
           className="flex items-center gap-2 text-slate-900 overflow-hidden whitespace-nowrap"
@@ -132,10 +132,10 @@ export default function Sidebar({ user, isMobileOpen = false, onMobileClose }: S
         {/* Desktop Sidebar Toggle Button */}
         <button
           onClick={toggleSidebar}
-          className="hidden lg:block text-slate-400 hover:text-indigo-600 transition-colors p-1 rounded-md hover:bg-slate-50 shrink-0"
+          className="hidden lg:flex absolute -right-3 top-5 z-40 items-center justify-center w-6 h-6 bg-white border border-slate-200 rounded-md text-slate-400 hover:text-indigo-600 hover:border-indigo-200 transition-colors shadow-sm"
         >
           <i
-            className={`ph-bold ${isCollapsed ? "ph-caret-double-right" : "ph-caret-double-left"} text-lg`}
+            className={`ph-bold ${isCollapsed ? "ph-caret-right" : "ph-caret-left"} text-xs`}
           ></i>
         </button>
       </div>
