@@ -21,6 +21,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-flag-kit": "^1.1.1",
+    "react-quill-new": "^3.8.3",
     "react-to-print": "^3.2.0",
     "react-turnstile": "^1.1.5",
     "resend": "^6.8.0",

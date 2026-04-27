@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
 
         const formData = await request.formData();
         const file = formData.get('file') as File;
+        const folder = formData.get('folder') as string || 'logos';
         const bucket = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET || 'workspace-assets';
 
         if (!file) {
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
         const supabase = createServerClient();
         const fileExt = file.name.split('.').pop();
         const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-        const filePath = `logos/${fileName}`;
+        const filePath = `${folder}/${fileName}`;
 
         // Upload file
         const { error: uploadError } = await supabase.storage

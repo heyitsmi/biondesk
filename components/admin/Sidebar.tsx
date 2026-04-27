@@ -27,6 +27,7 @@ export default function AdminSidebar({ user, isMobileOpen = false, onMobileClose
       section: null,
       items: [
         { name: "Dashboard", path: "/admin/dashboard", icon: "ph-squares-four" },
+        { name: "Insights", path: "/admin/insights", icon: "ph-article" },
         { name: "Users", path: "/admin/users", icon: "ph-users" },
         { name: "Pricing", path: "/admin/pricing", icon: "ph-tag" },
         { name: "Settings", path: "/admin/settings", icon: "ph-gear" },
