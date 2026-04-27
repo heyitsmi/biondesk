@@ -9,6 +9,7 @@ export default function Footer() {
                 <img src="/logo.png" alt="Biondesk" className="h-8 w-auto" />
             </div>
             <div className="flex gap-8 text-sm text-slate-500 font-medium">
+                <Link href="/insights" className="hover:text-slate-900">Insights</Link>
                 <Link href="/privacy" className="hover:text-slate-900">Privacy</Link>
                 <Link href="/terms" className="hover:text-slate-900">Terms</Link>
                 <Link href="/cookie" className="hover:text-slate-900">Cookie</Link>

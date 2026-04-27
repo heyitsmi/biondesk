@@ -48,6 +48,9 @@ export default function PublicFooter() {
         </div>
 
         <div className="flex gap-6 text-xs text-slate-400">
+          <Link href="/insights" className="hover:text-slate-600">
+            Insights
+          </Link>
           <Link href="/privacy" className="hover:text-slate-600">
             Privacy
           </Link>

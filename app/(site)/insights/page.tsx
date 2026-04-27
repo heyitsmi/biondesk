@@ -19,7 +19,7 @@ export default async function InsightsPage() {
   return (
     <div className="bg-slate-50 min-h-screen pt-32 pb-24">
       <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-4xl mx-auto mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight mb-6">
             Insights & Guides
           </h1>
@@ -66,7 +66,7 @@ export default async function InsightsPage() {
                   <h2 className="text-xl font-bold text-slate-900 mb-3 line-clamp-2 group-hover:text-indigo-600 transition-colors">
                     {insight.title}
                   </h2>
-                  <p className="text-slate-600 text-sm leading-relaxed line-clamp-3 mb-6 flex-1">
+                  <p className="text-slate-600 text-sm leading-relaxed line-clamp-1 mb-6 flex-1">
                     {insight.excerpt || "Read more about this topic..."}
                   </p>
                   <div className="text-indigo-600 text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
